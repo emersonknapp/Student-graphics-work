@@ -1,0 +1,124 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,fullpage,fancyhdr}
+\setlength{\parindent}{0in}
+\title{CS184 Assignment 2}
+\author{Gabe Fierro -- 20964854 -- Section: 103}
+\date{}
+\pagestyle{fancy}
+\fancyhead{}
+\renewcommand{\headrulewidth}{0.0pt}
+
+\lfoot{Gabe Fierro -- 20964854 -- Section: 103 }
+\lhead{}
+\begin{document}
+
+	\maketitle
+\begin{enumerate}
+	\item 
+
+1. There exists a $k$ such that $k\cdot k = 1$ and $k\cdot j = 0$. $k$ can be $-i$, and there's only one vector like that in the 2D plane.
+
+2. No, because we're only in 2D space. $k$ cannot be a new vector orthogonal to both $j$ and $i$ if $j$ and $i$ are orthogonal to each other.
+
+3. In 3D space there would be more possibilities for $k$ in part {\bf 1}, and the answer to part {\bf 2} is yes.
+
+
+	\item For the matrix $\begin{bmatrix} x_1 & y_1 & 1 \\ x_2 & y&2 & 1 \\ x_3 & y_3 & 1 \end{bmatrix} $, the determinant is $x_1y_2+y_1x_3+x_2y_3-x_3y_2-x_1y_3-y_1x_2$. The area of the triangle given by the three points can be modeled by two vectors $\begin{bmatrix} x_2-x_1 \\ y_2-y_1 \end{bmatrix} $ and $\begin{bmatrix} x_3-x_1 \\ y_3-y_1 \end{bmatrix} $. The area of the triangle is given as half the cross product, which is $\frac{1}{2}\big(x_1y_2+y_1x_3+x_2y_3-x_3y_2-x_1y_3-y_1x_2\big)$, which is proportional the determinant of the $3\times 3$ matrix. If the area of the triangle is 0, then the points are in a line.
+	
+	\item $f(x,y)=ax+by+c=0$, so we can uniquely determine the line by using the gradient $\nabla f(x,y)=(a,b)$. Because $\begin{bmatrix} a \\ b \end{bmatrix} \cdot \begin{bmatrix} x_1-x_0 \\ y_1-y_0 \end{bmatrix} = 0 $, then we can say $a=y_0-y_1$ and $b=x_1-x_0$, which gives us \begin{center}$f(x,y)=(y_0-y_1)x+(x_1-x_0)y+C=0$\end{center} at which point we can plug in $(x_0,y_0)$ and solve for C.
+	
+	\item For $\{i,j,k\}=\{1,2,3\},\{2,3,1\},\{3,1,2\}: e_i\times e_j=e_k$ so
+	\begin{center}
+	$e_1\times e_2 = \begin{bmatrix} 0-0 \\ 0-0 \\ 1-0 \end{bmatrix} =e_3 \quad e_2\times e_3=\begin{bmatrix} 1-0 \\ 0-0 \\ 0-0 \end{bmatrix} = e_1 \quad e_3\times e_1 = \begin{bmatrix} 0-0 \\ 1-0 \\ 0-0 \end{bmatrix} =e_2$	
+	\end{center}
+For $\{i,j,k\}=\{1,3,2\},\{3,2,1\},\{2,1,3\}: e_i\times e_j=-e_k$ so
+\begin{center}
+$e_1\times e_3 = \begin{bmatrix} 0-0 \\ 0-1 \\ 0-0 \end{bmatrix} =-e_2 \quad e_3\times e_2=\begin{bmatrix} 0-1 \\ 0-0 \\ 0-0 \end{bmatrix} = -e_1 \quad e_2\times e_1 = \begin{bmatrix} 0-0 \\ 0-0 \\ 0-1 \end{bmatrix} =-e_3$	
+\end{center} 
+
+	\item $\begin{bmatrix} x_1 & x_2 & x_3 & x_4 \\ y_1 & y_2 & y_3 & y_4 \\ z_1 & z_2 & z_3 & z_4 \\ 1 & 1 & 1 & 1 \end{bmatrix} = \begin{bmatrix} x_1 & x_2-x_1 & x_3-x_1 & x_4-x_1 \\ y_1 & y_2-y_1 & y_3-y_1 & y_4-y_1 \\ z_1 & z_2-z_1 & z_3-z_1 & z_4-z_1 \\ 1 & 0 & 0 & 0 \end{bmatrix} $, and the determinant of this matrix is 
+	
+	$\verb+det+\begin{pmatrix} x_2-x_1 & x_3-x_1 & x_4-x_1 \\ y_2-y_1 & y_3-y_1 & y_4-y_1 \\ z_2-z_1 & z_3-z_1 & z_4-z_1  \end{pmatrix}$. If we have the 4 points of the matrix $p_1,p_2,p_3,p_4$, then we can define vectors $v_1=p_2-p_1 \quad v_2=p_3-p_1 \quad v_3=p_4-p_1$, and because $\verb+det+\begin{pmatrix} v_1 & v_2 & v_3 \end{pmatrix} =$ volume of the parallelpiped shaped by the vectors, then $\frac{1}{6} $ of that is the volume of the tetrahedron: $\frac{1}{6} \verb+det+\begin{pmatrix} x_2-x_1 & x_3-x_1 & x_4-x_1 \\ y_2-y_1 & y_3-y_1 & y_4-y_1 \\ z_2-z_1 & z_3-z_1 & z_4-z_1  \end{pmatrix}=\frac{1}{6} \verb+det+\begin{pmatrix} v_1 & v_2 & v_3 \end{pmatrix}$
+	
+	\item We can have vectors $\bar{AB}=\begin{bmatrix} x_2-x_1\\y_2-y_1\\z_2-z_1 \end{bmatrix} $ and $\bar{AC}=\begin{bmatrix} x_2-x_0\\y_2-y_0\\z_2-z_0 \end{bmatrix} $, and take the cross product to find the normal vector that helps define the plane: $\begin{bmatrix} (y_2-y_0)(z_1-z_0)-(z_2-z_0)(y_1-y_0) \\ (z_2-z_0)(x_1-x_0)-(x_2-x_0)(z_1-z_0) \\ (x_2-x_0)(y_1-y_0)-(y_2-y_0)(x_1-x_0) \end{bmatrix} $.
+	
+	We can then take this $(a,b,c)$ and plug into $f(x,y,z)=ax+by+cz=d$, then plug in a point then solve for $D$ to find the full equation of the plane.
+	
+	\item If $p_0,p_1,p_2$ are three distinct points in space then the cross product $n=(p_0-p_1)\times(p_0-p_2)$, then the resulting vector is orthogonal to the vectors $(p_0-p_1)$ and $(p_0-p_2)$. If $p$ is any point on the plane formed by those three points, then $n$ and $p-p_0$ are also orthogonal (dot product is 0). So because all points $p$ in relation to $p_0$ are orthogonal to $n$, then the equation of the plane must be of the form $n\cdot(p-p_0)=0$
+	
+	\item $M(\theta)^-1 = \begin{bmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{bmatrix}^-1 = \frac{1}{\cos^2\theta + \sin^2\theta} \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} =  M(\theta)^T = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} $ so $M(\theta)$ is orthonormal.
+	
+	To show that $M(\theta_1+\theta_2)=M(\theta_1)M(\theta_2)$, we consider that $\sin(\theta_1+\theta_2)=\sin(\theta_1)\cos(\theta_2)+\cos(\theta_1)\sin(\theta_2)$ and $\cos(\theta_1+\theta_2)=\cos(\theta_1)\cos(\theta_2)-\sin(\theta_1)\sin(\theta_2)$ and we can do the matrix multiplication to prove the identity. 
+	
+	If $\theta_1=\theta$ and $\theta_2=-\theta$, so $M(\theta_1+\theta_2)=M(0)=I$. $M(\theta)M(-\theta)=I$, so $M(\theta)^{-1}=M(-\theta)$
+	
+	For $p=(0,1)$, considering $M(\theta)p$ for every possible $\theta$ gives you a circle ($M(\theta)p=\sin\theta+\cos\theta$, which is the equation for a circle).
+	
+	\item We have 4 vectors in a plane: $x_1,x_2,b_1,b_2$ and $Mx_1=b_1$ and $Mx_2=b_2$. We need an orthogonal basis, so we define $y_1=x_1$ and $y_2=x_2-\frac{x_2\cdot x_1}{|x_1|}\cdot \frac{x_1}{|x_1|} $. Then we can write \begin{center}
+	$x_3=ay_1+by_2 \rightarrow Mx_3 = aMy_1+bMy_2=ab_1+b(b_2-\frac{x_2\cdot x_1}{|x_1|}\cdot	\frac{b_1}{|x_1|}  )$ 
+\end{center}
+which gives us $a=x_3\cdot \hat{y_1}$ and $b=x_3\cdot\hat{y_2}$, and we can plug these values in to get $Mx_3=(x_3\cdot\hat{y_1})Mx_1+(x_3\cdot\hat{y_2})M(x_2-\frac{x_2\cdot x_1}{|x_1|}\cdot \frac{x_1}{|x_1|})$
+
+\item Parametric eqn for line through {\bf $p_1$}  and {\bf $p_2$}: 
+
+	\[ \left\{ \begin{array}{l}
+		x(t) = (1-t)x_1+tx_2 \\
+		y(t) = (1-t)y_1+ty_2 
+	\end{array} \right. \]
+	
+	For a plane with $p_1,p_2,p_3$:
+	\[ \left\{ \begin{array}{l}
+	x(t_1,t_2)=(1-t_1-t_2)x_1+t_1(1-t_2)x_2+(1-t_1)t_2x_3 \\
+	y(t_1,t_2)=(1-t_1-t_2)y_1+t_1(1-t_2)y_2+(1-t_1)t_2y_3 \\
+	z(t_1,t_2)=(1-t_1-t_2)z_1+t_1(1-t_2)z_2+(1-t_1)t_2z_3 
+\end{array} \right.
+	\]
+
+The equalities for 
+\begin{itemize}
+	\item points on line between $p_1,p_2$: $0\leq t_1 \leq 1, \quad t_2=0$
+	
+	\item triangle between $p_1,p_2,p_3$: $0\leq t_1+t_2 \leq 1, \quad 0\leq t_1\leq 1, \quad 0\leq t_2 \leq 1$
+\end{itemize}
+	
+ \item {\bf M}  is symmetric $2\times 2$ with eigenvalues $\lambda_0$ and $\lambda_1$.
+
+\begin{itemize}
+	\item Show $0\leq x^TMx\leq (\verb+max+(\lambda_0,\lambda_1))x^Tx$:
+	
+	\begin{center}
+		$x=av_1+bv_2$, where $v_1,v_2$ are eigenvalues corresponding to $\lambda_{0,1}$. We can then say $Mx=Mav_1+Mbv_2 = \lambda_1av_1+\lambda_2bv_2$
+		
+		$x^TMx=(av_1+bv_2)(\lambda_1 av_1 +\lambda_2bv_2) = \lambda_1a^2|v_1|^2+\lambda_2b^2|v_2|^2$ 
+		
+		So, because $x^Tx=a^2|v_1|^2+b^2|v_2|^2$, then scaling both these terms by $\verb+max+(\lambda_1,\lambda_2)$ will mean that the result will be {\bf at least as big} as $x^TMx$, in which one of the terms will be multiplied by the larger eigenvalue and one by the smaller (or equal).
+	\end{center}
+	\item If one eigenvalue is 0, then the corresponding eigenvector may not be 0 by definition of an eigenvector. Thus, if $\lambda_1=0$, then $Mx=\lambda_1x=0$ with a non-zero $x$.
+	
+	\item if $\lambda_0<0$ and $\lambda_1>0$ with corresponding eigenvalues $v_0,v_1$, then we can say:
+	\begin{center}
+		$Mx=Mav_0+Mbv_1 = \lambda_0av_0+\lambda_1bv_1$
+		
+		$x^TMX=\lambda_0a^2|v_0|^2+\lambda_1b^2|v_1|^2 = 0$, so
+		
+		$-\lambda_0a^2|v_0|^2=\lambda_1b^2|v_1|^2$, so if $a=1$, then $b=\sqrt{\frac{-\lambda_0}{\lambda_1} \frac{|v_0|^2}{|v_1|^2} }$, which we can plug into $x=av_0+bv_1\neq0$, but still satisfies $x^TMx=0$.
+	\end{center}
+	
+	\item The eigenvalues are positive.
+\end{itemize}
+
+\item M is a $2\times 2 $ matrix
+\begin{center}
+$Mx=\lambda Ix$ (where I is an identity matrix)
+
+$Mx-\lambda Ix = 0 = (M-\lambda I)x$, so $\verb+det+(M-\lambda I)=0$
+
+$\begin{bmatrix} a_{11}-\lambda & a_{12} \\ a_{21} & a_{22}-\lambda \end{bmatrix}  = \lambda^2 - (a_{11}+a_{22})\lambda+(a_{11}a_{22}-a_{12}a_{21})= \lambda^2-\verb+trace+(M)\lambda+\verb+det+(M)$
+\end{center}
+
+
+\end{enumerate}
+
+
+
+\end{document}
