@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>test3</string>
+	<string>as3.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -20,27 +20,39 @@
 			<key>filename</key>
 			<string>test1</string>
 			<key>lastUsed</key>
-			<date>2011-09-14T19:30:22Z</date>
+			<date>2011-09-16T19:52:32Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>test4</string>
+			<key>lastUsed</key>
+			<date>2011-09-16T19:52:28Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test2</string>
 			<key>lastUsed</key>
-			<date>2011-09-14T19:30:23Z</date>
+			<date>2011-09-16T19:53:29Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test3</string>
 			<key>lastUsed</key>
-			<date>2011-09-14T19:45:22Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-09-17T07:03:25Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>test5</string>
+			<key>lastUsed</key>
+			<date>2011-09-16T07:30:56Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>as3.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-09-14T19:45:22Z</date>
+			<date>2011-09-17T07:03:25Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -61,66 +73,68 @@
 		<dict>
 			<key>filename</key>
 			<string>makefile</string>
+			<key>lastUsed</key>
+			<date>2011-09-16T19:50:15Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>othermake</string>
+			<key>lastUsed</key>
+			<date>2011-09-16T08:03:48Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>algebra3.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>72</integer>
-				<key>line</key>
-				<integer>188</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>165</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>63</integer>
-				<key>line</key>
-				<integer>188</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>72</integer>
-				<key>line</key>
-				<integer>188</integer>
-			</dict>
-		</dict>
 		<key>as3.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>35</integer>
+				<integer>52</integer>
 				<key>line</key>
-				<integer>116</integer>
+				<integer>164</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>268</integer>
+			<integer>366</integer>
+		</dict>
+		<key>makefile</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>45</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>1</integer>
+		</dict>
+		<key>othermake</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>96</integer>
+				<key>line</key>
+				<integer>14</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
 		</dict>
 		<key>test1</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>127</integer>
+				<integer>23</integer>
 				<key>line</key>
 				<integer>0</integer>
 			</dict>
@@ -134,7 +148,7 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>83</integer>
+				<integer>62</integer>
 				<key>line</key>
 				<integer>0</integer>
 			</dict>
@@ -148,7 +162,35 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
+				<integer>60</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>test4</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
 				<integer>82</integer>
+				<key>line</key>
+				<integer>2</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>test5</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>60</integer>
 				<key>line</key>
 				<integer>0</integer>
 			</dict>
@@ -161,10 +203,13 @@
 	<key>openDocuments</key>
 	<array>
 		<string>as3.cpp</string>
+		<string>othermake</string>
+		<string>test5</string>
+		<string>makefile</string>
 		<string>test3</string>
+		<string>test4</string>
 		<string>test1</string>
 		<string>test2</string>
-		<string>algebra3.h</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>

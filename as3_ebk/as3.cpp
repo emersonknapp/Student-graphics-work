@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <cstring>
 
 #ifdef _WIN32
 #	include <windows.h>
@@ -136,8 +137,7 @@ vec3 shade(vec3 pos) {
 	vec3 normal = vec3(pos);
 	normal.normalize();
 	vec3 color = vec3(0,0,0); //Default black
-	//Ambient term
-	color += material.ka;
+
 	
 	vec3 viewVector = vec3(0,0,1);
 	
@@ -146,6 +146,8 @@ vec3 shade(vec3 pos) {
 		vec3 lightVector = (plights[i].pos * sphereRadius) - pos;		
 		lightVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+		//Ambient term
+		color += multiplyVectors(lightColor, material.ka);
 		//Diffuse term
 		color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
 		//Specular term
@@ -159,6 +161,8 @@ vec3 shade(vec3 pos) {
 		vec3 lightVector = vec3(0,0,0) - dlights[i].dir*sphereRadius;
 		lightVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+		//Ambient term
+		color += multiplyVectors(lightColor, material.ka);
 		//Diffuse term
 		color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
 		//Specular term
