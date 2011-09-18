@@ -53,12 +53,6 @@ enum {VX, VY, VZ, VW};		    // axes
 enum {PA, PB, PC, PD};		    // planes
 enum {RED, GREEN, BLUE};	    // colors
 enum {KA, KD, KS, ES};		    // phong coefficients
-//
-//	PI
-//
-//const double M_PI = (double) 3.14159265358979323846;		// per CRC handbook, 14th. ed.
-//const double M_PI_2 = (M_PI/2.0);				// PI/2
-//const double M2_PI = (M_PI*2.0);				// PI*2
 
 
 /****************************************************************
@@ -119,7 +113,7 @@ friend int operator != (const vec2& a, const vec2& b);	    // v1 != v2 ?
 #ifdef ALGEBRA3IOSTREAMS
 friend ostream& operator << (ostream& s, const vec2& v);	// output to stream
 friend istream& operator >> (istream& s, vec2& v);	    // input from strm.
-#endif ALGEBRA3IOSTREAMS
+#endif
 
 friend void swap(vec2& a, vec2& b);						// swap v1 & v2
 friend vec2 min(const vec2& a, const vec2& b);		    // min(v1, v2)
