@@ -205,10 +205,14 @@ void myDisplay() {
 	for (int i = -radius; i <= radius; i++) {
 		int width = (int)(sqrt((float)(radius*radius-i*i)) + 0.5f);
 		for (int j = -width; j <= width; j++) {
-			float z = sqrt(radius*radius - (j*j + i*i));
-			vec3 normal = vec3(j, i, z);
-			vec3 color = shade(normal);
-			setPixel(j, i, color[0], color[1], color[2]);
+			float za = radius*radius - (j*j + i*i);
+			if (za > 0) {
+				float z = sqrt(za);
+				vec3 normal = vec3(j, i, z);
+				vec3 color = shade(normal);
+				setPixel(j, i, color[0], color[1], color[2]);
+			}
+
 		}
 	}
 	
