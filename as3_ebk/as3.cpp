@@ -32,8 +32,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 400
+#define SCREEN_WIDTH 600
+#define SCREEN_HEIGHT 600
 #define FRAMERATE 10
 #define EPSILON 0.15
 #define DEBUG false
@@ -105,6 +105,11 @@ public:
 	vec3 dir;
 	vec3 intensity;	
 };
+
+struct FileWriter {
+	bool drawing;
+	char * fileName;
+} fileWriter;
 	
 
 
@@ -130,6 +135,38 @@ vec3 multiplyVectors(vec3 a, vec3 b) {
 	c[2] = a[2] * b[2];
 	return c;
 }
+
+void quitProgram() {
+	FreeImage_DeInitialise();
+	exit(0);
+}
+
+void printScreen(char * name) {
+	//bitmap holds FreeImage Pixels
+	FIBITMAP* bitmap = FreeImage_Allocate(viewport.w, viewport.h, BITSPERPIXEL);
+	if (!bitmap) exit(1);
+	RGBQUAD color;
+	
+	//pRGB holds openGL pixel output
+	unsigned char *pRGB = new unsigned char [3* (viewport.w+1) * (viewport.h+1) + 3];
+	glReadBuffer(GL_BACK);
+	glReadPixels(0, 0, viewport.w, viewport.h, GL_RGB, GL_UNSIGNED_BYTE, pRGB);
+
+	for (int i=0; i<viewport.w*viewport.h; i++) {
+		int index = i*3;
+
+		int x = i%viewport.w;
+		int y = (i - i%viewport.w)/viewport.w;
+		color.rgbRed = pRGB[index];
+		color.rgbGreen = pRGB[index+1];
+		color.rgbBlue = pRGB[index+2];
+		FreeImage_SetPixelColor(bitmap, x, y, &color);
+	}
+
+	FreeImage_Save(FIF_PNG, bitmap, name, 0);
+	cout << "Image successfully saved to " << name << endl;
+}
+
 //***************************************************
 // function that does the actual drawing
 //***************************************************
@@ -222,6 +259,12 @@ void myDisplay() {
 	
 	glFlush();
 	glutSwapBuffers();					// swap buffers (we earlier set double buffer)
+	
+	if (fileWriter.drawing) {
+		printScreen(fileWriter.fileName);
+		quitProgram();
+		
+	}
 }
 
 //Reshape the viewport if the window is resized
@@ -235,37 +278,6 @@ void myReshape(int w, int h) {
 	
 	gluOrtho2D(-w, w, -h, h);
 
-}
-
-void quitProgram() {
-	FreeImage_DeInitialise();
-	exit(0);
-}
-
-void printScreen(char * name) {
-	//bitmap holds FreeImage Pixels
-	FIBITMAP* bitmap = FreeImage_Allocate(viewport.w, viewport.h, BITSPERPIXEL);
-	if (!bitmap) exit(1);
-	RGBQUAD color;
-	
-	//pRGB holds openGL pixel output
-	unsigned char *pRGB = new unsigned char [3* (viewport.w+1) * (viewport.h+1) + 3];
-	glReadBuffer(GL_BACK);
-	glReadPixels(0, 0, viewport.w, viewport.h, GL_RGB, GL_UNSIGNED_BYTE, pRGB);
-
-	for (int i=0; i<viewport.w*viewport.h; i++) {
-		int index = i*3;
-
-		int x = i%viewport.w;
-		int y = (i - i%viewport.w)/viewport.w;
-		color.rgbRed = pRGB[index];
-		color.rgbGreen = pRGB[index+1];
-		color.rgbBlue = pRGB[index+2];
-		FreeImage_SetPixelColor(bitmap, x, y, &color);
-	}
-
-	FreeImage_Save(FIF_PNG, bitmap, name, 0);
-	cout << "Image successfully saved to " << name << endl;
 }
 
 //Deals with normal keydowns
@@ -359,6 +371,9 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg=="-ts") {
 			material.bToonShade = true;
 			material.toonResolution = atoi(argv[++i]);
+		} else if (arg=="-pr") {
+			fileWriter.drawing = true;
+			fileWriter.fileName = argv[++i];
 		}
 	}
 }
