@@ -7,129 +7,49 @@
 	<key>documents</key>
 	<array>
 		<dict>
-			<key>filename</key>
-			<string>as3</string>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>algebra3.h</string>
-			<key>lastUsed</key>
-			<date>2011-09-14T01:27:48Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>test1</string>
-			<key>lastUsed</key>
-			<date>2011-09-16T19:52:32Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>test4</string>
-			<key>lastUsed</key>
-			<date>2011-09-16T19:52:28Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>test2</string>
-			<key>lastUsed</key>
-			<date>2011-09-16T19:53:29Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>test3</string>
-			<key>lastUsed</key>
-			<date>2011-09-17T07:03:25Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>test5</string>
-			<key>lastUsed</key>
-			<date>2011-09-16T07:30:56Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>as3.cpp</string>
-			<key>lastUsed</key>
-			<date>2011-09-17T07:03:25Z</date>
-			<key>selected</key>
+			<key>expanded</key>
 			<true/>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>as3.o</string>
-		</dict>
-		<dict>
 			<key>name</key>
-			<string>glut-3.7.6-bin</string>
+			<string>as3_ebk</string>
 			<key>regexFolderFilter</key>
 			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
 			<key>sourceDirectory</key>
-			<string>glut-3.7.6-bin</string>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>glut32.dll</string>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>makefile</string>
-			<key>lastUsed</key>
-			<date>2011-09-16T19:50:15Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>othermake</string>
-			<key>lastUsed</key>
-			<date>2011-09-16T08:03:48Z</date>
+			<string></string>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
+		<key>README</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>25</integer>
+				<key>line</key>
+				<integer>6</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>as3.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>52</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>164</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>366</integer>
+			<integer>-1</integer>
 		</dict>
-		<key>makefile</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>45</integer>
-				<key>line</key>
-				<integer>21</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>1</integer>
-		</dict>
-		<key>othermake</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>96</integer>
-				<key>line</key>
-				<integer>14</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>test1</key>
+		<key>test/1</key>
 		<dict>
 			<key>caret</key>
 			<dict>
@@ -143,54 +63,102 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>test2</key>
+		<key>test/3</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>62</integer>
+				<integer>74</integer>
 				<key>line</key>
 				<integer>0</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>84</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
 		</dict>
-		<key>test3</key>
+		<key>test/4</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>60</integer>
-				<key>line</key>
 				<integer>0</integer>
+				<key>line</key>
+				<integer>2</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
-		</dict>
-		<key>test4</key>
-		<dict>
-			<key>caret</key>
+			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
 				<integer>82</integer>
 				<key>line</key>
 				<integer>2</integer>
 			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>2</integer>
+			</dict>
 		</dict>
-		<key>test5</key>
+		<key>test/5</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>60</integer>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>108</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+		</dict>
+		<key>test/final</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
 				<key>line</key>
 				<integer>0</integer>
 			</dict>
@@ -203,13 +171,12 @@
 	<key>openDocuments</key>
 	<array>
 		<string>as3.cpp</string>
-		<string>othermake</string>
-		<string>test5</string>
-		<string>makefile</string>
-		<string>test3</string>
-		<string>test4</string>
-		<string>test1</string>
-		<string>test2</string>
+		<string>test/final</string>
+		<string>test/5</string>
+		<string>README</string>
+		<string>test/3</string>
+		<string>test/1</string>
+		<string>test/4</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>

@@ -7,22 +7,32 @@ cc          = gcc
 
 #-----------------------------------------
 #Optimization ----------------------------
-OPTMAC = -fast
-
-TARGETS = a1_ebk
-
-OBJECTS = a1_ebk.o
+OPT   = -O3
 
 #-----------------------------------------
-# Mac specific stuff
-FRAMEWORK = -framework GLUT
-FRAMEWORK += -framework OpenGL
-MACLIBS = -lGL -lGLU -lm -lstdc++ 
-MACINCS = -L"/System/Library/Frameworks/OpenGL.framework/Libraries"
+# X       --------------------------------
+X_INC  =   -I/usr/X11R6/include -I/sw/include -I/usr/sww/include -I/usr/sww/pkg/Mesa/include -I./fisolaris
+X_LIB  =   -L/usr/X11R6/lib -L/sw/lib -L/usr/sww/lib -L/usr/sww/bin -L/usr/sww/pkg/Mesa/lib -L./fisolaris
 
 #-----------------------------------------
-CCOPTSMAC = $(OPTMAC) $(MACINCS) -DOSX
-LDOPTSMAC = $(OPTMAC) $(MACINCS) $(MACLIBS) -DOSX
+
+#-----------------------------------------
+# GL      --------------------------------
+GL_LIB  =   -lglut -lGLU -lGL -lX11 -lfreeimage
+
+#-----------------------------------------
+
+TARGETS = as1
+
+OBJECTS = as1.o
+
+#-----------------------------------------
+
+LIBS = $(X_LIB) $(GL_LIB)
+INCS = $(X_INC)
+
+CCOPTS = $(OPT) $(INCS)
+LDOPTS = $(OPT) $(INCS) $(LIBS)
 
 #-----------------------------------------
 #-----------------------------------------
@@ -35,9 +45,12 @@ clean:
 #-----------------------------------------
 #-----------------------------------------
 
-a1_ebk: a1_ebk.o
-	$(CC) a1_ebk.o $(FRAMEWORK) $(LDOPTSMAC) -o a1_ebk
+as1: as1.o
+	$(CC) as1.o $(LDOPTS) -o as1 
 
-a1_ebk.o: a1_ebk.cpp
-	$(CC) a1_ebk.cpp -c $(CCOPTSMAC)
+as1.o: as1.cpp
+	$(CC) as1.cpp -c $(CCOPTS)
+
+
+#export LD_LIBRARY_PATH="/usr/sww/pkg/Mesa/lib:/usr/lib:/usr/sww/lib"
 
