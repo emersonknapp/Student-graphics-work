@@ -85,13 +85,18 @@ public:
 	int toonResolution;
 	bool bToonShade;
 };
-
+//
+// Basic class definition for anything we're going to render or apply transformations to
+// Call the map/rotate/scale transformation methods in the order you want to apply the transformations.
+// The resulting transformation matrix will be stored in tmat, which has transpose() and inverse() methods
+// for the necessary operations
+//
 class Renderable {
 public:
 	mat4 tmat;
 	// constructors
 	Renderable () {
-		tmat = vec4(0);
+		tmat = vec4(1);
 	}
 	Renderable (int x, int y, int z) {
 		tmat = vec4(x,y,z,1);
@@ -149,7 +154,11 @@ public:
 	
 };
 
-class Camera {
+//
+// class for the Viewer - I made this a child of Renderable so I can use all the useful 
+// transformation methods
+//
+class Camera : public Renderable {
 public:
 	Camera() {
 		x=0;
@@ -160,9 +169,9 @@ public:
 		x=a;
 		y=b;
 		z=c;
+		map (x,y,z);
 	}
-	mat3 transform ();
-	int x,y,z;	
+	
 };
 
 
