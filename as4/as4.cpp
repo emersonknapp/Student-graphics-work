@@ -87,7 +87,6 @@ public:
 };
 
 class Renderable {
-// x,y,z are the basic linear mapping of the 'center' of the object.
 public:
 	mat4 tmat;
 	void map (int xMap, int yMap, int zMap) { // generates map matrix and updates tmat
