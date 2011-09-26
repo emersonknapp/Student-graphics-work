@@ -89,6 +89,14 @@ public:
 class Renderable {
 public:
 	mat4 tmat;
+	// constructors
+	Renderable () {
+		tmat = vec4(0);
+	}
+	Renderable (int x, int y, int z) {
+		tmat = vec4(x,y,z,1);
+	}
+	// methods
 	void map (int xMap, int yMap, int zMap) { // generates map matrix and updates tmat
 		mat4 m = mat4(
 					vec4(1,0,0,xMap),
@@ -96,11 +104,7 @@ public:
 			 		vec4(0,0,1,zMap),
 			 		vec4(0,0,0,1)
 					);
-		if (tmat == mat4(0.0f)) {
-			tmat = m;
-		} else {
-			tmat = tmat * m;
-		}
+		tmat = tmat * m;
 	}
 	void rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
 		u.normalize();
@@ -120,11 +124,7 @@ public:
 					vec4(2*x*z+2*w*y,2*y*z-2*w*z,ww-xx-yy+zz,0),
 					vec4(0,0,0,ww+xx+yy+zz)
 				);
-		if (tmat == mat4(0.0f)) {
-			tmat = r;
-		} else {
-			tmat = tmat * r;
-		}
+		tmat = tmat * r;
 	}
 	void scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
 		mat4 s = mat4(
@@ -133,16 +133,10 @@ public:
 					vec4(0,0,zScale,0),
 					vec4(0,0,0,1)
 					);
-		if (tmat == mat4(0.0f)) {
-			tmat = s;
-		} else {
-			tmat = tmat * s;
-		}
+		tmat = tmat * s;
 	}
 	vec4 ray_intersect (); // returns a vec3 of the appropriate colors for r,g,b
-	Renderable () {
-		tmat = mat4(0.0f);
-	}
+
 };
 
 class Sphere : public Renderable {
