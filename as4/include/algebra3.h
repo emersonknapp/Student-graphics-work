@@ -355,6 +355,7 @@ public:
 mat4();
 mat4(const vec4& v0, const vec4& v1, const vec4& v2, const vec4& v3);
 mat4(const double d);
+mat4(const float f);
 mat4(const mat4& m);
 
 // Assignment operators
@@ -1076,7 +1077,11 @@ inline mat4::mat4(const vec4& v0, const vec4& v1, const vec4& v2, const vec4& v3
 inline mat4::mat4(const double d)
 { v[0] = v[1] = v[2] = v[3] = vec4(d); }
 
-inline mat4::mat4(const mat4& m)
+inline mat4::mat4(const float f)
+{ v[0] = v[1] = v[2] = v[3] = vec4(f); }
+
+
+inline mat4::mat4(const mat4& m) 
 { v[0] = m.v[0]; v[1] = m.v[1]; v[2] = m.v[2]; v[3] = m.v[3]; }
 
 

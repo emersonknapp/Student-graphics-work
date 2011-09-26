@@ -86,6 +86,93 @@ public:
 	bool bToonShade;
 };
 
+class Renderable {
+// x,y,z are the basic linear mapping of the 'center' of the object.
+public:
+	mat4 tmat;
+	void map (int xMap, int yMap, int zMap) { // generates map matrix and updates tmat
+		mat4 m = mat4(
+					vec4(1,0,0,xMap),
+			 		vec4(0,1,0,yMap),
+			 		vec4(0,0,1,zMap),
+			 		vec4(0,0,0,1)
+					);
+		if (tmat == mat4(0.0f)) {
+			tmat = m;
+		} else {
+			tmat = tmat * m;
+		}
+	}
+	void rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
+		u.normalize();
+		float factor = sin(angle/2.0f);
+		vec4 q = vec4(cos(angle/2.0f),u[0]*factor,u[1]*factor,u[2]*factor);
+		int w = q[0];
+		int x = q[1];
+		int y = q[2];
+		int z = q[3];
+		int ww = pow(q[0],2);
+		int xx = pow(q[1],2);
+		int yy = pow(q[2],2);
+		int zz = pow(q[3],2);
+		mat4 r = mat4(
+					vec4(ww+xx-yy-zz,2*x*y+2*w*z,2*x*z-2*w*y,0),
+					vec4(2*x*y-2*w*z,ww-xx+yy-zz,2*y*z+2*w*x,0),
+					vec4(2*x*z+2*w*y,2*y*z-2*w*z,ww-xx-yy+zz,0),
+					vec4(0,0,0,ww+xx+yy+zz)
+				);
+		if (tmat == mat4(0.0f)) {
+			tmat = r;
+		} else {
+			tmat = tmat * r;
+		}
+	}
+	void scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
+		mat4 s = mat4(
+					vec4(xScale,0,0,0),
+					vec4(0,yScale,0,0),
+					vec4(0,0,zScale,0),
+					vec4(0,0,0,1)
+					);
+		if (tmat == mat4(0.0f)) {
+			tmat = s;
+		} else {
+			tmat = tmat * s;
+		}
+	}
+	vec4 ray_intersect (); // returns a vec3 of the appropriate colors for r,g,b
+	Renderable () {
+		tmat = mat4(0.0f);
+	}
+};
+
+class Sphere : public Renderable {
+public:
+	int radius;	
+};
+
+class Triangle : public Renderable {
+public:
+	
+};
+
+class Camera {
+public:
+	Camera() {
+		x=0;
+		y=0;
+		z=0;
+	}
+	Camera(int a, int b, int c) {
+		x=a;
+		y=b;
+		z=c;
+	}
+	mat3 transform ();
+	int x,y,z;	
+};
+
+
 class PLight {
 public:
 	PLight(vec3 p, vec3 i) {

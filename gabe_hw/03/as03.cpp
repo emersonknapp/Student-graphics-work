@@ -153,11 +153,9 @@ void makeCircle() {
 			for (int yDir = -yDist; yDir <= yDist; yDir++ ) {
 				int zDist = (int)(sqrt((float)(radius*radius-yDir*yDir-xDir*xDir))+0.5f );
 				if (zDist > 0) {
-					for (int zDir = 0; zDir <= zDist; zDir++ ) {
-						sphereNormal = vec3(xDir,yDir,zDir);
-						sphereNormal.normalize();
-						drawPixel(circle1.x+xDir,circle1.y+yDir,sphereNormal);
-					}
+					sphereNormal = vec3(xDir,yDir,zDist);
+					sphereNormal.normalize();
+					drawPixel(circle1.x+xDir,circle1.y+yDir,sphereNormal);					
 				}
 			}
 		}
