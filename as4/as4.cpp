@@ -337,9 +337,16 @@ void myDisplay() {
 
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
-	int radius = min(viewport.w, viewport.h)-2;
-	sphereRadius = radius;
-	
+//	int radius = min(viewport.w, viewport.h)-2;
+//	sphereRadius = radius;
+//	
+//	Probably need a for loop for spheres and a separate loop for triangles
+//	Get the x,y,z coordinates for a pixel, then apply transformation matrix?
+//  for (int i = 0; i<renderables.size(); i++) {
+//		
+//	}
+//
+//	
 	glBegin(GL_POINTS);
 	
 	//Draw shaded sphere
@@ -518,6 +525,9 @@ int main(int argc, char *argv[]) {
   	glutCreateWindow("Phong Illumination Model");
 	
   	initScene();							// quick function to set up scene
+	// initialize sample models so we don't have to worry about CLI yet
+	Sphere s1 = Sphere(min(viewport.w, viewport.h)-2);
+
 	glutIgnoreKeyRepeat(1);
 	glutKeyboardFunc(processNormalKeys);
 	glutKeyboardUpFunc(processNormalKeyups);
