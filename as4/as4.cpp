@@ -96,10 +96,20 @@ public:
 	mat4 tmat;
 	// constructors
 	Renderable () {
-		tmat = vec4(1);
+		tmat = mat4(
+				vec4(1,0,0,0),
+				vec4(1,0,0,0),
+				vec4(1,0,0,0),
+				vec4(1,0,0,0)
+				);
 	}
 	Renderable (int x, int y, int z) {
-		tmat = vec4(x,y,z,1);
+		tmat = mat4(
+				vec4(x,0,0,0),
+				vec4(y,0,0,0),
+				vec4(z,0,0,0),
+				vec4(1,0,0,0)
+				);	
 	}
 	// methods
 	void map (int xMap, int yMap, int zMap) { // generates map matrix and updates tmat
@@ -109,7 +119,7 @@ public:
 			 		vec4(0,0,1,zMap),
 			 		vec4(0,0,0,1)
 					);
-		tmat = tmat * m;
+		tmat = m * tmat;
 	}
 	void rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
 		u.normalize();
@@ -129,7 +139,7 @@ public:
 					vec4(2*x*z+2*w*y,2*y*z-2*w*z,ww-xx-yy+zz,0),
 					vec4(0,0,0,ww+xx+yy+zz)
 				);
-		tmat = tmat * r;
+		tmat = r * tmat;
 	}
 	void scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
 		mat4 s = mat4(
@@ -138,7 +148,7 @@ public:
 					vec4(0,0,zScale,0),
 					vec4(0,0,0,1)
 					);
-		tmat = tmat * s;
+		tmat = s * tmat;
 	}
 	vec4 ray_intersect (); // returns a vec3 of the appropriate colors for r,g,b
 
@@ -160,16 +170,9 @@ public:
 //
 class Camera : public Renderable {
 public:
-	Camera() {
-		x=0;
-		y=0;
-		z=0;
-	}
+	Camera() {}
 	Camera(int a, int b, int c) {
-		x=a;
-		y=b;
-		z=c;
-		map (x,y,z);
+		map (a,b,c);
 	}
 	
 };
@@ -209,6 +212,8 @@ Viewport			viewport;
 Material 			material;
 vector<PLight>		plights;
 vector<DLight>		dlights;
+vector<Renderable>	renderables;
+Camera				camera;
 int					sphereRadius;
 
 
@@ -463,6 +468,9 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg=="-pr") {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
+		// set camera position
+		} else if (arg=="-c") {
+			camera = Camera(atof(argv[++i]),atof(argv[++i]),atof(argv[++i]));
 		}
 	}
 }
