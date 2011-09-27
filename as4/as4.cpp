@@ -156,8 +156,10 @@ public:
 };
 
 class Sphere : public Renderable {
+// inherits position from Renderable
 public:
-	int radius;	
+	// for ellipsoids: 1 = x^2/radiusX^2+y^2/radiusY^2+z^2/radiusZ^2
+	int radiusX,radiusY,radiusZ;	
 };
 
 class Triangle : public Renderable {
@@ -336,6 +338,7 @@ void myDisplay() {
 	glBegin(GL_POINTS);
 	
 	//Draw shaded sphere
+	//TODO: draw the entire object, not just the z coordinate?
 	vec3 zero = vec3(0,0,0);
 	for (int i = -radius; i <= radius; i++) {
 		int width = (int)(sqrt((float)(radius*radius-i*i)) + 0.5f);
