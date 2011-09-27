@@ -103,6 +103,7 @@ public:
 				vec4(1,0,0,0)
 				);
 	}
+	//this is redundant, but it's a nice abstraction (so we don't need an extra map)
 	Renderable (int x, int y, int z) {
 		tmat = mat4(
 				vec4(x,0,0,0),
@@ -167,6 +168,7 @@ public:
 //
 // class for the Viewer - I made this a child of Renderable so I can use all the useful 
 // transformation methods
+// has: tmat (with tmat.inverse() and tmat.transpose())
 //
 class Camera : public Renderable {
 public:
@@ -468,10 +470,11 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg=="-pr") {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
-		// set camera position
-		} else if (arg=="-c") {
-			camera = Camera(atof(argv[++i]),atof(argv[++i]),atof(argv[++i]));
+
+		} else if (arg=="-c") { 		// set camera position
+			camera = Camera(atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]));
 		}
+		//TODO: make command line options to make the renderable objects
 	}
 }
 //****************************************************
