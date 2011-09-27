@@ -172,7 +172,9 @@ public:
 //
 class Camera : public Renderable {
 public:
-	Camera() {}
+	Camera() {
+		map (0,0,1);
+	}
 	Camera(int a, int b, int c) {
 		map (a,b,c);
 	}
@@ -471,7 +473,7 @@ void processArgs(int argc, char* argv[]) {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
 
-		} else if (arg=="-c") { 		// set camera position
+		} else if (arg=="-c") { 		// set camera position -c x y z
 			camera = Camera(atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]));
 		}
 		//TODO: make command line options to make the renderable objects
