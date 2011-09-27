@@ -158,12 +158,17 @@ public:
 class Sphere : public Renderable {
 // inherits position from Renderable
 public:
-	// for ellipsoids: 1 = x^2/radiusX^2+y^2/radiusY^2+z^2/radiusZ^2
-	int radiusX,radiusY,radiusZ;	
+	int radius;
+	
+	Sphere (int r) {
+		radius = r;
+	}
+	// we can scale the sphere in order to make an ellipsoid
 };
 
 class Triangle : public Renderable {
 public:
+	//how do we want to represent triangle?
 	
 };
 
@@ -476,12 +481,16 @@ void processArgs(int argc, char* argv[]) {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
 
-		} else if (arg=="-c") { 		// set camera position -c x y z
+		} else if (arg=="-c") { 		// set camera position -c x y z. TODO: determine which way camera is facing?
 			camera = Camera(atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]));
+		} else if (arg=="-s") { // option to create spheres. TODO: how to incorporate 
+			Sphere s = Sphere(atoi(argv[++i]));
+			renderables.push_back(s);
 		}
 		//TODO: make command line options to make the renderable objects
 	}
 }
+
 //****************************************************
 // the usual stuff, nothing exciting here
 //****************************************************
