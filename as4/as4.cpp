@@ -198,19 +198,17 @@ void myDisplay() {
 
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
-	for (int i = -viewport.w; i<viewport.w; i++) {
-		for (int j = -viewport.h; j<viewport.h; j++) {
-			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
-			
-		}
-	}
-	
 	glBegin(GL_POINTS);
 	
 	//TODO: Loop through each sample that we want to take (at first just each pixel)
 		//We cast a ray from the camera towards each sample
 		//then call shade to calculate the color of that sample
-	
+	for (int i = -viewport.w; i<viewport.w; i++) {
+		for (int j = -viewport.h; j<viewport.h; j++) {
+			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
+			
+		}
+	}	
 
 	glEnd();
 	
@@ -220,8 +218,7 @@ void myDisplay() {
 	
 	if (fileWriter.drawing) {
 		printScreen(fileWriter.fileName);
-		quitProgram();
-		
+		quitProgram();	
 	}
 }
 
@@ -262,7 +259,6 @@ void processNormalKeyups(unsigned char key, int x, int y) {
 // sets the window up
 //****************************************************
 void initScene(){
-
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
 	myReshape(viewport.w,viewport.h);
 	if (DEBUG)
@@ -271,9 +267,10 @@ void initScene(){
 
 
 void processArgs(int argc, char* argv[]) {
-	/*
+	
 	for (int i=1; i<argc; i++) {
 		string arg = argv[i];
+		/*
 		if (arg=="-ka") {
 			float r = atof(argv[++i]);
 			float g = atof(argv[++i]);
@@ -292,7 +289,7 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg=="-sp") {
 			int sp = atoi(argv[++i]);
 			material.sp = sp;
-		} else if (arg=="-pl") {
+		} else*/ if (arg=="-pl") {
 			if (plights.size() < 5) {
 				float x = atof(argv[++i]);
 				float y = atof(argv[++i]);
@@ -316,16 +313,13 @@ void processArgs(int argc, char* argv[]) {
 			} else {
 				i+=6;
 			}
-		} else if (arg=="-ts") {
-			material.bToonShade = true;
-			material.toonResolution = atoi(argv[++i]);
 		} else if (arg=="-pr") {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
 		}
 		//TODO: make command line options to make the renderable objects
 	}
-	*/
+	
 }
 
 //****************************************************
