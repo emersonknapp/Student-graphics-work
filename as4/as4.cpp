@@ -87,6 +87,19 @@ public:
 	bool bToonShade;
 };
 
+class Ray {
+public:
+	vec4 pos;
+	vec4 dir;
+	float t_min, t_max;
+	
+	Ray(vec4 a, vec4 b) {
+		pos = a;
+		dir = b;
+	}
+	
+};
+
 
 class Camera : public Renderable {
 	// needs to keep track of its position (starts at 0,0,1)
