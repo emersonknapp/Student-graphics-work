@@ -120,7 +120,7 @@ public:
 			 		vec4(0,0,1,zMap),
 			 		vec4(0,0,0,1)
 					);
-		tmat = m * tmat;
+		tmat = tmat * m;
 	}
 	void rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
 		u.normalize();
@@ -140,7 +140,7 @@ public:
 					vec4(2*x*z+2*w*y,2*y*z-2*w*z,ww-xx-yy+zz,0),
 					vec4(0,0,0,ww+xx+yy+zz)
 				);
-		tmat = r * tmat;
+		tmat = tmat * r;
 	}
 	void scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
 		mat4 s = mat4(
@@ -149,7 +149,7 @@ public:
 					vec4(0,0,zScale,0),
 					vec4(0,0,0,1)
 					);
-		tmat = s * tmat;
+		tmat = tmat * s;
 	}
 	vec4 ray_intersect (); // returns a vec3 of the appropriate colors for r,g,b
 
@@ -347,6 +347,7 @@ void myDisplay() {
 	
 	//Draw shaded sphere
 	//TODO: draw the entire object, not just the z coordinate?
+	//TODO: phong shading for a general geometry
 	vec3 zero = vec3(0,0,0);
 	for (int i = -radius; i <= radius; i++) {
 		int width = (int)(sqrt((float)(radius*radius-i*i)) + 0.5f);
