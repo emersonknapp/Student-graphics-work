@@ -26,6 +26,7 @@
 #include "algebra3.h"
 #include "FreeImage.h"
 #include "classes.h"
+#include "errors.h"
 
 #ifdef _WIN32
 static DWORD lastTime;
@@ -38,7 +39,7 @@ static struct timeval lastTime;
 #define SCREEN_HEIGHT 480
 #define FRAMERATE 10
 #define EPSILON 0.15
-#define DEBUG false
+#define DEBUG true
 #define BITSPERPIXEL 24
 #define MAXRECURSION 1
 #define MAXLINE 255
@@ -263,14 +264,16 @@ void processNormalKeyups(unsigned char key, int x, int y) {
 void initScene(){
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
 	myReshape(viewport.w,viewport.h);
-	if (DEBUG)
-		cout << "Scene initialized" << endl;
+	if (DEBUG) cout << "Scene initialized" << endl;
 }
 
 
 void processArgs(int argc, char* argv[]) {
 	
 	for (int i=1; i<argc; i++) {
+		Material material;
+		mat4 tmat;
+		
 		string arg = argv[i];
 		
 		ifstream inFile(arg.c_str());
@@ -280,8 +283,18 @@ void processArgs(int argc, char* argv[]) {
 			istringstream iss(s);
 			string word;
 			iss >> word;
+			//sphere object
 			if (word == "sph") {
-				
+				int r;
+				iss >> word;
+				if (iss) {
+					r = atoi(word.c_str());
+					Sphere s(r);
+					renderables.push_back(s);
+					if (DEBUG) cout << "Parsed sphere of radius " << r << endl;
+				} else {
+					tooFewArgumentsError("Sphere object needs radius.");
+				}
 			} else if (word == "tri") {
 				
 			} else if (word == "camera") {
@@ -371,8 +384,8 @@ int main(int argc, char *argv[]) {
 	
 	//Initialize FreeImage library
 	FreeImage_Initialise();
-	cout << "FreeImage " << FreeImage_GetVersion() << endl;
-	cout << FreeImage_GetCopyrightMessage() << endl;
+	//cout << "FreeImage " << FreeImage_GetVersion() << endl;
+	//cout << FreeImage_GetCopyrightMessage() << endl;
 	
   	//This initializes glut
 	processArgs(argc, argv);

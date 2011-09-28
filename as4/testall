@@ -1,1 +1,1 @@
-for t in test/*; do ./$t; done
+for t in test/*.t; do echo "Running test $t"; ./as4 $t; done
