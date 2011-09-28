@@ -172,18 +172,14 @@ public:
 	
 };
 
-//
-// class for the Viewer - I made this a child of Renderable so I can use all the useful 
-// transformation methods
-// has: tmat (with tmat.inverse() and tmat.transpose())
-//
-class Camera : public Renderable {
+class Camera {
 public:
-	Camera() {
-		map (0,0,1);
-	}
-	Camera(int a, int b, int c) {
-		map (a,b,c);
+	vec3 pos,up,viewer;
+	Camera() {}
+	Camera(int a, int b, int c, int d, int e, int f, int g, int h, int i) {
+		pos = vec3(a,b,c);
+		up = vec3(d,e,f);
+		viewer = vec3(g,h,i)
 	}
 	
 };
@@ -488,8 +484,8 @@ void processArgs(int argc, char* argv[]) {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
 
-		} else if (arg=="-c") { 		// set camera position -c x y z. TODO: determine which way camera is facing?
-			camera = Camera(atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]));
+		} else if (arg=="-c") { 		// set camera position -c PosX PosY PosZ UpX UpY UpZ ViewX ViewY ViewZ.
+			camera = Camera(atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]));
 		} else if (arg=="-s") { // option to create spheres. TODO: how to incorporate 
 			Sphere s = Sphere(atoi(argv[++i]));
 			renderables.push_back(s);
