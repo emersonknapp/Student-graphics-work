@@ -302,7 +302,13 @@ void processArgs(int argc, char* argv[]) {
 			} else if (word == "camera") { //Initialize the camera
 				
 			} else if (word == "print") { //Specify output file, default "out.png"
-				
+				fileWriter.drawing = true;
+				iss >> word;
+				if (iss) {
+					fileWriter.fileName = word;
+				} else {
+					fileWriter.fileName = "out.png";
+				}
 			} else if (word == "translate") { //specify translation
 
 			} else if (word == "rotate") { //specify rotation
