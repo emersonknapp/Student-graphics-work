@@ -24,7 +24,7 @@
 
 #include "algebra3.h"
 #include "FreeImage.h"
-#include "renderable.h"
+#include "classes.h"
 
 #ifdef _WIN32
 static DWORD lastTime;
@@ -59,74 +59,6 @@ public:
 	}
 	int w;
 	int h;
-};
-
-class Material {
-public:
-	Material() {
-		ka = vec3(0,0,0);
-		kd = vec3(0,0,0);
-		ks = vec3(0,0,0);
-		sp = 0;
-		toonResolution = 1;
-		bToonShade = false;
-	}
-	Material(vec3 a, vec3 d, vec3 s, int p) {
-		ka = a;
-		kd = d;
-		ks = s;
-		sp = p;
-		toonResolution = 1;
-		bToonShade = false;
-	}
-	vec3 ka;
-	vec3 kd;
-	vec3 ks;
-	int sp;
-	int toonResolution;
-	bool bToonShade;
-};
-
-class Ray {
-public:
-	vec4 pos;
-	vec4 dir;
-	float t_min, t_max;
-	
-	Ray(vec4 a, vec4 b) {
-		pos = a;
-		dir = b;
-	}
-	
-};
-
-
-class Camera : public Renderable {
-	// needs to keep track of its position (starts at 0,0,1)
-	// keep track of where it's facing? facing -z direction relative to itself
-	// transform view plane. Keep track of tmat
-public:
-	vec4 pos,up,viewer;
-	Camera() {
-		pos = vec3(0,0,1);
-		up = vec3(0,1,0);
-		viewer = vec3(0,0,-1);
-	}
-	Camera(int a, int b, int c, int d, int e, int f, int g, int h, int i) {
-		//camera starts at 0,0,1 and faces the -z direction. 
-		tmat = mat4(
-				vec4(0,0,0,0),
-				vec4(0,0,0,0),
-				vec4(0,0,0,0),
-				vec4(1,0,0,0)
-				);
-		map(a,b,c); // moves camera to position (a,b,c)
-		rotate(g, h); // rotate to face (g,h,i) means that we 
-		pos = vec4(a,b,c,0);
-		up = vec4(d,e,f),0;
-		viewer = vec3(g,h,i,0);
-	}
-	
 };
 
 
@@ -440,12 +372,6 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg=="-pr") {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
-
-		} else if (arg=="-c") { 		// set camera position -c PosX PosY PosZ UpX UpY UpZ ViewX ViewY ViewZ.
-			camera = Camera(atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]),atoi(argv[++i]));
-		} else if (arg=="-s") { // option to create spheres. TODO: how to incorporate 
-			Sphere s = Sphere(atoi(argv[++i]));
-			renderables.push_back(s);
 		}
 		//TODO: make command line options to make the renderable objects
 	}

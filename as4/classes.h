@@ -1,9 +1,52 @@
+#ifndef _CLASSES_H
+#define _CLASSES_H
+
+
 //
 // Basic class definition for anything we're going to render or apply transformations to
 // Call the map/rotate/scale transformation methods in the order you want to apply the transformations.
 // The resulting transformation matrix will be stored in tmat, which has transpose() and inverse() methods
 // for the necessary operations
 //
+class Material {
+public:
+	Material() {
+		ka = vec3(0,0,0);
+		kd = vec3(0,0,0);
+		ks = vec3(0,0,0);
+		sp = 0;
+		toonResolution = 1;
+		bToonShade = false;
+	}
+	Material(vec3 a, vec3 d, vec3 s, int p) {
+		ka = a;
+		kd = d;
+		ks = s;
+		sp = p;
+		toonResolution = 1;
+		bToonShade = false;
+	}
+	vec3 ka;
+	vec3 kd;
+	vec3 ks;
+	int sp;
+	int toonResolution;
+	bool bToonShade;
+};
+
+class Ray {
+public:
+	vec4 pos;
+	vec4 dir;
+	float t_min, t_max;
+	
+	Ray(vec4 a, vec4 b) {
+		pos = a;
+		dir = b;
+	}
+	
+};
+
 class Renderable {
 public:
 	mat4 tmat;
@@ -74,6 +117,28 @@ public:
 
 };
 
+
+
+
+
+
+class Camera : public Renderable {
+	// needs to keep track of its position (starts at 0,0,1)
+	// keep track of where it's facing? facing -z direction relative to itself
+	// transform view plane. Keep track of tmat
+public:
+	vec4 pos,up,viewer;
+	Camera() {
+		pos = vec3(0,0,1);
+		up = vec3(0,1,0);
+		viewer = vec3(0,0,-1);
+	}
+	
+};
+
+
+
+
 //we put all the objects inside a Scene, which is a cube
 // -100 ≤ x ≤ 100
 // -100 ≤ y ≤ 100
@@ -84,17 +149,18 @@ class Sphere : public Renderable {
 // inherits tmat from Renderable
 public:
 	int radius;
+	vec4 base;
 	
-	Sphere (int r) {
-		radius = r;
-		mat4 base = vec4(0,0,0,1);
+	Sphere (int a) {
+		radius = a;
+		vec4 base = vec4(0,0,0,1);
 	}
 	
 	bool ray_intersect ( Ray &r, int &t) {
-		mat4 pos = tmat * base;
+		vec4 pos = tmat * base;
 		float a = r.dir.length2();
 		float b = 2*r.pos*r.dir + pos * r.dir;
-		float c = r.pos.length2() - r.pos*pos+pos + pos.length2() - pos*r.pos - pow(radius,2);
+		float c = r.pos.length2() - r.pos*pos + pos.length2() - pos*r.pos - pow(radius,2.0f);
 		return min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
 	}
 	// we can scale the sphere in order to make an ellipsoid
@@ -110,3 +176,5 @@ public:
 		v3 = c;
 	}
 };
+
+#endif
