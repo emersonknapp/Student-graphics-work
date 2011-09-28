@@ -33,12 +33,13 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 #define FRAMERATE 10
 #define EPSILON 0.15
 #define DEBUG false
 #define BITSPERPIXEL 24
+#define MAXRECURSION 1
 
 using namespace std;
 
@@ -86,21 +87,15 @@ struct FileWriter {
 	bool drawing;
 	char * fileName;
 } fileWriter;
-	
-
 
 //****************************************************
 // Global Variables
 //****************************************************
 Viewport			viewport;
-Material 			material;
 vector<PLight>		plights;
 vector<DLight>		dlights;
 vector<Renderable>	renderables;
-vector<Sphere>		spheres;
-vector<Triangle>	triangles;
 Camera				camera;
-int					sphereRadius;
 
 
 void setPixel(int x, int y, GLfloat r, GLfloat g, GLfloat b) {
@@ -149,19 +144,23 @@ void printScreen(char * name) {
 
 
 //***************************************************
-// function that does the actual drawing
+// does phong shading on a point
 //***************************************************
-vec3 shade(vec3 pos) {
-	vec3 normal = vec3(pos);
-	normal.normalize();
+vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
+
 	vec3 color = vec3(0,0,0); //Default black
 
+	//Recursion cutoff check
+	if (recursionDepth >= MAXRECURSION) {
+		return color;
+	}
 	
-	vec3 viewVector = vec3(0,0,1);
+	/*
 	
+	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
 		vec3 lightColor = plights[i].intensity;
-		vec3 lightVector = (plights[i].pos * sphereRadius) - pos;		
+		vec3 lightVector = plights[i].pos - pos;		
 		lightVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 		//Ambient term
@@ -174,9 +173,10 @@ vec3 shade(vec3 pos) {
 			color = vec3(0, 0, 0);
 		}
 	}
+	//Loop through directional lights
 	for (int i=0; i<dlights.size(); i++) {
 		vec3 lightColor = dlights[i].intensity;
-		vec3 lightVector = vec3(0,0,0) - dlights[i].dir*sphereRadius;
+		vec3 lightVector = vec3(0,0,0) - dlights[i].dir;
 		lightVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 		//Ambient term
@@ -189,22 +189,7 @@ vec3 shade(vec3 pos) {
 			color = vec3(0, 0, 0);
 		}
 	}
-	if (material.bToonShade) {
-		int res = material.toonResolution; //(255/res)^3 colors
-		float r = color[0];
-		float g = color[1];
-		float b = color[2];
-		int newr = int(r*255);
-		int newg = int(g*255);
-		int newb = int(b*255);
-		newr -= newr%res;
-		newg -= newg%res;
-		newb -= newb%res;
-		r = newr/255.0;
-		g = newg/255.0;
-		b = newb/255.0;
-		color = vec3(r, g, b);
-	}
+	*/
 	
 	return color;
 }
@@ -220,36 +205,11 @@ void myDisplay() {
 		}
 	}
 	
-	
-	int radius = min(viewport.w, viewport.h)-2;
-//	sphereRadius = radius;
-//	
-//	Probably need a for loop for spheres and a separate loop for triangles
-//	Get the x,y,z coordinates for a pixel, then apply transformation matrix?
-//  for (int i = 0; i<renderables.size(); i++) {
-//		
-//	}
-//
-//	
 	glBegin(GL_POINTS);
 	
-	//Draw shaded sphere
-	//TODO: draw the entire object, not just the z coordinate?
-	//TODO: phong shading for a general geometry
-	vec3 zero = vec3(0,0,0);
-	for (int i = -radius; i <= radius; i++) {
-		int width = (int)(sqrt((float)(radius*radius-i*i)) + 0.5f);
-		for (int j = -width; j <= width; j++) {
-			float za = radius*radius - (j*j + i*i);
-			if (za > 0) {
-				float z = sqrt(za);
-				vec3 normal = vec3(j, i, z);
-				vec3 color = shade(normal);
-				setPixel(j, i, color[0], color[1], color[2]);
-			}
-
-		}
-	}
+	//TODO: Loop through each sample that we want to take (at first just each pixel)
+		//We cast a ray from the camera towards each sample
+		//then call shade to calculate the color of that sample
 	
 
 	glEnd();
@@ -283,14 +243,6 @@ void processNormalKeys(unsigned char key, int x, int y) {
 	//escape, q quit
 	if (key == 27 || key == 'q' || key==32) {
 		quitProgram();
-	} else if (key == 't') {
-		bool ts = !material.bToonShade;
-		material.bToonShade = ts;
-		glClearColor(ts, ts, ts, 0);
-	} else if (key == 'y') {
-		material.toonResolution = min(material.toonResolution+4, 255);
-	} else if (key == 'r') {
-		material.toonResolution = max(material.toonResolution-4, 1);
 	} else if (key >= '0' && key <= '9') {
 		char name[9];
 		strcpy(name, "pic");
@@ -310,11 +262,8 @@ void processNormalKeyups(unsigned char key, int x, int y) {
 // sets the window up
 //****************************************************
 void initScene(){
-	if (material.bToonShade) {
-		glClearColor(1, 1, 1, 1);
-	} else {
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
-	}
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
 	myReshape(viewport.w,viewport.h);
 	if (DEBUG)
 		cout << "Scene initialized" << endl;
@@ -322,6 +271,7 @@ void initScene(){
 
 
 void processArgs(int argc, char* argv[]) {
+	/*
 	for (int i=1; i<argc; i++) {
 		string arg = argv[i];
 		if (arg=="-ka") {
@@ -375,6 +325,7 @@ void processArgs(int argc, char* argv[]) {
 		}
 		//TODO: make command line options to make the renderable objects
 	}
+	*/
 }
 
 //****************************************************
@@ -389,7 +340,6 @@ int main(int argc, char *argv[]) {
 	cout << FreeImage_GetCopyrightMessage() << endl;
 	
   	//This initializes glut
-	material = Material();
 	processArgs(argc, argv);
   	glutInit(&argc, argv);
 	

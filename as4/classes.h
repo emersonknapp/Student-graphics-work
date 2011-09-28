@@ -14,24 +14,21 @@ public:
 		ka = vec3(0,0,0);
 		kd = vec3(0,0,0);
 		ks = vec3(0,0,0);
+		kr = 0;
 		sp = 0;
-		toonResolution = 1;
-		bToonShade = false;
 	}
-	Material(vec3 a, vec3 d, vec3 s, int p) {
+	Material(vec3 a, vec3 d, vec3 s, float r, int p) {
 		ka = a;
 		kd = d;
 		ks = s;
 		sp = p;
-		toonResolution = 1;
-		bToonShade = false;
+		kr = r;
 	}
-	vec3 ka;
-	vec3 kd;
-	vec3 ks;
-	int sp;
-	int toonResolution;
-	bool bToonShade;
+	vec3 ka; //ambient
+	vec3 kd; //diffuse
+	vec3 ks; //specular
+	float kr; //reflection coefficient
+	int sp; //specular power
 };
 
 class Ray {
@@ -113,7 +110,7 @@ public:
 		imat = tmat.inverse();
 	}
 	
-	int ray_intersect (Ray r); // returns a vec3 of the appropriate colors for r,g,b
+	bool ray_intersect (Ray &r, int &t); // returns whether ray intersects this object, sets t to proper value
 
 };
 
