@@ -208,6 +208,9 @@ void myDisplay() {
 		//then call shade to calculate the color of that sample
 	for (int i = -viewport.w; i<viewport.w; i++) {
 		for (int j = -viewport.h; j<viewport.h; j++) {
+			//It'll probably be nicer if we ask the camera for the ray,
+			//then it can transform it into worldspace for us before we even see it.
+			//Ray r = camera.generateRay(i, j);
 			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
 			
 		}
@@ -281,10 +284,9 @@ void processArgs(int argc, char* argv[]) {
 		while (inFile.getline(line, MAXLINE)) {
 			string s(line);
 			istringstream iss(s);
-			string word;
+			string word; //Holds current word from the line input
 			iss >> word;
-			//sphere object
-			if (word == "sph") {
+			if (word == "sph") { //Parse a sphere
 				int r;
 				iss >> word;
 				if (iss) {
@@ -295,82 +297,26 @@ void processArgs(int argc, char* argv[]) {
 				} else {
 					tooFewArgumentsError("Sphere object needs radius.");
 				}
-			} else if (word == "tri") {
+			} else if (word == "tri") { //Parse a triangle
 				
-			} else if (word == "camera") {
+			} else if (word == "camera") { //Initialize the camera
 				
-			} else if (word == "print") {
+			} else if (word == "print") { //Specify output file, default "out.png"
 				
-			} else if (word == "translate") {
+			} else if (word == "translate") { //specify translation
 
-			} else if (word == "rotate") {
+			} else if (word == "rotate") { //specify rotation
 
-			} else if (word == "scale") {
+			} else if (word == "scale") { //specify scale
 
-			} else if (word == "mat") {
+			} else if (word == "mat") { //specify a material
 
 			} else {
-				//ERROR
+				continue;
 			}
-			/*do {
-				string sub;
-				iss >> sub;
-				cout << sub << endl;
-			} while(iss);*/
 		}
-			
-			
+		
 		inFile.close();
-		
-		/*
-		if (arg=="-ka") {
-			float r = atof(argv[++i]);
-			float g = atof(argv[++i]);
-			float b = atof(argv[++i]);
-			material.ka = vec3(r, g, b);
-		} else if (arg=="-kd") {
-			float r = atof(argv[++i]);
-			float g = atof(argv[++i]);
-			float b = atof(argv[++i]);
-			material.kd = vec3(r,g,b);
-		} else if (arg=="-ks") {
-			float r = atof(argv[++i]);
-			float g = atof(argv[++i]);
-			float b = atof(argv[++i]);
-			material.ks = vec3(r,g,b);
-		} else if (arg=="-sp") {
-			int sp = atoi(argv[++i]);
-			material.sp = sp;
-		} else if (arg=="-pl") {
-			if (plights.size() < 5) {
-				float x = atof(argv[++i]);
-				float y = atof(argv[++i]);
-				float z = atof(argv[++i]);
-				float r = atof(argv[++i]);
-				float g = atof(argv[++i]);
-				float b = atof(argv[++i]);
-				plights.push_back(PLight(vec3(x,y,z), vec3(r,g,b)));
-			} else {
-				i +=  6;
-			}
-		} else if (arg=="-dl") {
-			if (dlights.size() < 5) {
-				float x = atof(argv[++i]);
-				float y = atof(argv[++i]);
-				float z = atof(argv[++i]);
-				float r = atof(argv[++i]);
-				float g = atof(argv[++i]);
-				float b = atof(argv[++i]);
-				dlights.push_back(DLight(vec3(x,y,z), vec3(r,g,b)));
-			} else {
-				i+=6;
-			}
-		} else if (arg=="-pr") {
-			fileWriter.drawing = true;
-			fileWriter.fileName = argv[++i];
-		}
-		*/
-		
 
 	}
 	
