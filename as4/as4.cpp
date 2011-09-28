@@ -151,6 +151,7 @@ public:
 					);
 		tmat = s * tmat;
 	}
+	
 	vec4 ray_intersect (); // returns a vec3 of the appropriate colors for r,g,b
 
 };
@@ -169,6 +170,7 @@ public:
 class Triangle : public Renderable {
 public:
 	//how do we want to represent triangle?
+	//we should probably just do it as 3 points in space, with no transformation. It seems simpler that way.
 	
 };
 
