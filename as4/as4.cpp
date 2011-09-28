@@ -97,9 +97,9 @@ public:
 	// constructors
 	Renderable () {
 		tmat = mat4(
-				vec4(1,0,0,0),
-				vec4(1,0,0,0),
-				vec4(1,0,0,0),
+				vec4(0,0,0,0),
+				vec4(0,0,0,0),
+				vec4(0,0,0,0),
 				vec4(1,0,0,0)
 				);
 	}
@@ -155,8 +155,14 @@ public:
 
 };
 
+//we put all the objects inside a Scene, which is a cube
+// -100 ≤ x ≤ 100
+// -100 ≤ y ≤ 100
+// -100 ≤ z ≤ 100, so the center is at (0,0,0)
+//
+
 class Sphere : public Renderable {
-// inherits position from Renderable
+// inherits tmat from Renderable
 public:
 	int radius;
 	
@@ -168,15 +174,36 @@ public:
 
 class Triangle : public Renderable {
 public:
-	//how do we want to represent triangle?
-	
+	//vertices
+	int v1, v2, v3;
+	Triangle (int a, int b, int c) {
+		v1 = a;
+		v2 = b;
+		v3 = c;
+	}
 };
 
-class Camera {
+class Camera : public Renderable {
+	// needs to keep track of its position (starts at 0,0,1)
+	// keep track of where it's facing? facing -z direction relative to itself
+	// transform view plane. Keep track of tmat
 public:
 	vec3 pos,up,viewer;
-	Camera() {}
+	Camera() {
+		pos = vec3(0,0,1);
+		up = vec3(0,1,0);
+		viewer = vec3(0,0,-1);
+	}
 	Camera(int a, int b, int c, int d, int e, int f, int g, int h, int i) {
+		//camera starts at 0,0,1 and faces the -z direction. 
+		tmat = mat4(
+				vec4(0,0,0,0),
+				vec4(0,0,0,0),
+				vec4(0,0,0,0),
+				vec4(1,0,0,0)
+				);
+		map(a,b,c); // moves camera to position (a,b,c)
+		rotate(g,h,i); // rotate to face (g,h,i) means that we 
 		pos = vec3(a,b,c);
 		up = vec3(d,e,f);
 		viewer = vec3(g,h,i)
@@ -220,6 +247,8 @@ Material 			material;
 vector<PLight>		plights;
 vector<DLight>		dlights;
 vector<Renderable>	renderables;
+vector<Sphere>		spheres;
+vector<Triangle>	triangles;
 Camera				camera;
 int					sphereRadius;
 
@@ -267,6 +296,45 @@ void printScreen(char * name) {
 	FreeImage_Save(FIF_PNG, bitmap, name, 0);
 	cout << "Image successfully saved to " << name << endl;
 }
+
+//
+// function that shoots out rays from the camera
+//
+
+void ray_intersect() {
+	mat4 base = mat4(
+					vec4(0,0,0,0),
+					vec4(0,0,0,0),
+					vec4(0,0,0,0),
+					vec4(1,0,0,0)
+					);
+	int sphereT = 0;
+	int triangleT = 0;
+	// need to apply tmat^-1 for camera to get the right viewer angle
+	for (int i = -viewport.w; i<viewport.w; i++) {
+		for (int j = -viewport.h; j<viewport.h; j++) {
+			for (int t = 0; t < 300; t++ ) { // t < 200 because scence is -100 to 100. We overshoot to take care of diagonals
+				//loop through list of spheres, see what it hits
+				for (int s = 0; s<spheres.size(); s++) {
+					// need to generalize this for ellipses. So far the pos(s.radius,2) just works for spheres
+					int intersect = vec3(camera.pos + t * camera.viewer - s.tmat * base).length2() - pos(s.radius,2);
+					if (intersect == 0) {
+						sphereT = t;
+						break;
+					}
+					// | camera position + t*unit vector in direction of ray - position of sphere center |^2 - radius of sphere^2 = 0.
+					// if this is 0, we intersect, so break the loop because this is the first intersection
+				}
+				for (int p = 0; p<triangles.size(); p++) {
+					
+				}
+			}
+			int t = min(sphereT,triangleT);			
+			// at this point, we have the t that is the parametric intersection
+		}
+	}
+}
+
 
 //***************************************************
 // function that does the actual drawing
