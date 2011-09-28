@@ -106,7 +106,7 @@ class Camera : public Renderable {
 	// keep track of where it's facing? facing -z direction relative to itself
 	// transform view plane. Keep track of tmat
 public:
-	vec3 pos,up,viewer;
+	vec4 pos,up,viewer;
 	Camera() {
 		pos = vec3(0,0,1);
 		up = vec3(0,1,0);
@@ -122,9 +122,9 @@ public:
 				);
 		map(a,b,c); // moves camera to position (a,b,c)
 		rotate(g, h); // rotate to face (g,h,i) means that we 
-		pos = vec3(a,b,c);
-		up = vec3(d,e,f);
-		viewer = vec3(g,h,i);
+		pos = vec4(a,b,c,0);
+		up = vec4(d,e,f),0;
+		viewer = vec3(g,h,i,0);
 	}
 	
 };
@@ -320,6 +320,13 @@ vec3 shade(vec3 pos) {
 void myDisplay() {
 
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
+	
+	for (int i = -viewport.w; i<viewport.w; i++) {
+		for (int j = -viewport.h; j<viewport.h; j++) {
+			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
+		}
+	}
+	
 	
 	int radius = min(viewport.w, viewport.h)-2;
 //	sphereRadius = radius;

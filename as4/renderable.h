@@ -7,6 +7,8 @@
 class Renderable {
 public:
 	mat4 tmat;
+	mat4 imat;
+	Material material;
 	// constructors
 	Renderable () {
 		tmat = mat4(
@@ -34,6 +36,7 @@ public:
 			 		vec4(0,0,0,1)
 					);
 		tmat = tmat * m;
+		imat = tmat.inverse();
 	}
 	void rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
 		u.normalize();
@@ -54,6 +57,7 @@ public:
 					vec4(0,0,0,ww+xx+yy+zz)
 				);
 		tmat = tmat * r;
+		imat = tmat.inverse();
 	}
 	void scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
 		mat4 s = mat4(
@@ -63,9 +67,10 @@ public:
 					vec4(0,0,0,1)
 					);
 		tmat = tmat * s;
+		imat = tmat.inverse();
 	}
 	
-	vec4 ray_intersect (); // returns a vec3 of the appropriate colors for r,g,b
+	int ray_intersect (Ray r); // returns a vec3 of the appropriate colors for r,g,b
 
 };
 
@@ -82,6 +87,11 @@ public:
 	
 	Sphere (int r) {
 		radius = r;
+	}
+	
+	int ray_intersect ( Ray &r) {
+		int intersect = vec3(camera.pos + t * camera.viewer - spheres[s].tmat * base).length2() - pos(s.radius,2);
+		
 	}
 	// we can scale the sphere in order to make an ellipsoid
 };
