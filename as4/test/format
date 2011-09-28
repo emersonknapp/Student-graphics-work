@@ -1,0 +1,11 @@
+
+mat ka kd ks kr sp
+rotate 
+scale x y z
+translate x y z
+sph r
+tri x1 y1 z1 x2 y2 z2 x3 y3 z3
+pl r g b
+dl r g b
+camera
+print fileName.png
