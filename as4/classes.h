@@ -58,7 +58,7 @@ public:
 				vec4(1,0,0,0)
 				);
 	}
-	//this is redundant, but it's a nice abstraction (so we don't need an extra map)
+	//this is redundant, but it's a nice abstraction (so we don't need an extra translation)
 	Renderable (int x, int y, int z) {
 		tmat = mat4(
 				vec4(x,0,0,0),
@@ -68,11 +68,11 @@ public:
 				);	
 	}
 	// methods
-	void map (int xMap, int yMap, int zMap) { // generates map matrix and updates tmat
+	void translate (int x, int y, int z) { // generates translation matrix and updates tmat
 		mat4 m = mat4(
-					vec4(1,0,0,xMap),
-			 		vec4(0,1,0,yMap),
-			 		vec4(0,0,1,zMap),
+					vec4(1,0,0,x),
+			 		vec4(0,1,0,y),
+			 		vec4(0,0,1,z),
 			 		vec4(0,0,0,1)
 					);
 		tmat = tmat * m;
@@ -166,8 +166,8 @@ public:
 class Triangle : public Renderable {
 public:
 	//vertices
-	int v1, v2, v3;
-	Triangle (int a, int b, int c) {
+	vec4 v1, v2, v3;
+	Triangle (vec4 a, vec4 b, vec4 c) {
 		v1 = a;
 		v2 = b;
 		v3 = c;

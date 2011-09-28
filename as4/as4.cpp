@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cmath>
 #include <cstring>
 
@@ -274,15 +275,39 @@ void processArgs(int argc, char* argv[]) {
 		
 		ifstream inFile(arg.c_str());
 		char line[MAXLINE];
-		while (inFile.getline(line, MAXLINE))
-			cout << line << endl;
+		while (inFile.getline(line, MAXLINE)) {
+			string s(line);
+			istringstream iss(s);
+			string word;
+			iss >> word;
+			if (word == "sph") {
+				
+			} else if (word == "tri") {
+				
+			} else if (word == "camera") {
+				
+			} else if (word == "print") {
+				
+			} else if (word == "translate") {
+
+			} else if (word == "rotate") {
+
+			} else if (word == "scale") {
+
+			} else if (word == "mat") {
+
+			} else {
+				//ERROR
+			}
+			/*do {
+				string sub;
+				iss >> sub;
+				cout << sub << endl;
+			} while(iss);*/
+		}
+			
 			
 		inFile.close();
-		
-		//inFile.getline();
-		
-		//cout << line;
-		
 		
 		/*
 		if (arg=="-ka") {
