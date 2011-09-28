@@ -40,6 +40,7 @@ static struct timeval lastTime;
 #define DEBUG false
 #define BITSPERPIXEL 24
 #define MAXRECURSION 1
+#define MAXLINE 255
 
 using namespace std;
 
@@ -270,6 +271,19 @@ void processArgs(int argc, char* argv[]) {
 	
 	for (int i=1; i<argc; i++) {
 		string arg = argv[i];
+		
+		ifstream inFile(arg.c_str());
+		char line[MAXLINE];
+		while (inFile.getline(line, MAXLINE))
+			cout << line << endl;
+			
+		inFile.close();
+		
+		//inFile.getline();
+		
+		//cout << line;
+		
+		
 		/*
 		if (arg=="-ka") {
 			float r = atof(argv[++i]);
@@ -289,7 +303,7 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg=="-sp") {
 			int sp = atoi(argv[++i]);
 			material.sp = sp;
-		} else*/ if (arg=="-pl") {
+		} else if (arg=="-pl") {
 			if (plights.size() < 5) {
 				float x = atof(argv[++i]);
 				float y = atof(argv[++i]);
@@ -317,7 +331,9 @@ void processArgs(int argc, char* argv[]) {
 			fileWriter.drawing = true;
 			fileWriter.fileName = argv[++i];
 		}
-		//TODO: make command line options to make the renderable objects
+		*/
+		
+
 	}
 	
 }
