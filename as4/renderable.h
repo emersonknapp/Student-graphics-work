@@ -87,11 +87,15 @@ public:
 	
 	Sphere (int r) {
 		radius = r;
+		mat4 base = vec4(0,0,0,1);
 	}
 	
-	int ray_intersect ( Ray &r) {
-		int intersect = vec3(camera.pos + t * camera.viewer - spheres[s].tmat * base).length2() - pos(s.radius,2);
-		
+	bool ray_intersect ( Ray &r, int &t) {
+		mat4 pos = tmat * base;
+		float a = r.dir.length2();
+		float b = 2*r.pos*r.dir + pos * r.dir;
+		float c = r.pos.length2() - r.pos*pos+pos + pos.length2() - pos*r.pos - pow(radius,2);
+		return min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
 	}
 	// we can scale the sphere in order to make an ellipsoid
 };

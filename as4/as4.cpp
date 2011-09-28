@@ -215,46 +215,6 @@ void printScreen(char * name) {
 	cout << "Image successfully saved to " << name << endl;
 }
 
-//
-// function that shoots out rays from the camera
-//
-
-void ray_intersect() {
-	mat4 base = mat4(
-					vec4(0,0,0,0),
-					vec4(0,0,0,0),
-					vec4(0,0,0,0),
-					vec4(1,0,0,0)
-					);
-	int sphereT = 0;
-	int triangleT = 0;
-	// need to apply tmat^-1 for camera to get the right viewer angle
-	for (int i = -viewport.w; i<viewport.w; i++) {
-		for (int j = -viewport.h; j<viewport.h; j++) {
-			for (int t = 0; t < 300; t++ ) { // t < 200 because scence is -100 to 100. We overshoot to take care of diagonals
-				//loop through list of spheres, see what it hits
-				for (int s = 0; s<spheres.size(); s++) {
-					// need to generalize this for ellipses. So far the pos(s.radius,2) just works for spheres
-					/*
-					int intersect = vec3(camera.pos + t * camera.viewer - spheres[s].tmat * base).length2() - pos(s.radius,2);
-					if (intersect == 0) {
-						sphereT = t;
-						break;
-					}
-					*/
-					// | camera position + t*unit vector in direction of ray - position of sphere center |^2 - radius of sphere^2 = 0.
-					// if this is 0, we intersect, so break the loop because this is the first intersection
-				}
-				for (int p = 0; p<triangles.size(); p++) {
-					
-				}
-			}
-			int t = min(sphereT,triangleT);			
-			// at this point, we have the t that is the parametric intersection
-		}
-	}
-}
-
 
 //***************************************************
 // function that does the actual drawing
@@ -324,6 +284,7 @@ void myDisplay() {
 	for (int i = -viewport.w; i<viewport.w; i++) {
 		for (int j = -viewport.h; j<viewport.h; j++) {
 			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
+			
 		}
 	}
 	
