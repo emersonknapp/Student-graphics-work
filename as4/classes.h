@@ -110,7 +110,7 @@ public:
 		imat = tmat.inverse();
 	}
 	
-	bool ray_intersect (Ray &r, int &t); // returns whether ray intersects this object, sets t to proper value
+	bool ray_intersect (Ray &r, int &t, vec4 &normal); // returns whether ray intersects this object, sets t to proper value
 
 };
 
@@ -153,12 +153,24 @@ public:
 		vec4 base = vec4(0,0,0,1);
 	}
 	
-	bool ray_intersect ( Ray &r, int &t) {
+	bool ray_intersect ( Ray &r, int &t, vec4 &normal) {
 		vec4 pos = tmat * base;
 		float a = r.dir.length2();
 		float b = 2*r.pos*r.dir + pos * r.dir;
 		float c = r.pos.length2() - r.pos*pos + pos.length2() - pos*r.pos - pow(radius,2.0f);
-		return min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
+		if (pow(b,2)+4*a*c < 0 ) {
+			return false;
+		} else {
+			// this t determines intersection point A + t*D = r.pos + t * r.dir
+			t = min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
+			vec4 intersection = r.pos + t * r.dir; // this is a point on the sphere
+			// if we have normal n on the sphere, then if it's transformed, we use (M^-1)^T * n as the normal
+			// intersection - pos is the normal on the sphere
+			normal = tmat.inverse().transpose() * (intersection - pos);
+			normal.normalize();
+
+			return true;
+		}
 	}
 	// we can scale the sphere in order to make an ellipsoid
 };
@@ -171,6 +183,25 @@ public:
 		v1 = a;
 		v2 = b;
 		v3 = c;
+	}
+	
+	bool ray_intersect ( Ray &r, int &t, vec4 &normal ) {
+		// res : Beta | gamma | t
+		vec3 res = mat4(
+						vec4((v2-v1)[0],(v3-v1)[0],-r.dir[0],0),
+						vec4((v2-v1)[1],(v3-v1)[1],-r.dir[1],0),
+						vec4((v2-v1)[2],(v3-v1)[3],-r.dir[2],0),
+						vec4(0,0,0,0)
+						).inverse() * vec4(r.pos) - v1;
+		if (res[0] > 0 && res[1] > 0 && res[0]+res[1] <= 1 && res[2] < t) {
+			t = res[2];
+			vec4 intersection = r.pos + t * r.dir; // this is a point on the triangle
+			normal = tmat.inverse().transpose() * ((v1-t) ^ (v3-t)); // the second part is the cross product of two vectors that define the triangle from point t
+			normal.normalize();
+			return true;
+		} else {
+			return false;
+		}
 	}
 };
 

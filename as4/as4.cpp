@@ -157,25 +157,39 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 	if (recursionDepth >= MAXRECURSION) {
 		return color;
 	}
+	//Process:
+	//draw ray from the intersection point to each of the point lights (define direction as pointLight.pos - intersection).
+	// Find the intersection point t.  If t < 1, then there's something in the way, so just skip that point light. 
+	// If t=1, then we're good, so run Phong Shading to get the color of the pixel. Reflect this, with shade() recursive calls
+	// don't forget to increase recursionDepth!
 	
-	/*
+	
 	
 	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
-		vec3 lightColor = plights[i].intensity;
-		vec3 lightVector = plights[i].pos - pos;		
-		lightVector.normalize();
-		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-		//Ambient term
-		color += multiplyVectors(lightColor, material.ka);
-		//Diffuse term
-		color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
-		//Specular term
-		color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
-		if (material.bToonShade && (viewVector*normal < EPSILON)) {
-			color = vec3(0, 0, 0);
+		//check if there's shadow
+		Ray lightCheck = Ray(hitPoint,plights[i].pos - hitPoint);
+		for (int k = 0; k < renderables.size() ; k++ ) {
+			t = 1;
+			normal = vec4(0,0,0,0);
+			renderables[k].ray_intersect(r,t,normal)
+		}
+		if (t == 1) { // then shade. if t != 1, then the light is blocked by another object
+			vec3 lightColor = plights[i].intensity;
+			vec3 lightVector = plights[i].pos - pos;		
+			lightVector.normalize();
+			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+			//Ambient term
+			color += multiplyVectors(lightColor, material.ka);
+			//Diffuse term
+			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
+			//Specular term
+			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 		}
 	}
+
+
+	/*
 	//Loop through directional lights
 	for (int i=0; i<dlights.size(); i++) {
 		vec3 lightColor = dlights[i].intensity;
@@ -212,6 +226,16 @@ void myDisplay() {
 			//then it can transform it into worldspace for us before we even see it.
 			//Ray r = camera.generateRay(i, j);
 			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
+			int t;
+			vec4 normal;
+			for (int k = 0; k < renderables.size() ; k++ ) {
+				t = 0;
+				normal = vec4(0,0,0,0);
+				if (renderables[k].ray_intersect(r,t,normal)) {
+					vec4 intersection = r.pos * t * r.dir;
+					// run shader
+				}
+			}
 			
 		}
 	}	
