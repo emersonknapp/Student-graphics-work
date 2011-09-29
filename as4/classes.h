@@ -158,7 +158,12 @@ public:
 		float a = r.dir.length2();
 		float b = 2*r.pos*r.dir + pos * r.dir;
 		float c = r.pos.length2() - r.pos*pos + pos.length2() - pos*r.pos - pow(radius,2.0f);
-		return min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
+		if (pow(b,2)+4*a*c < 0 ) {
+			return false;
+		} else {
+			t = min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
+			return true;
+		}
 	}
 	// we can scale the sphere in order to make an ellipsoid
 };
@@ -171,6 +176,22 @@ public:
 		v1 = a;
 		v2 = b;
 		v3 = c;
+	}
+	
+	bool ray_intersect ( Ray &r, int &t ) {
+		// res : Beta | gamma | t
+		vec3 res = mat4(
+						vec4((v2-v1)[0],(v3-v1)[0],-r.dir[0],0),
+						vec4((v2-v1)[1],(v3-v1)[1],-r.dir[1],0),
+						vec4((v2-v1)[2],(v3-v1)[3],-r.dir[2],0),
+						vec4(0,0,0,0)
+						).inverse() * vec4(r.pos) - v1;
+		if (res[0] > 0 && res[1] > 0 && res[0]+res[1] <= 1) {
+			t = res[2];
+			return true;
+		} else {
+			return false;
+		}
 	}
 };
 
