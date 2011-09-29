@@ -88,7 +88,7 @@ public:
 
 struct FileWriter {
 	bool drawing;
-	char * fileName;
+	string fileName;
 } fileWriter;
 
 //****************************************************
@@ -119,7 +119,7 @@ void quitProgram() {
 	exit(0);
 }
 
-void printScreen(char * name) {
+void printScreen(const char * name) {
 	//bitmap holds FreeImage Pixels
 	FIBITMAP* bitmap = FreeImage_Allocate(viewport.w, viewport.h, BITSPERPIXEL);
 	if (!bitmap) exit(1);
@@ -223,7 +223,7 @@ void myDisplay() {
 	glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 	
 	if (fileWriter.drawing) {
-		printScreen(fileWriter.fileName);
+		printScreen(fileWriter.fileName.c_str());
 		quitProgram();	
 	}
 }
@@ -246,13 +246,10 @@ void processNormalKeys(unsigned char key, int x, int y) {
 	//escape, q quit
 	if (key == 27 || key == 'q' || key==32) {
 		quitProgram();
-	} else if (key >= '0' && key <= '9') {
-		char name[9];
-		strcpy(name, "pic");
-		name[3] = key;
-		name[4] = '\0';
-		strcat(name, ".png");
-		printScreen(name);
+	} else if (key >= '0' && key <= '9') {	
+		string name = "pic";
+		name += key + ".png";
+		printScreen(name.c_str());
 	}
 }
 
