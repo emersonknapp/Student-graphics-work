@@ -193,7 +193,7 @@ public:
 						vec4((v2-v1)[2],(v3-v1)[3],-r.dir[2],0),
 						vec4(0,0,0,0)
 						).inverse() * vec4(r.pos) - v1;
-		if (res[0] > 0 && res[1] > 0 && res[0]+res[1] <= 1) {
+		if (res[0] > 0 && res[1] > 0 && res[0]+res[1] <= 1 && res[2] < t) {
 			t = res[2];
 			vec4 intersection = r.pos + t * r.dir; // this is a point on the triangle
 			normal = tmat.inverse().transpose() * ((v1-t) ^ (v3-t)); // the second part is the cross product of two vectors that define the triangle from point t
