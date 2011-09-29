@@ -26,7 +26,6 @@
 #include "algebra3.h"
 #include "FreeImage.h"
 #include "classes.h"
-#include "errors.h"
 
 #ifdef _WIN32
 static DWORD lastTime;
@@ -72,7 +71,7 @@ public:
 		pos = p;
 		intensity = i;
 	}
-	vec3 pos;
+	vec4 pos;
 	vec3 intensity;
 };
 
@@ -82,7 +81,7 @@ public:
 		dir = d;
 		intensity = i;
 	}
-	vec3 dir;
+	vec4 dir;
 	vec3 intensity;	
 };
 
@@ -97,7 +96,7 @@ struct FileWriter {
 Viewport			viewport;
 vector<PLight>		plights;
 vector<DLight>		dlights;
-vector<Renderable>	renderables;
+vector<Renderable*>	renderables;
 Camera				camera;
 
 
@@ -112,6 +111,11 @@ vec3 multiplyVectors(vec3 a, vec3 b) {
 	c[1] = a[1] * b[1];
 	c[2] = a[2] * b[2];
 	return c;
+}
+
+void Error(string msg) {
+	cout << msg << endl;
+	exit(1);
 }
 
 void quitProgram() {
@@ -164,16 +168,17 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 	// don't forget to increase recursionDepth!
 	
 	
-	
+
 	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
-		Ray lightCheck = Ray(hitPoint,plights[i].pos - hitPoint);
+		Ray lightCheck = Ray(hitPoint, plights[i].pos - hitPoint);
 		for (int k = 0; k < renderables.size() ; k++ ) {
-			t = 1;
+			int t = 1;
 			normal = vec4(0,0,0,0);
-			renderables[k].ray_intersect(r,t,normal)
+			renderables[k]->ray_intersect(lightCheck,t,normal);
 		}
+		/*
 		if (t == 1) { // then shade. if t != 1, then the light is blocked by another object
 			vec3 lightColor = plights[i].intensity;
 			vec3 lightVector = plights[i].pos - pos;		
@@ -186,8 +191,8 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 			//Specular term
 			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 		}
+		*/
 	}
-
 
 	/*
 	//Loop through directional lights
@@ -216,7 +221,7 @@ void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
 	glBegin(GL_POINTS);
-	
+	/*
 	//TODO: Loop through each sample that we want to take (at first just each pixel)
 		//We cast a ray from the camera towards each sample
 		//then call shade to calculate the color of that sample
@@ -238,7 +243,8 @@ void myDisplay() {
 			}
 			
 		}
-	}	
+		
+	}	*/
 
 	glEnd();
 	
@@ -313,10 +319,10 @@ void processArgs(int argc, char* argv[]) {
 				if (iss) {
 					r = atoi(word.c_str());
 					Sphere s(r);
-					renderables.push_back(s);
+					renderables.push_back(&s);
 					if (DEBUG) cout << "Parsed sphere of radius " << r << endl;
 				} else {
-					tooFewArgumentsError("Sphere object needs radius.");
+					Error("Sphere object needs radius.");
 				}
 			} else if (word == "tri") { //Parse a triangle
 				
