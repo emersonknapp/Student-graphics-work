@@ -173,8 +173,10 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
 		Ray lightCheck = Ray(hitPoint, plights[i].pos - hitPoint);
+		int t;
+		Material material;
 		for (int k = 0; k < renderables.size() ; k++ ) {
-			int t = 1;
+			t = 1;
 			normal = vec4(0,0,0,0);
 			//GABE WHEN YOU ARE WORKING ON THIS, TAKE NOTE
 			//I CHANGED RENDERABLES SO IT IS A VECTOR OF POINTERS
@@ -185,11 +187,14 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 			//AND WHEN YOU ACCESS STUFF, GOTTA USE THE -> OPERATOR
 			//COOL HAVE A NICE DAY =P
 			renderables[k]->ray_intersect(lightCheck,t,normal);
+			material = renderables[k]->material;
+
 		}
-		/*
+		vec4 intersection = ray.pos + t * ray.dir;
 		if (t == 1) { // then shade. if t != 1, then the light is blocked by another object
+			vec3 normal = vec3(normal[0],normal[1],normal[2]);
 			vec3 lightColor = plights[i].intensity;
-			vec3 lightVector = plights[i].pos - pos;		
+			vec3 lightVector = plights[i].pos - intersection; // this pos is the intersection point on the sphere
 			lightVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Ambient term
@@ -197,9 +202,10 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 			//Diffuse term
 			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
 			//Specular term
-			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
+			//TODO: what is viewVector, and how should we generalize it so it works with recursive reflections?
+//			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 		}
-		*/
+		
 	}
 
 	/*
