@@ -212,6 +212,15 @@ void myDisplay() {
 			//then it can transform it into worldspace for us before we even see it.
 			//Ray r = camera.generateRay(i, j);
 			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
+			int t;
+			vec4 normal;
+			for (int k = 0; k < renderables.size() ; k++ ) {
+				t = 0;
+				normal = vec4(0,0,0,0);
+				if (renderables[k].ray_intersect(r,t,normal)) {
+					// run shader
+				}
+			}
 			
 		}
 	}	
