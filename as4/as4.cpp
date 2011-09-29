@@ -170,7 +170,7 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 		//check if there's shadow
 		Ray lightCheck = Ray(hitPoint,plights[i].pos - hitPoint);
 		for (int k = 0; k < renderables.size() ; k++ ) {
-			t = 0;
+			t = 1;
 			normal = vec4(0,0,0,0);
 			renderables[k].ray_intersect(r,t,normal)
 		}
