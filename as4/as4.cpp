@@ -278,7 +278,8 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		quitProgram();
 	} else if (key >= '0' && key <= '9') {	
 		string name = "pic";
-		name += key + ".png";
+		name += key;
+		name += ".png";
 		printScreen(name.c_str());
 	}
 }
