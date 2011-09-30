@@ -188,7 +188,6 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 			//COOL HAVE A NICE DAY =P
 			renderables[k]->ray_intersect(lightCheck,t,normal);
 			material = renderables[k]->material;
-
 		}
 		vec4 intersection = ray.pos + t * ray.dir;
 		if (t == 1) { // then shade. if t != 1, then the light is blocked by another object
@@ -202,8 +201,7 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 			//Diffuse term
 			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
 			//Specular term
-			//TODO: what is viewVector, and how should we generalize it so it works with recursive reflections?
-//			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
+			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*vec3(ray.pos[0],ray.pos[1],ray.pos[2]), 0.0), material.sp);
 		}
 		
 	}
@@ -235,7 +233,7 @@ void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
 	glBegin(GL_POINTS);
-	/*
+	
 	//TODO: Loop through each sample that we want to take (at first just each pixel)
 		//We cast a ray from the camera towards each sample
 		//then call shade to calculate the color of that sample
@@ -245,20 +243,16 @@ void myDisplay() {
 			//then it can transform it into worldspace for us before we even see it.
 			//Ray r = camera.generateRay(i, j);
 			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
-			int t;
+			int t=0;
 			vec4 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
-				t = 0;
 				normal = vec4(0,0,0,0);
-				if (renderables[k].ray_intersect(r,t,normal)) {
-					vec4 intersection = r.pos * t * r.dir;
-					// run shader
-				}
+				renderables[k]->ray_intersect(r,t,normal);
 			}
-			
+			vec4 intersection = r.pos * t * r.dir; // at this point, t is minimum
+			shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
 		}
-		
-	}	*/
+	}	
 
 	glEnd();
 	

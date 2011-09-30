@@ -137,13 +137,15 @@ bool Sphere::ray_intersect ( Ray &r, int &t, vec4 &normal) {
 		return false;
 	} else {
 		// this t determines intersection point A + t*D = r.pos + t * r.dir
-		t = min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
-		vec4 intersection = r.pos + t * r.dir; // this is a point on the sphere
-		// if we have normal n on the sphere, then if it's transformed, we use (M^-1)^T * n as the normal
-		// intersection - pos is the normal on the sphere
-		normal = tmat.inverse().transpose() * (intersection - pos);
-		normal.normalize();
-
+		int tmp = min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
+		if (tmp < t) {
+			t = tmp;
+			vec4 intersection = r.pos + t * r.dir; // this is a point on the sphere
+			// if we have normal n on the sphere, then if it's transformed, we use (M^-1)^T * n as the normal
+			// intersection - pos is the normal on the sphere
+			normal = tmat.inverse().transpose() * (intersection - pos);
+			normal.normalize();
+		}
 		return true;
 	}
 }
@@ -163,10 +165,13 @@ bool Triangle::ray_intersect ( Ray &r, int &t, vec4 &normal ) {
 					vec4(0,0,0,0)
 					).inverse() * vec4(r.pos) - v1;
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] <= 1 && res[2] < t) {
-		t = res[2];
-		vec4 intersection = r.pos + t * r.dir; // this is a point on the triangle
-		normal = tmat.inverse().transpose() * ((v1-t) ^ (v3-t)); // the second part is the cross product of two vectors that define the triangle from point t
-		normal.normalize();
+		int tmp = res[2];
+		if (tmp < t) {
+			t = tmp;
+			vec4 intersection = r.pos + t * r.dir; // this is a point on the triangle
+			normal = tmat.inverse().transpose() * ((v1-t) ^ (v3-t)); // the second part is the cross product of two vectors that define the triangle from point t
+			normal.normalize();
+		}
 		return true;
 	} else {
 		return false;
