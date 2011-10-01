@@ -28,7 +28,7 @@ public:
 	vec4 pos;
 	vec4 dir;
 	float t_min, t_max;
-	
+	Ray();
 	Ray(vec4 a, vec4 b);	
 };
 

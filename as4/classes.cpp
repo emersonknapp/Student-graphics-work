@@ -44,7 +44,11 @@ Material::Material(vec3 a, vec3 d, vec3 s, float r, int p) {
 	kr = r;
 }
 
-	
+Ray::Ray() {
+	pos = vec4(0,0,0,0);
+	dir = vec4(0,0,0,0);
+}	
+
 Ray::Ray(vec4 a, vec4 b) {
 	pos = a;
 	dir = b;
@@ -128,7 +132,7 @@ Sphere::Sphere(int a) {
 	vec4 base = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect ( Ray &r, int &t, vec4 &normal) {
+bool Sphere::ray_intersect ( Ray r, int &t, vec4 &normal) {
 	vec4 pos = tmat * base;
 	float a = r.dir.length2();
 	float b = 2*r.pos*r.dir + pos * r.dir;

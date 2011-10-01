@@ -247,10 +247,12 @@ void myDisplay() {
 			vec4 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
 				normal = vec4(0,0,0,0);
+				//TODO this next line causes a segfault at runtime. I think it has something to do with the Ray r
 				renderables[k]->ray_intersect(r,t,normal);
 			}
 			vec4 intersection = r.pos * t * r.dir; // at this point, t is minimum
 			shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
+			
 		}
 	}	
 
@@ -336,7 +338,7 @@ void processArgs(int argc, char* argv[]) {
 			} else if (word == "tri") { //Parse a triangle
 				
 			} else if (word == "camera") { //Initialize the camera
-				
+				camera = Camera();
 			} else if (word == "print") { //Specify output file, default "out.png"
 				fileWriter.drawing = true;
 				iss >> word;
