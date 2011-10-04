@@ -46,7 +46,7 @@ public:
 	void rotate(int angle, vec3 u);
 	void scale(int xScale, int yScale, int zScale);
 	
-	virtual bool ray_intersect (Ray &, int &, vec4 &) = 0; // returns whether ray intersects this object, sets t to proper value
+	virtual bool ray_intersect (Ray &, int &, vec4 &)=0; // returns whether ray intersects this object, sets t to proper value
 
 };
 
@@ -67,7 +67,7 @@ public:
 	vec4 base;
 	
 	Sphere (int a);	
-	bool ray_intersect ( Ray &r, int &t, vec4 &normal);
+	bool ray_intersect ( Ray &, int &, vec4 &);
 };
 
 class Triangle : public Renderable {

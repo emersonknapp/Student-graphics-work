@@ -119,6 +119,9 @@ void Error(string msg) {
 }
 
 void quitProgram() {
+	for (int i=0; i < renderables.size(); i++) {
+		delete renderables[i];
+	}
 	FreeImage_DeInitialise();
 	exit(0);
 }
@@ -178,14 +181,7 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 		for (int k = 0; k < renderables.size() ; k++ ) {
 			t = 1;
 			normal = vec4(0,0,0,0);
-			//GABE WHEN YOU ARE WORKING ON THIS, TAKE NOTE
-			//I CHANGED RENDERABLES SO IT IS A VECTOR OF POINTERS
-			//THIS IS BECAUSE C++ ONLY WORKS THAT WAY
-			//UMMMMMM, CAPSLOCK IS FUN I GUESS
-			//ANYWAYS POINT BEING WHAT'S CHANGED IS THAT WHEN YOU PUSH_BACK
-			//SOMETHING TO RENDERABLES IT NEEDS TO BE PUSH_BACK(&THING)
-			//AND WHEN YOU ACCESS STUFF, GOTTA USE THE -> OPERATOR
-			//COOL HAVE A NICE DAY =P
+
 			renderables[k]->ray_intersect(lightCheck,t,normal);
 			material = renderables[k]->material;
 		}
@@ -329,8 +325,8 @@ void processArgs(int argc, char* argv[]) {
 				iss >> word;
 				if (iss) {
 					r = atoi(word.c_str());
-					Sphere s(r);
-					renderables.push_back(&s);
+					Sphere* sph = new Sphere(r);
+					renderables.push_back(sph);
 					if (DEBUG) cout << "Parsed sphere of radius " << r << endl;
 				} else {
 					Error("Sphere object needs radius.");

@@ -132,7 +132,7 @@ Sphere::Sphere(int a) {
 	vec4 base = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect ( Ray r, int &t, vec4 &normal) {
+bool Sphere::ray_intersect ( Ray& r, int &t, vec4 &normal) {
 	vec4 pos = tmat * base;
 	float a = r.dir.length2();
 	float b = 2*r.pos*r.dir + pos * r.dir;
