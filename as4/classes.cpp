@@ -1,32 +1,11 @@
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <cstring>
-#ifdef _WIN32
-#	include <windows.h>
-#else
-#	include <sys/time.h>
-#endif
-
-#ifdef OSX
-#include <GLUT/glut.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/glut.h>
-#include <GL/glu.h>
-#endif
-
-#include <time.h>
-#include <math.h>
-
 #include "classes.h"
 
 
 
 
 using namespace std;
+
+
 
 Material::Material() {
 	ka = vec3(0,0,0);
@@ -183,3 +162,36 @@ bool Triangle::ray_intersect ( Ray &r, int &t, vec4 &normal ) {
 		return false;
 	}
 }
+
+
+Scene::Scene() {
+	activeCamera=0;
+}
+
+Scene::~Scene() {
+	for (int i=0; i<renderables.size(); i++) delete renderables[i];
+	for (int i=0; i<plights.size(); i++) delete plights[i];
+	for (int i=0; i<dlights.size(); i++) delete dlights[i];
+	for (int i=0; i<cameras.size(); i++) delete cameras[i];
+}
+
+Viewport::Viewport () {
+	w = 0;
+	h = 0;
+}
+Viewport::Viewport (int width, int height) {
+	w = width;
+	h = height;
+}
+
+PLight::PLight(vec3 p, vec3 i) {
+	pos = p;
+	intensity = i;
+}
+
+DLight::DLight(vec3 d, vec3 i) {
+	dir = d;
+	intensity = i;
+}
+
+

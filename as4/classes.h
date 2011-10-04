@@ -1,6 +1,32 @@
 #ifndef _CLASSES_H
 #define _CLASSES_H
+
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include <cstring>
+#ifdef _WIN32
+#	include <windows.h>
+#else
+#	include <sys/time.h>
+#endif
+
+#ifdef OSX
+#include <GLUT/glut.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/glut.h>
+#include <GL/glu.h>
+#endif
+
+#include <time.h>
+#include <math.h>
+
 #include "algebra3.h"
+#include "FreeImage.h"
+
 
 
 //
@@ -11,6 +37,20 @@
 //
 
 using namespace std;
+
+class PLight {
+public:
+	PLight(vec3, vec3);
+	vec4 pos;
+	vec3 intensity;
+};
+
+class DLight {
+public:
+	DLight(vec3 , vec3 );
+	vec4 dir;
+	vec3 intensity;	
+};
 
 class Material {
 public:
@@ -77,6 +117,32 @@ public:
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
 	bool ray_intersect ( Ray &, int &, vec4 & );
+};
+
+class Scene {
+public:
+	Scene();
+	~Scene();
+	vector<Renderable*> renderables;
+	vector<PLight*> plights;
+	vector<DLight*> dlights;
+	vector<Camera*> cameras;
+	int activeCamera;	
+};
+
+class FileWriter {
+public:
+	bool drawing;
+	string fileName;
+	void printScreen();
+};
+
+class Viewport {
+public:
+	Viewport ();
+	Viewport (int width, int height);
+	int w;
+	int h;
 };
 
 #endif

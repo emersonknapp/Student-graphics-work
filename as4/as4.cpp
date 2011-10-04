@@ -40,55 +40,11 @@ static struct timeval lastTime;
 #define EPSILON 0.15
 #define DEBUG true
 #define BITSPERPIXEL 24
+
 #define MAXRECURSION 1
 #define MAXLINE 255
 
 using namespace std;
-
-
-//****************************************************
-// Classes
-//****************************************************
-
-class Viewport {
-public:
-	Viewport () {
-		w = 0;
-		h = 0;
-	}
-	Viewport (int width, int height) {
-		w = width;
-		h = height;
-	}
-	int w;
-	int h;
-};
-
-
-class PLight {
-public:
-	PLight(vec3 p, vec3 i) {
-		pos = p;
-		intensity = i;
-	}
-	vec4 pos;
-	vec3 intensity;
-};
-
-class DLight {
-public:
-	DLight(vec3 d, vec3 i) {
-		dir = d;
-		intensity = i;
-	}
-	vec4 dir;
-	vec3 intensity;	
-};
-
-struct FileWriter {
-	bool drawing;
-	string fileName;
-} fileWriter;
 
 //****************************************************
 // Global Variables
@@ -98,7 +54,14 @@ vector<PLight>		plights;
 vector<DLight>		dlights;
 vector<Renderable*>	renderables;
 Camera				camera;
+FileWriter			fileWriter;
+Scene				scene;
 
+
+
+//****************************************************
+// Helper Functions
+//****************************************************
 
 void setPixel(int x, int y, GLfloat r, GLfloat g, GLfloat b) {
 	glColor3f(r, g, b);
@@ -119,14 +82,14 @@ void Error(string msg) {
 }
 
 void quitProgram() {
-	for (int i=0; i < renderables.size(); i++) {
-		delete renderables[i];
-	}
+	//Make sure to delete stuff that was created using new.
+	for (int i=0; i < renderables.size(); i++) delete renderables[i];
 	FreeImage_DeInitialise();
 	exit(0);
 }
 
-void printScreen(const char * name) {
+void FileWriter::printScreen() {
+	const char* name = fileName.c_str();
 	//bitmap holds FreeImage Pixels
 	FIBITMAP* bitmap = FreeImage_Allocate(viewport.w, viewport.h, BITSPERPIXEL);
 	if (!bitmap) exit(1);
@@ -151,7 +114,6 @@ void printScreen(const char * name) {
 	FreeImage_Save(FIF_PNG, bitmap, name, 0);
 	cout << "Image successfully saved to " << name << endl;
 }
-
 
 //***************************************************
 // does phong shading on a point
@@ -224,10 +186,12 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 	return color;
 }
 
+
+//***************************************************
+// Function what actually draws to screen
+//***************************************************
 void myDisplay() {
-	if (DEBUG) cout << "Beginning ray trace..." << endl;
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
-	
 	glBegin(GL_POINTS);
 	
 	//TODO: Loop through each sample that we want to take (at first just each pixel)
@@ -246,21 +210,20 @@ void myDisplay() {
 				renderables[k]->ray_intersect(r,t,normal);
 			}
 			vec4 intersection = r.pos * t * r.dir; // at this point, t is minimum
-			shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
+			vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
+			setPixel(i, j, color[0], color[1], color[2]);
 			
 		}
 	}
-	if (DEBUG) cout << "Completed render! Outputting to file." << endl;
 		
-
 	glEnd();
-	
-	
+		
 	glFlush();
 	glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 	
 	if (fileWriter.drawing) {
-		printScreen(fileWriter.fileName.c_str());
+		if (DEBUG) cout << "Completed render! Outputting to file." << endl;
+		fileWriter.printScreen();
 		quitProgram();	
 	}
 }
@@ -287,7 +250,8 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		string name = "pic";
 		name += key;
 		name += ".png";
-		printScreen(name.c_str());
+		fileWriter.fileName = name;
+		fileWriter.printScreen();
 	}
 }
 
