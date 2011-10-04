@@ -60,7 +60,9 @@ void Renderable::translate (int x, int y, int z) { // generates translation matr
 		 		vec4(0,0,0,1)
 				);
 	tmat = tmat * m;
+	
 	imat = tmat.inverse();
+	
 }
 void Renderable::rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
 	u.normalize();
@@ -184,12 +186,12 @@ Viewport::Viewport (int width, int height) {
 	h = height;
 }
 
-PLight::PLight(vec3 p, vec3 i) {
+PLight::PLight(vec4 p, vec3 i) {
 	pos = p;
 	intensity = i;
 }
 
-DLight::DLight(vec3 d, vec3 i) {
+DLight::DLight(vec4 d, vec3 i) {
 	dir = d;
 	intensity = i;
 }

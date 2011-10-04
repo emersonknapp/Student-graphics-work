@@ -50,8 +50,8 @@ using namespace std;
 // Global Variables
 //****************************************************
 Viewport			viewport;
-vector<PLight>		plights;
-vector<DLight>		dlights;
+vector<PLight*>		plights;
+vector<DLight*>		dlights;
 vector<Renderable*>	renderables;
 Camera				camera;
 FileWriter			fileWriter;
@@ -137,7 +137,7 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
-		Ray lightCheck = Ray(hitPoint, plights[i].pos - hitPoint);
+		Ray lightCheck = Ray(hitPoint, plights[i]->pos - hitPoint);
 		int t;
 		Material material;
 		for (int k = 0; k < renderables.size() ; k++ ) {
@@ -150,8 +150,8 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 		vec4 intersection = ray.pos + t * ray.dir;
 		if (t == 1) { // then shade. if t != 1, then the light is blocked by another object
 			vec3 normal = vec3(normal[0],normal[1],normal[2]);
-			vec3 lightColor = plights[i].intensity;
-			vec3 lightVector = plights[i].pos - intersection; // this pos is the intersection point on the sphere
+			vec3 lightColor = plights[i]->intensity;
+			vec3 lightVector = plights[i]->pos - intersection; // this pos is the intersection point on the sphere
 			lightVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Ambient term
@@ -287,17 +287,20 @@ void processArgs(int argc, char* argv[]) {
 			istringstream iss(s);
 			string word; //Holds current word from the line input
 			iss >> word;
+			
 			if (word == "sph") { //Parse a sphere
 				int r;
 				iss >> word;
 				if (iss) {
 					r = atoi(word.c_str());
 					Sphere* sph = new Sphere(r);
+					sph->translate(0,0,150);
 					renderables.push_back(sph);
-					if (DEBUG) cout << "Parsed sphere of radius " << r << endl;
 				} else {
 					Error("Sphere object needs radius.");
 				}
+				if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
+				
 			} else if (word == "tri") { //triangle x1 y1 z1 x2 y2 z2 x3 y3 z3
 				vec4 vertices[3];
 				for (int i=0; i<3; i++) {
@@ -314,7 +317,7 @@ void processArgs(int argc, char* argv[]) {
 				}
 				Triangle* tri = new Triangle(vertices[0], vertices[1], vertices[2]);
 				renderables.push_back(tri);
-				if (DEBUG) cout << "Parsed triangle" << endl;
+				if (DEBUG) cout << "Added triangle to scene." << endl;
 			} else if (word == "camera") { //camera viewdir upvec fov
 				camera = Camera();
 			} else if (word == "print") { //print outputfile
@@ -326,15 +329,36 @@ void processArgs(int argc, char* argv[]) {
 					fileWriter.fileName = "out.png";
 				}
 			} else if (word == "translate") { //translate x y z
-				
+				int x = 0, y=0, z=0;
 			} else if (word == "rotate") { //rotate theta vec
 
 			} else if (word == "scale") { //scale x y z
 
 			} else if (word == "mat") { //mat ka kd ks kr sp
 
+			} else if (word == "pl") { //pointlight x y z r g b
+				vec4 pos;
+				vec3 color;
+				for (int i=0; i<3; i++) {
+					iss >> word;
+					if (iss) {
+						pos[i] = atoi(word.c_str());
+					} else Error("Not enough arguments to PointLight");
+				}
+				for (int i=0; i<3; i++) {
+					iss >> word;
+					if (iss) {
+						color[i] = atoi(word.c_str());
+					} else Error("Not enough arguments to PointLight");
+				}
+				pos[3] = 0;
+				PLight* p = new PLight(pos, color);
+				plights.push_back(p);
+				if (DEBUG) cout << "Added point light to scene." << endl;
+			} else if (word == "dl") { //directionalight x y z
+
 			} else {
-				continue;
+				Error("Unrecognized object " + word);
 			}
 		}
 		

@@ -40,14 +40,14 @@ using namespace std;
 
 class PLight {
 public:
-	PLight(vec3, vec3);
+	PLight(vec4, vec3);
 	vec4 pos;
 	vec3 intensity;
 };
 
 class DLight {
 public:
-	DLight(vec3 , vec3 );
+	DLight(vec4 , vec3 );
 	vec4 dir;
 	vec3 intensity;	
 };
