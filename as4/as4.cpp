@@ -225,7 +225,7 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 }
 
 void myDisplay() {
-
+	if (DEBUG) cout << "Beginning ray trace..." << endl;
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
 	glBegin(GL_POINTS);
@@ -237,7 +237,6 @@ void myDisplay() {
 		for (int j = -viewport.h; j<viewport.h; j++) {
 			//It'll probably be nicer if we ask the camera for the ray,
 			//then it can transform it into worldspace for us before we even see it.
-			//Ray r = camera.generateRay(i, j);
 			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
 			int t=0;
 			vec4 normal;
@@ -250,7 +249,9 @@ void myDisplay() {
 			shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
 			
 		}
-	}	
+	}
+	if (DEBUG) cout << "Completed render! Outputting to file." << endl;
+		
 
 	glEnd();
 	
@@ -309,7 +310,9 @@ void processArgs(int argc, char* argv[]) {
 	
 	for (int i=1; i<argc; i++) {
 		Material material;
-		mat4 tmat;
+		mat4 tranlation;
+		mat4 scale;
+		mat4 rotate;
 		
 		string arg = argv[i];
 		
@@ -331,11 +334,26 @@ void processArgs(int argc, char* argv[]) {
 				} else {
 					Error("Sphere object needs radius.");
 				}
-			} else if (word == "tri") { //Parse a triangle
-				
-			} else if (word == "camera") { //Initialize the camera
+			} else if (word == "tri") { //triangle x1 y1 z1 x2 y2 z2 x3 y3 z3
+				vec4 vertices[3];
+				for (int i=0; i<3; i++) {
+					int v[3];
+					for (int j=0; j<3; j++) {
+						iss >> word;
+						if (iss) {
+							v[j]=atoi(word.c_str());
+						} else {
+							Error("Not enough arguments to triangle.");
+						}
+					}
+					vertices[i] = vec4(v[0], v[1], v[2], 1);
+				}
+				Triangle* tri = new Triangle(vertices[0], vertices[1], vertices[2]);
+				renderables.push_back(tri);
+				if (DEBUG) cout << "Parsed triangle" << endl;
+			} else if (word == "camera") { //camera viewdir upvec fov
 				camera = Camera();
-			} else if (word == "print") { //Specify output file, default "out.png"
+			} else if (word == "print") { //print outputfile
 				fileWriter.drawing = true;
 				iss >> word;
 				if (iss) {
@@ -343,13 +361,13 @@ void processArgs(int argc, char* argv[]) {
 				} else {
 					fileWriter.fileName = "out.png";
 				}
-			} else if (word == "translate") { //specify translation
+			} else if (word == "translate") { //translate x y z
+				
+			} else if (word == "rotate") { //rotate theta vec
 
-			} else if (word == "rotate") { //specify rotation
+			} else if (word == "scale") { //scale x y z
 
-			} else if (word == "scale") { //specify scale
-
-			} else if (word == "mat") { //specify a material
+			} else if (word == "mat") { //mat ka kd ks kr sp
 
 			} else {
 				continue;
@@ -388,8 +406,6 @@ int main(int argc, char *argv[]) {
   	glutCreateWindow("Phong Illumination Model");
 	
   	initScene();							// quick function to set up scene
-	// initialize sample models so we don't have to worry about CLI yet
-	Sphere s1 = Sphere(min(viewport.w, viewport.h)-2);
 
 	glutIgnoreKeyRepeat(1);
 	glutKeyboardFunc(processNormalKeys);

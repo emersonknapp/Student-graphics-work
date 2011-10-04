@@ -127,7 +127,7 @@ bool Camera::ray_intersect (Ray &r, int &t, vec4 &normal) {
 }
 
 
-Sphere::Sphere(int a) {
+Sphere::Sphere(int a) : Renderable() {
 	radius = a;
 	vec4 base = vec4(0,0,0,1);
 }
@@ -154,7 +154,7 @@ bool Sphere::ray_intersect ( Ray& r, int &t, vec4 &normal) {
 	}
 }
 
-Triangle::Triangle (vec4 a, vec4 b, vec4 c) {
+Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;

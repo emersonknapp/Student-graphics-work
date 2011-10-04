@@ -1,3 +1,4 @@
 translate 0 0 10
 sph 2
-print test1.png
+translate 5 5 10
+print
