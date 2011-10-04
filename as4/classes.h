@@ -76,7 +76,7 @@ public:
 	vec4 v1, v2, v3;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
-	bool ray_intersect ( Ray &r, int &t, vec4 &normal );
+	bool ray_intersect ( Ray &, int &, vec4 & );
 };
 
 #endif

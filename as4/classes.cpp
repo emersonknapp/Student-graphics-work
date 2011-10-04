@@ -162,12 +162,14 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	
 bool Triangle::ray_intersect ( Ray &r, int &t, vec4 &normal ) {
 	// res : Beta | gamma | t
+	cout << "Triangle ray intersect check" << endl;
 	vec3 res = mat4(
 					vec4((v2-v1)[0],(v3-v1)[0],-r.dir[0],0),
 					vec4((v2-v1)[1],(v3-v1)[1],-r.dir[1],0),
 					vec4((v2-v1)[2],(v3-v1)[3],-r.dir[2],0),
 					vec4(0,0,0,0)
 					).inverse() * vec4(r.pos) - v1;
+	cout << "Checking parameters are within range..." << endl;
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] <= 1 && res[2] < t) {
 		int tmp = res[2];
 		if (tmp < t) {
