@@ -199,11 +199,14 @@ void myDisplay() {
 	//TODO: Loop through each sample that we want to take (at first just each pixel)
 		//We cast a ray from the camera towards each sample
 		//then call shade to calculate the color of that sample
-	for (int i = -viewport.w; i<viewport.w; i++) {
-		for (int j = -viewport.h; j<viewport.h; j++) {
+	for (float i = -1; i < 1 ; i += 1/viewport.w) {
+		for (float j = -1; j < 1; j+= 1/viewport.h) {
+			Ray r = camera.generate_ray(i,j,viewport);
+//	for (int i = -viewport.w; i<viewport.w; i++) {
+//		for (int j = -viewport.h; j<viewport.h; j++) {
 			//It'll probably be nicer if we ask the camera for the ray,
 			//then it can transform it into worldspace for us before we even see it.
-			Ray r = Ray(camera.pos, vec4(i,j,0,1) - camera.pos);
+//			Ray r = Ray(camera.pos, vec4(i,j,0,1) - camera.pos);
 			int t=0;
 			vec4 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
@@ -360,6 +363,7 @@ void processArgs(int argc, char* argv[]) {
 					sph->rotate(rotationAmount, rotateVec);
 					sph->material = parseMaterial;
 					renderables.push_back(sph);
+					if (DEBUG) cout << "Sphere has material kd:" << sph->material.kd << endl;
 				} else {
 					Error("Sphere object needs radius.");
 				}

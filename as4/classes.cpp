@@ -111,7 +111,8 @@ bool Camera::ray_intersect (Ray &r, int &t, vec4 &normal) {
 
 Ray Camera::generate_ray (float x, float y,Viewport v) {
 	// |x|,|y| should be 0 <= j <= 1
-	vec4 dir = tmat*(vec4(x*v.w,y*v.h,0,1) - pos);
+	vec4 tmp = vec4(x*v.w,y*v.h,0,1);
+	vec4 dir = (tmat*tmp - pos);
 	//TODO - check if this is right EMERSON
 	return Ray(pos, dir);
 }
