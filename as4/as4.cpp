@@ -165,7 +165,6 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 		}
 		
 	}
-
 	/*
 	//Loop through directional lights
 	for (int i=0; i<dlights.size(); i++) {
@@ -199,13 +198,11 @@ void myDisplay() {
 	//TODO: Loop through each sample that we want to take (at first just each pixel)
 		//We cast a ray from the camera towards each sample
 		//then call shade to calculate the color of that sample
-	for (float i = -1; i < 1 ; i += 1/viewport.w) {
-		for (float j = -1; j < 1; j+= 1/viewport.h) {
+	for (float i = -1; i < 1 ; i += 1.0f/viewport.w) {
+		for (float j = -1; j < 1; j+= 1.0f/viewport.h) {
+//			cout << i << "," << j << endl;
 			Ray r = camera.generate_ray(i,j,viewport);
-//	for (int i = -viewport.w; i<viewport.w; i++) {
-//		for (int j = -viewport.h; j<viewport.h; j++) {
-			//It'll probably be nicer if we ask the camera for the ray,
-			//then it can transform it into worldspace for us before we even see it.
+			//TODO: scale i,j for the setPixel command
 //			Ray r = Ray(camera.pos, vec4(i,j,0,1) - camera.pos);
 			int t=0;
 			vec4 normal;
@@ -216,7 +213,8 @@ void myDisplay() {
 			}
 			vec4 intersection = r.pos * t * r.dir; // at this point, t is minimum
 			vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
-			setPixel(i, j, color[0], color[1], color[2]);
+			if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
+			setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
 			
 		}
 	}
@@ -363,7 +361,6 @@ void processArgs(int argc, char* argv[]) {
 					sph->rotate(rotationAmount, rotateVec);
 					sph->material = parseMaterial;
 					renderables.push_back(sph);
-					if (DEBUG) cout << "Sphere has material kd:" << sph->material.kd << endl;
 				} else {
 					Error("Sphere object needs radius.");
 				}
@@ -392,6 +389,9 @@ void processArgs(int argc, char* argv[]) {
 				if (DEBUG) cout << "Added triangle to scene." << endl;
 			} else if (word == "camera") { //camera
 				camera = Camera();
+				camera.translate(translation);
+				camera.scale(scale);
+				camera.rotate(rotationAmount, rotateVec);
 			} else if (word == "print") { //print outputfile
 				fileWriter.drawing = true;
 				iss >> word;
@@ -428,8 +428,6 @@ void processArgs(int argc, char* argv[]) {
 					} else Error("Not enough arguments to scale.");
 				}
 			 	scale = stuff;
-			} else if (word == "mat") { //mat ka kd ks kr sp
-
 			} else if (word == "pl") { //pointlight x y z r g b
 				vec4 pos;
 				vec3 color;
