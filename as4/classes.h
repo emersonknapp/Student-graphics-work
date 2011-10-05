@@ -38,6 +38,14 @@
 
 using namespace std;
 
+class Viewport {
+public:
+	Viewport ();
+	Viewport (int width, int height);
+	int w;
+	int h;
+};
+
 class PLight {
 public:
 	PLight(vec4, vec3);
@@ -91,14 +99,16 @@ public:
 };
 
 class Camera : public Renderable {
-	// needs to keep track of its position (starts at 0,0,1)
-	// keep track of where it's facing? facing -z direction relative to itself
-	// transform view plane. Keep track of tmat
+	// needs to keep track of its position (starts at 0,0,-1) by default.
+	// we ask the camera to generate a ray based on an input between (1,1) (1,-1) (-1,-1) (-1,1)
+	// we then scale this point to the size of the viewport, then run the regular camera transformations on it then generate the ray.
+	
 public:
 	vec4 pos,up,viewer;
 	Camera();	
 	//Ray generate_ray();
 	bool ray_intersect (Ray &, int &, vec4 &);
+	Ray generate_ray(float x, float y, Viewport v);
 };
 
 class Sphere : public Renderable {
@@ -138,12 +148,6 @@ public:
 	void printScreen();
 };
 
-class Viewport {
-public:
-	Viewport ();
-	Viewport (int width, int height);
-	int w;
-	int h;
-};
+
 
 #endif

@@ -99,13 +99,21 @@ void Renderable::scale(int xScale, int yScale, int zScale) { // generates scale 
 
 
 Camera::Camera() {
-	pos = vec3(0,0,1);
+	pos = vec3(0,0,-1);
 	up = vec3(0,1,0);
-	viewer = vec3(0,0,-1);
+	viewer = vec3(0,0,1);
 }
+//
 
 bool Camera::ray_intersect (Ray &r, int &t, vec4 &normal) {
 	return false;
+}
+
+Ray Camera::generate_ray (float x, float y,Viewport v) {
+	// |x|,|y| should be 0 <= j <= 1
+	vec4 dir = tmat*(vec4(x*v.w,y*v.h,0,1) - pos);
+	//TODO - check if this is right EMERSON
+	return Ray(pos, dir);
 }
 
 

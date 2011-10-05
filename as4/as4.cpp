@@ -300,10 +300,11 @@ void processArgs(int argc, char* argv[]) {
 					} else {
 						Error("Not enough arguments to ka.");
 					}
-					parseMaterial.ka = vec3(v[0],v[1],v[2]);
 				}
+				parseMaterial.ka = vec3(v[0],v[1],v[2]);
+				if (DEBUG) cout << "added ka = " << parseMaterial.ka << endl;
 			}
-			if (word == "kd") {
+			else if (word == "kd") {
 				float v[3];
 				for (int i=0; i < 3; i++) {
 					iss >> word;
@@ -312,10 +313,11 @@ void processArgs(int argc, char* argv[]) {
 					} else {
 						Error("Not enough arguments to kd.");
 					}
-					parseMaterial.kd = vec3(v[0],v[1],v[2]);
 				}
+				parseMaterial.kd = vec3(v[0],v[1],v[2]);
+				if (DEBUG) cout << "added kd = " << parseMaterial.kd << endl;				
 			}
-			if (word == "ks") {
+			else if (word == "ks") {
 				float v[3];
 				for (int i=0; i < 3; i++) {
 					iss >> word;
@@ -324,27 +326,30 @@ void processArgs(int argc, char* argv[]) {
 					} else {
 						Error("Not enough arguments to ks.");
 					}
-					parseMaterial.ks = vec3(v[0],v[1],v[2]);
 				}
+				parseMaterial.ks = vec3(v[0],v[1],v[2]);
+				if (DEBUG) cout << "added ks = " << parseMaterial.ks << endl;
 			}
-			if (word == "kr") {
+			else if (word == "kr") {
 				iss >> word;
 				if (iss) {
 					parseMaterial.kr = atof(word.c_str());
+					if (DEBUG) cout << "added kr = " << parseMaterial.kr << endl;
 				} else {
 					Error("Bad kr");
 				}
 			}
-			if (word == "sp") {
+			else if (word == "sp") {
 				iss >> word;
 				if (iss) {
 					parseMaterial.sp = atof(word.c_str());
+					if (DEBUG) cout << "added sp = " << parseMaterial.sp << endl;
 				} else {
 					Error("Bad SP");
 				}
 			}
 			
-			if (word == "sph") { //Parse a sphere
+			else if (word == "sph") { //Parse a sphere
 				int r;
 				iss >> word;
 				if (iss) {

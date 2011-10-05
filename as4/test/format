@@ -1,8 +1,6 @@
 // preferred order of transformations
 // scale, rotate, translate
 
-
-mat ka kd ks kr sp
 ka
 kd
 ks
