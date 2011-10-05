@@ -37,19 +37,15 @@ Ray::Ray(vec4 a, vec4 b) {
 
 Renderable::Renderable () {
 	tmat = mat4(
-			vec4(0,0,0,0),
-			vec4(0,0,0,0),
-			vec4(0,0,0,0),
-			vec4(1,0,0,0)
+			vec4(1,0,0,0),
+			vec4(0,1,0,0),
+			vec4(0,0,1,0),
+			vec4(0,0,0,1)
 			);
 }
-Renderable::Renderable (int x, int y, int z) {
-	tmat = mat4(
-			vec4(x,0,0,0),
-			vec4(y,0,0,0),
-			vec4(z,0,0,0),
-			vec4(1,0,0,0)
-			);	
+
+void Renderable::translate (vec3 t) {
+	translate(t[0], t[1], t[2]);
 }
 
 void Renderable::translate (int x, int y, int z) { // generates translation matrix and updates tmat
@@ -85,6 +81,11 @@ void Renderable::rotate(int angle, vec3 u) { // generates rotation matrix and up
 	tmat = tmat * r;
 	imat = tmat.inverse();
 }
+
+void Renderable::scale (vec3 s) {
+	scale(s[0], s[1], s[2]);
+}
+
 void Renderable::scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
 	mat4 s = mat4(
 				vec4(xScale,0,0,0),

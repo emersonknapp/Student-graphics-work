@@ -56,6 +56,7 @@ vector<Renderable*>	renderables;
 Camera				camera;
 FileWriter			fileWriter;
 Scene				scene;
+mat4				identity;
 
 
 
@@ -201,7 +202,7 @@ void myDisplay() {
 		for (int j = -viewport.h; j<viewport.h; j++) {
 			//It'll probably be nicer if we ask the camera for the ray,
 			//then it can transform it into worldspace for us before we even see it.
-			Ray r = Ray(camera.pos,vec4(i,j,0,1) - camera.pos);
+			Ray r = Ray(camera.pos, vec4(i,j,0,1) - camera.pos);
 			int t=0;
 			vec4 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
@@ -274,9 +275,10 @@ void processArgs(int argc, char* argv[]) {
 	
 	for (int i=1; i<argc; i++) {
 		Material material;
-		mat4 tranlation;
-		mat4 scale;
-		mat4 rotate;
+		vec3 translation(0,0,0);
+		vec3 scale(1,1,1);
+		vec3 rotateVec(0,0,0);
+		int rotationAmount = 0;
 		
 		string arg = argv[i];
 		
@@ -294,7 +296,9 @@ void processArgs(int argc, char* argv[]) {
 				if (iss) {
 					r = atoi(word.c_str());
 					Sphere* sph = new Sphere(r);
-					sph->translate(0,0,150);
+					sph->translate(translation);
+					sph->scale(scale);
+					sph->rotate(rotationAmount, rotateVec);
 					renderables.push_back(sph);
 				} else {
 					Error("Sphere object needs radius.");
@@ -316,9 +320,12 @@ void processArgs(int argc, char* argv[]) {
 					vertices[i] = vec4(v[0], v[1], v[2], 1);
 				}
 				Triangle* tri = new Triangle(vertices[0], vertices[1], vertices[2]);
+				tri->translate(translation);
+				tri->scale(scale);
+				tri->rotate(rotationAmount, rotateVec);
 				renderables.push_back(tri);
 				if (DEBUG) cout << "Added triangle to scene." << endl;
-			} else if (word == "camera") { //camera viewdir upvec fov
+			} else if (word == "camera") { //camera
 				camera = Camera();
 			} else if (word == "print") { //print outputfile
 				fileWriter.drawing = true;
@@ -329,11 +336,33 @@ void processArgs(int argc, char* argv[]) {
 					fileWriter.fileName = "out.png";
 				}
 			} else if (word == "translate") { //translate x y z
-				int x = 0, y=0, z=0;
+				vec3 stuff(0,0,0);
+				for(int i=0; i<3; i++) {
+					iss >> word;
+					if (iss) {
+						stuff[i] = atoi(word.c_str());
+					} else Error("Not enough arguments to translation.");
+				}
+				translation = stuff;
 			} else if (word == "rotate") { //rotate theta vec
-
+				vec4 stuff(0,0,0,0);
+				for(int i=0; i<4; i++) {
+					iss >> word;
+					if (iss) {
+						stuff[i] = atoi(word.c_str());
+					} else Error("Not enough arguments to rotate.");
+				}
+				rotationAmount = stuff[0];
+			 	rotateVec = vec3(stuff[1], stuff[2], stuff[3]);
 			} else if (word == "scale") { //scale x y z
-
+				vec3 stuff(0,0,0);
+				for(int i=0; i<3; i++) {
+					iss >> word;
+					if (iss) {
+						stuff[i] = atoi(word.c_str());
+					} else Error("Not enough arguments to scale.");
+				}
+			 	scale = stuff;
 			} else if (word == "mat") { //mat ka kd ks kr sp
 
 			} else if (word == "pl") { //pointlight x y z r g b
@@ -355,9 +384,31 @@ void processArgs(int argc, char* argv[]) {
 				PLight* p = new PLight(pos, color);
 				plights.push_back(p);
 				if (DEBUG) cout << "Added point light to scene." << endl;
-			} else if (word == "dl") { //directionalight x y z
-
-			} else {
+			} else if (word == "dl") { //directionalight x y z r g 
+				vec4 dir;
+				vec3 color;
+				for (int i=0; i<3; i++) {
+					iss >> word;
+					if (iss) {
+						dir[i] = atoi(word.c_str());
+					} else Error("Not enough arguments to Directional Light");
+				}
+				for (int i=0; i<3; i++) {
+					iss >> word;
+					if (iss) {
+						color[i] = atoi(word.c_str());
+					} else Error("Not enough arguments to Directional Light");
+				}
+				dir[3] = 0;
+				DLight* d = new DLight(dir, color);
+				dlights.push_back(d);
+				if (DEBUG) cout << "Added directional light to scene." << endl;
+			} else if (word == "cleartrans"){ 
+				translation = vec3(0,0,0);
+				scale = vec3(1,1,1);
+				rotateVec = vec3(0,0,0);
+				rotationAmount = 0;
+			} else{
 				Error("Unrecognized object " + word);
 			}
 		}
@@ -372,6 +423,11 @@ void processArgs(int argc, char* argv[]) {
 // the usual stuff, nothing exciting here
 //****************************************************
 int main(int argc, char *argv[]) {
+	identity = mat4(vec4(1,0,0,0),
+					vec4(0,1,0,0),
+					vec4(0,0,1,0),
+					vec4(0,0,0,1));
+	
 	srand((unsigned)time(NULL));
 	
 	//Initialize FreeImage library
@@ -379,19 +435,16 @@ int main(int argc, char *argv[]) {
 	//cout << "FreeImage " << FreeImage_GetVersion() << endl;
 	//cout << FreeImage_GetCopyrightMessage() << endl;
 	
-  	//This initializes glut
+	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
 	processArgs(argc, argv);
   	glutInit(&argc, argv);
 	
-  	//This tells glut to use a double-buffered window with red, green, and blue channels 
   	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
-	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
-	
   	//The size and position of the window
   	glutInitWindowSize(viewport.w, viewport.h);
   	glutInitWindowPosition(-1, -1);
-  	glutCreateWindow("Phong Illumination Model");
+  	glutCreateWindow("Ray Tracer");
 	
   	initScene();							// quick function to set up scene
 

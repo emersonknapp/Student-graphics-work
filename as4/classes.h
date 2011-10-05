@@ -79,12 +79,12 @@ public:
 	Material material;
 	// constructors
 	Renderable () ;
-	//this is redundant, but it's a nice abstraction (so we don't need an extra translation)
-	Renderable (int x, int y, int z) ;
 	// methods
-	void translate (int x, int y, int z) ;
+	void translate(vec3 t);
+	void translate(int x, int y, int z) ;
 	void rotate(int angle, vec3 u);
 	void scale(int xScale, int yScale, int zScale);
+	void scale(vec3 s);
 	
 	virtual bool ray_intersect (Ray &, int &, vec4 &)=0; // returns whether ray intersects this object, sets t to proper value
 
@@ -97,6 +97,7 @@ class Camera : public Renderable {
 public:
 	vec4 pos,up,viewer;
 	Camera();	
+	//Ray generate_ray();
 	bool ray_intersect (Ray &, int &, vec4 &);
 };
 
