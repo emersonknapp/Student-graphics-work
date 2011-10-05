@@ -57,6 +57,7 @@ Camera				camera;
 FileWriter			fileWriter;
 Scene				scene;
 mat4				identity;
+Material			parsedMaterial;
 
 
 
@@ -275,6 +276,7 @@ void processArgs(int argc, char* argv[]) {
 	
 	for (int i=1; i<argc; i++) {
 		Material material;
+		Material parseMaterial;
 		vec3 translation(0,0,0);
 		vec3 scale(1,1,1);
 		vec3 rotateVec(0,0,0);
@@ -289,6 +291,58 @@ void processArgs(int argc, char* argv[]) {
 			istringstream iss(s);
 			string word; //Holds current word from the line input
 			iss >> word;
+			if (word == "ka") {
+				float v[3];
+				for (int i=0; i < 3; i++) {
+					iss >> word;
+					if (iss) {
+						v[i]=atof(word.c_str());
+					} else {
+						Error("Not enough arguments to ka.");
+					}
+					parseMaterial.ka = vec3(v[0],v[1],v[2]);
+				}
+			}
+			if (word == "kd") {
+				float v[3];
+				for (int i=0; i < 3; i++) {
+					iss >> word;
+					if (iss) {
+						v[i]=atof(word.c_str());
+					} else {
+						Error("Not enough arguments to kd.");
+					}
+					parseMaterial.kd = vec3(v[0],v[1],v[2]);
+				}
+			}
+			if (word == "ks") {
+				float v[3];
+				for (int i=0; i < 3; i++) {
+					iss >> word;
+					if (iss) {
+						v[i]=atof(word.c_str());
+					} else {
+						Error("Not enough arguments to ks.");
+					}
+					parseMaterial.ks = vec3(v[0],v[1],v[2]);
+				}
+			}
+			if (word == "kr") {
+				iss >> word;
+				if (iss) {
+					parseMaterial.kr = atof(word.c_str());
+				} else {
+					Error("Bad kr");
+				}
+			}
+			if (word == "sp") {
+				iss >> word;
+				if (iss) {
+					parseMaterial.sp = atof(word.c_str());
+				} else {
+					Error("Bad SP");
+				}
+			}
 			
 			if (word == "sph") { //Parse a sphere
 				int r;
@@ -299,6 +353,7 @@ void processArgs(int argc, char* argv[]) {
 					sph->translate(translation);
 					sph->scale(scale);
 					sph->rotate(rotationAmount, rotateVec);
+					sph->material = parseMaterial;
 					renderables.push_back(sph);
 				} else {
 					Error("Sphere object needs radius.");
@@ -323,6 +378,7 @@ void processArgs(int argc, char* argv[]) {
 				tri->translate(translation);
 				tri->scale(scale);
 				tri->rotate(rotationAmount, rotateVec);
+				tri->material = parseMaterial;
 				renderables.push_back(tri);
 				if (DEBUG) cout << "Added triangle to scene." << endl;
 			} else if (word == "camera") { //camera
