@@ -101,9 +101,9 @@ void Renderable::scale(int xScale, int yScale, int zScale) { // generates scale 
 
 
 Camera::Camera() {
-	pos = vec3(0,0,-1);
-	up = vec3(0,1,0);
-	viewer = vec3(0,0,1);
+	pos = vec4(0,0,-1.0f,1.0f);
+	up = vec4(0,1.0f,0,1.0f);
+	viewer = vec4(0,0,1.0f,1.0f);
 }
 //
 
@@ -113,9 +113,8 @@ bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
 
 Ray Camera::generate_ray (float x, float y, Viewport v) {
 	// |x|,|y| should be 0 <= j <= 1
-	vec4 tmp = vec4(x*v.w,y*v.h,0,1);
+	vec4 tmp = vec4(x*v.w/2.0f,y*v.h/2.0f,0,1);
 	vec4 dir = (tmp - pos);
-	//TODO - check if this is right EMERSON
 	return Ray(pos, dir);
 }
 
@@ -127,20 +126,29 @@ Sphere::Sphere(int a) : Renderable() {
 
 bool Sphere::ray_intersect ( Ray& r, float &t, vec4 &normal) {
 	vec4 pos = tmat * base;
-//	float a = r.dir.length2();
-	float a = r.dir * r.dir;
-	float b = 2*r.pos*r.dir + 2 *pos * r.dir;
-//	float c = r.pos.length2() - r.pos*pos + pos.length2() - pos*r.pos - pow(radius,2.0f);
-	float c = r.pos * r.pos - 2 * r.pos * pos + pos * pos - pow(radius,2.0f);
+	vec4 tmpDir = r.dir;
+	tmpDir.normalize();
+	float a = tmpDir.length2();
+	float b = 2*tmpDir * (r.pos-pos);
+	float c = (r.pos - pos) * (r.pos - pos) - pow(radius,2.0f);
+//	cout << "a: " << a << " b: " << b << " c: " << c << endl;
+	float tmp1 = (-b + sqrt(pow(b,2)-4*a*c)) / (2*a);
+	float tmp2 = (-b - sqrt(pow(b,2)-4*a*c)) / (2*a);
+	vec4 x = r.pos + tmp1*r.dir - pos;
+	vec4 y = r.pos + tmp2*r.dir - pos;
+//	cout << "tmp1: " << tmp1 << " tmp2: " << tmp2 << endl;
+//	cout << x.length2() - pow(radius,2.0f) << endl;
+//	cout << y.length2() - pow(radius,2.0f) << endl;
+	//TODO: currently it's all falling into this false case, so there's some error with computing the a,b,c (a is too large?)
 	if (pow(b,2)-4*a*c < 0 ) {
 		return false;
 	} else {
 		// this t determines intersection point A + t*D = r.pos + t * r.dir
 		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a), 0.0f);
 		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a), 0.0f);
-		cout << "tmp1: " << tmp1 << " tmp2: " << tmp2 << endl;
+//		cout << "tmp1: " << tmp1 << " tmp2: " << tmp2 << endl;
 		float tmp = min(tmp1,tmp2);
-		cout << "tmp is: "<< tmp << endl;
+//		cout << "tmp is: "<< tmp << endl;
 		if (tmp == 0.0f || tmp == INT_MAX || tmp <= 1.0f) {
 			return false;
 		}

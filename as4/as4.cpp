@@ -196,6 +196,7 @@ void myDisplay() {
 	
 	for (float i = -1; i < 1 ; i += 1.0f/viewport.w) {
 		for (float j = -1; j < 1; j+= 1.0f/viewport.h) {
+
 			Ray r = camera.generate_ray(i,j,viewport);
 			float t = INT_MAX;
 			bool use = false;
@@ -207,12 +208,14 @@ void myDisplay() {
 //				cout << "t is now: " << t << endl;
 			}
 			if (use) {
+				cout << "i: " << i << " j: " << j << endl;				
 				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
 				cout << "final t: " << t << endl;				
 	//			cout << intersection << endl;
 				vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
 				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-				setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
+				setPixel(i*viewport.w/2.0f, j*viewport.h/2.0f, color[0], color[1], color[2]);
+				use = false;
 			}
 			
 		}
