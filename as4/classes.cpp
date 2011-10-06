@@ -61,25 +61,27 @@ void Renderable::translate (int x, int y, int z) { // generates translation matr
 	
 }
 void Renderable::rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
-	u.normalize();
-	float factor = sin(angle/2.0f);
-	vec4 q = vec4(cos(angle/2.0f),u[0]*factor,u[1]*factor,u[2]*factor);
-	int w = q[0];
-	int x = q[1];
-	int y = q[2];
-	int z = q[3];
-	int ww = pow(q[0],2);
-	int xx = pow(q[1],2);
-	int yy = pow(q[2],2);
-	int zz = pow(q[3],2);
-	mat4 r = mat4(
-				vec4(ww+xx-yy-zz,2*x*y+2*w*z,2*x*z-2*w*y,0),
-				vec4(2*x*y-2*w*z,ww-xx+yy-zz,2*y*z+2*w*x,0),
-				vec4(2*x*z+2*w*y,2*y*z-2*w*z,ww-xx-yy+zz,0),
-				vec4(0,0,0,ww+xx+yy+zz)
-			);
-	tmat = tmat * r;
-	imat = tmat.inverse();
+	if (angle != 0 && u != vec3(0,0,0)) {
+		u.normalize();
+		float factor = sin(angle/2.0f);
+		vec4 q = vec4(cos(angle/2.0f),u[0]*factor,u[1]*factor,u[2]*factor);
+		int w = q[0];
+		int x = q[1];
+		int y = q[2];
+		int z = q[3];
+		int ww = pow(q[0],2);
+		int xx = pow(q[1],2);
+		int yy = pow(q[2],2);
+		int zz = pow(q[3],2);
+		mat4 r = mat4(
+					vec4(ww+xx-yy-zz,2*x*y+2*w*z,2*x*z-2*w*y,0),
+					vec4(2*x*y-2*w*z,ww-xx+yy-zz,2*y*z+2*w*x,0),
+					vec4(2*x*z+2*w*y,2*y*z-2*w*z,ww-xx-yy+zz,0),
+					vec4(0,0,0,ww+xx+yy+zz)
+				);
+		tmat = tmat * r;
+		imat = tmat.inverse();
+	}
 }
 
 void Renderable::scale (vec3 s) {
@@ -105,14 +107,14 @@ Camera::Camera() {
 }
 //
 
-bool Camera::ray_intersect (Ray &r, int &t, vec4 &normal) {
+bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
 	return false;
 }
 
-Ray Camera::generate_ray (float x, float y,Viewport v) {
+Ray Camera::generate_ray (float x, float y, Viewport v) {
 	// |x|,|y| should be 0 <= j <= 1
 	vec4 tmp = vec4(x*v.w,y*v.h,0,1);
-	vec4 dir = (tmat*tmp - pos);
+	vec4 dir = (tmp - pos);
 	//TODO - check if this is right EMERSON
 	return Ray(pos, dir);
 }
@@ -120,28 +122,38 @@ Ray Camera::generate_ray (float x, float y,Viewport v) {
 
 Sphere::Sphere(int a) : Renderable() {
 	radius = a;
-	vec4 base = vec4(0,0,0,1);
+	base = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect ( Ray& r, int &t, vec4 &normal) {
+bool Sphere::ray_intersect ( Ray& r, float &t, vec4 &normal) {
 	vec4 pos = tmat * base;
-	float a = r.dir.length2();
-	float b = 2*r.pos*r.dir + pos * r.dir;
-	float c = r.pos.length2() - r.pos*pos + pos.length2() - pos*r.pos - pow(radius,2.0f);
-	if (pow(b,2)+4*a*c < 0 ) {
+//	float a = r.dir.length2();
+	float a = r.dir * r.dir;
+	float b = 2*r.pos*r.dir + 2 *pos * r.dir;
+//	float c = r.pos.length2() - r.pos*pos + pos.length2() - pos*r.pos - pow(radius,2.0f);
+	float c = r.pos * r.pos - 2 * r.pos * pos + pos * pos - pow(radius,2.0f);
+	if (pow(b,2)-4*a*c < 0 ) {
 		return false;
 	} else {
 		// this t determines intersection point A + t*D = r.pos + t * r.dir
-		int tmp = min((-b + sqrt(pow(b,2)-4*a*c) / (2*a) ), (-b + sqrt(pow(b,2)-4*a*c)) / (2*a));
-		if (tmp < t) {
+		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a), 0.0f);
+		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a), 0.0f);
+		cout << "tmp1: " << tmp1 << " tmp2: " << tmp2 << endl;
+		float tmp = min(tmp1,tmp2);
+		cout << "tmp is: "<< tmp << endl;
+		if (tmp == 0.0f || tmp == INT_MAX || tmp <= 1.0f) {
+			return false;
+		}
+		else if (tmp < t) {
 			t = tmp;
 			vec4 intersection = r.pos + t * r.dir; // this is a point on the sphere
 			// if we have normal n on the sphere, then if it's transformed, we use (M^-1)^T * n as the normal
 			// intersection - pos is the normal on the sphere
 			normal = tmat.inverse().transpose() * (intersection - pos);
 			normal.normalize();
+			return true;
 		}
-		return true;
+		return false;
 	}
 }
 
@@ -151,7 +163,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v3 = c;
 }
 	
-bool Triangle::ray_intersect ( Ray &r, int &t, vec4 &normal ) {
+bool Triangle::ray_intersect ( Ray &r, float &t, vec4 &normal ) {
 	// res : Beta | gamma | t
 	cout << "Triangle ray intersect check" << endl;
 	vec3 res = mat4(

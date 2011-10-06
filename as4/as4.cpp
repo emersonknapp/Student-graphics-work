@@ -140,17 +140,16 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
 		Ray lightCheck = Ray(hitPoint, plights[i]->pos - hitPoint);
-		int t;
+		float t;
 		Material material;
 		for (int k = 0; k < renderables.size() ; k++ ) {
-			t = 1;
+			t = 1.0f;
 			normal = vec4(0,0,0,0);
-
 			renderables[k]->ray_intersect(lightCheck,t,normal);
 			material = renderables[k]->material;
 		}
 		vec4 intersection = ray.pos + t * ray.dir;
-		if (t == 1) { // then shade. if t != 1, then the light is blocked by another object
+		if (t == 1.0f) { // then shade. if t != 1, then the light is blocked by another object
 			vec3 normal = vec3(normal[0],normal[1],normal[2]);
 			vec3 lightColor = plights[i]->intensity;
 			vec3 lightVector = plights[i]->pos - intersection; // this pos is the intersection point on the sphere
@@ -195,30 +194,30 @@ void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	glBegin(GL_POINTS);
 	
-	//TODO: Loop through each sample that we want to take (at first just each pixel)
-		//We cast a ray from the camera towards each sample
-		//then call shade to calculate the color of that sample
 	for (float i = -1; i < 1 ; i += 1.0f/viewport.w) {
 		for (float j = -1; j < 1; j+= 1.0f/viewport.h) {
-//			cout << i << "," << j << endl;
 			Ray r = camera.generate_ray(i,j,viewport);
-			//TODO: scale i,j for the setPixel command
-//			Ray r = Ray(camera.pos, vec4(i,j,0,1) - camera.pos);
-			int t=0;
+			float t = INT_MAX;
+			bool use = false;
 			vec4 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
 				normal = vec4(0,0,0,0);
-				//TODO this next line causes a segfault at runtime. I think it has something to do with the Ray r
-				renderables[k]->ray_intersect(r,t,normal);
+//				cout << "calling with t: " << t << endl;
+				use = renderables[k]->ray_intersect(r,t,normal);
+//				cout << "t is now: " << t << endl;
 			}
-			vec4 intersection = r.pos * t * r.dir; // at this point, t is minimum
-			vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
-			if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-			setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
+			if (use) {
+				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
+				cout << "final t: " << t << endl;				
+	//			cout << intersection << endl;
+				vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
+				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
+				setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
+			}
 			
 		}
 	}
-		
+
 	glEnd();
 		
 	glFlush();

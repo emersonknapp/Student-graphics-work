@@ -94,7 +94,7 @@ public:
 	void scale(int xScale, int yScale, int zScale);
 	void scale(vec3 s);
 	
-	virtual bool ray_intersect (Ray &, int &, vec4 &)=0; // returns whether ray intersects this object, sets t to proper value
+	virtual bool ray_intersect (Ray &, float &, vec4 &)=0; // returns whether ray intersects this object, sets t to proper value
 
 };
 
@@ -107,7 +107,7 @@ public:
 	vec4 pos,up,viewer;
 	Camera();	
 	//Ray generate_ray();
-	bool ray_intersect (Ray &, int &, vec4 &);
+	bool ray_intersect (Ray &, float &, vec4 &);
 	Ray generate_ray(float x, float y, Viewport v);
 };
 
@@ -118,7 +118,7 @@ public:
 	vec4 base;
 	
 	Sphere (int a);	
-	bool ray_intersect ( Ray &, int &, vec4 &);
+	bool ray_intersect ( Ray &, float &, vec4 &);
 };
 
 class Triangle : public Renderable {
@@ -127,7 +127,7 @@ public:
 	vec4 v1, v2, v3;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
-	bool ray_intersect ( Ray &, int &, vec4 & );
+	bool ray_intersect ( Ray &, float &, vec4 & );
 };
 
 class Scene {
