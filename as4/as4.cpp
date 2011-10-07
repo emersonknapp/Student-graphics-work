@@ -120,7 +120,7 @@ void FileWriter::printScreen() {
 //***************************************************
 // does phong shading on a point
 //***************************************************
-vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
+vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 
 	vec3 color = vec3(0,0,0); //Default black
 
@@ -135,7 +135,6 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 	// don't forget to increase recursionDepth!
 	
 	
-
 	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
@@ -144,26 +143,22 @@ vec3 shade(Ray ray, vec4 hitPoint, vec4 normal, int recursionDepth) {
 		Material material;
 		for (int k = 0; k < renderables.size() ; k++ ) {
 			t = 1.0f;
-			normal = vec4(0,0,0,0);
-			renderables[k]->ray_intersect(lightCheck,t,normal);
-			material = renderables[k]->material;
+			vec3 throwAway = vec3(0,0,0);
+			renderables[k]->ray_intersect(lightCheck,t,throwAway);
 		}
 		vec4 intersection = ray.pos + t * ray.dir;
 		if (t == 1.0f) { // then shade. if t != 1, then the light is blocked by another object
-			for (int j = 0; j < renderables.size() ; j++ ) {
-				material = renderables[j]->material;
-				vec3 normal = vec3(normal[0],normal[1],normal[2]);
-				vec3 lightColor = plights[i]->intensity;
-				vec3 lightVector = plights[i]->pos - intersection; // this pos is the intersection point on the sphere
-				lightVector.normalize();
-				vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-				//Ambient term
-				color += multiplyVectors(lightColor, material.ka);
-				//Diffuse term
-				color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
-				//Specular term
-				color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*vec3(ray.pos[0],ray.pos[1],ray.pos[2]), 0.0), material.sp);
-			}
+			material = renderables[index]->material;
+			vec3 lightColor = plights[i]->intensity;
+			vec3 lightVector = plights[i]->pos - intersection; // this pos is the intersection point on the sphere
+			lightVector.normalize();
+			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+			//Ambient term
+			color += multiplyVectors(lightColor, material.ka);
+			//Diffuse term
+			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
+			//Specular term
+			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*vec3(ray.pos[0],ray.pos[1],ray.pos[2]), 0.0), material.sp);
 		}
 		
 	}
@@ -203,13 +198,13 @@ void myDisplay() {
 			Ray r = camera.generate_ray(i,j);
 			float t = INT_MAX;
 			bool use = false;
-			vec4 normal;
+			vec3 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
-				normal = vec4(0,0,0,0);
+				normal = vec3(0,0,0);
 				use = renderables[k]->ray_intersect(r,t,normal);
 				if (use) {
 					vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
-					vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
+					vec3 color = shade(r, intersection, normal, 1,k); // recursionDepth = 1 for debug purposes
 	//				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
 					setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
 					use = false;

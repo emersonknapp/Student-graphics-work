@@ -107,7 +107,7 @@ Camera::Camera() {
 }
 //
 
-bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
+bool Camera::ray_intersect (Ray &r, float &t, vec3 &normal) {
 	return false;
 }
 
@@ -124,7 +124,7 @@ Sphere::Sphere(float a) : Renderable() {
 	base = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
+bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 	vec4 pos = tmat * base;
 //	cout << r.dir << endl;
 	float a = r.dir.length2();
@@ -137,10 +137,15 @@ bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
 		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
 		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
 		tmp = min(tmp1,tmp2);
-		if (tmp < t && tmp > 1) {
+		if (tmp < t && tmp >= 1) {
 			t = tmp; 
-			vec4 intersection = r.pos * t * r.dir;
-			normal = tmat.inverse().transpose() * (intersection - pos);
+			vec4 intersection = r.pos + t * r.dir;
+			mat3 tmpTmat = mat3(
+								vec3(tmat[0][0],tmat[0][1],tmat[0][2]),
+								vec3(tmat[1][0],tmat[1][1],tmat[1][2]),
+								vec3(tmat[2][0],tmat[2][1],tmat[2][2])
+								);
+			normal = tmpTmat.inverse().transpose() * (vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]));
 			normal.normalize();
 			return true;
 		} else { return false;}
@@ -153,7 +158,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v3 = c;
 }
 	
-bool Triangle::ray_intersect ( Ray &r, float &t, vec4 &normal ) {
+bool Triangle::ray_intersect ( Ray &r, float &t, vec3 &normal ) {
 	// res : Beta | gamma | t
 	cout << "Triangle ray intersect check" << endl;
 	vec3 res = mat4(
