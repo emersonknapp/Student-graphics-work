@@ -7,6 +7,6 @@ translate 20 0 30
 sph 10
 translate -20 0 30
 sph 10
-pl -1 -1 1 1 1 1
+pl 0 0 0 1 1 1
 cleartrans
 camera
