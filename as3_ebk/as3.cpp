@@ -180,7 +180,7 @@ vec3 shade(vec3 pos) {
 	
 	for (int i=0; i<plights.size(); i++) {
 		vec3 lightColor = plights[i].intensity;
-		vec3 lightVector = (plights[i].pos * sphereRadius) - pos;		
+		vec3 lightVector = (plights[i].pos * sphereRadius) - pos;
 		lightVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 		//Ambient term

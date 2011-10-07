@@ -91,7 +91,7 @@ public:
 	void translate(vec3 t);
 	void translate(int x, int y, int z) ;
 	void rotate(int angle, vec3 u);
-	void scale(int xScale, int yScale, int zScale);
+	void scale(float xScale, float yScale, float zScale);
 	void scale(vec3 s);
 	
 	virtual bool ray_intersect (Ray &, float &, vec3 &)=0; // returns whether ray intersects this object, sets t to proper value

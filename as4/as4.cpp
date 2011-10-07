@@ -181,7 +181,7 @@ vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 	}
 	*/
 	
-	return color;
+	return 	color;
 }
 
 
@@ -420,7 +420,7 @@ void processArgs(int argc, char* argv[]) {
 				for(int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						stuff[i] = atoi(word.c_str());
+						stuff[i] = atof(word.c_str());
 					} else Error("Not enough arguments to scale.");
 				}
 			 	scale = stuff;

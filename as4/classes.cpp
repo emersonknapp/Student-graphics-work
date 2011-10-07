@@ -88,11 +88,15 @@ void Renderable::scale (vec3 s) {
 	scale(s[0], s[1], s[2]);
 }
 
-void Renderable::scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
+void Renderable::scale(float xScale, float yScale, float zScale) { // generates scale matrix and updates tmat
+	if (xScale == 0) xScale = 1.0f;
+	if (yScale == 0) yScale = 1.0f;
+	if (zScale == 0) zScale = 1.0f;
+	
 	mat4 s = mat4(
-				vec4(xScale,0,0,0),
-				vec4(0,yScale,0,0),
-				vec4(0,0,zScale,0),
+				vec4(1.0f/xScale,0,0,0),
+				vec4(0,1.0f/yScale,0,0),
+				vec4(0,0,1.0f/zScale,0),
 				vec4(0,0,0,1)
 				);
 	tmat = tmat * s;
@@ -115,7 +119,8 @@ Ray Camera::generate_ray (float x, float y) {
 	// |x|,|y| should be 0 <= j <= 1
 	vec4 tmp = vec4(x,y,0,1);
 	vec4 dir = (tmp - tmat*pos);
-	return Ray(tmat*pos, dir);
+//	if (dir[0] != 0) cout << "dir: " << pos << " tmat*dir: " << tmat*dir << endl;
+	return Ray(tmat*pos, tmat*dir);
 }
 
 
@@ -126,7 +131,6 @@ Sphere::Sphere(float a) : Renderable() {
 
 bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 	vec4 pos = tmat * base;
-//	cout << r.dir << endl;
 	float a = r.dir.length2();
 	float b = 2*r.dir*(r.pos-pos);
 	float c = (pos - r.pos)* (pos - r.pos) - pow(radius,2.0f);
@@ -146,6 +150,7 @@ bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 								vec3(tmat[2][0],tmat[2][1],tmat[2][2])
 								);
 			vec3 sphNormal = vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]);
+			sphNormal.normalize();
 			normal = tmpTmat.inverse().transpose() * sphNormal;
 			normal.normalize();
 			return true;
