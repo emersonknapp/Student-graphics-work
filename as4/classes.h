@@ -114,10 +114,10 @@ public:
 class Sphere : public Renderable {
 // inherits tmat from Renderable
 public:
-	int radius;
+	float radius;
 	vec4 base;
 	
-	Sphere (int a);	
+	Sphere (float a);	
 	bool ray_intersect ( Ray &, float &, vec4 &);
 };
 

@@ -113,54 +113,31 @@ bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
 
 Ray Camera::generate_ray (float x, float y, Viewport v) {
 	// |x|,|y| should be 0 <= j <= 1
-	vec4 tmp = vec4(x*v.w/2.0f,y*v.h/2.0f,0,1);
+	vec4 tmp = vec4(x,y,0,1);
 	vec4 dir = (tmp - pos);
 	return Ray(pos, dir);
 }
 
 
-Sphere::Sphere(int a) : Renderable() {
+Sphere::Sphere(float a) : Renderable() {
 	radius = a;
 	base = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect ( Ray& r, float &t, vec4 &normal) {
+bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
 	vec4 pos = tmat * base;
-	vec4 tmpDir = r.dir;
-	tmpDir.normalize();
-	float a = tmpDir.length2();
-	float b = 2*tmpDir * (r.pos-pos);
-	float c = (r.pos - pos) * (r.pos - pos) - pow(radius,2.0f);
-//	cout << "a: " << a << " b: " << b << " c: " << c << endl;
-	float tmp1 = (-b + sqrt(pow(b,2)-4*a*c)) / (2*a);
-	float tmp2 = (-b - sqrt(pow(b,2)-4*a*c)) / (2*a);
-	vec4 x = r.pos + tmp1*r.dir - pos;
-	vec4 y = r.pos + tmp2*r.dir - pos;
-//	cout << "tmp1: " << tmp1 << " tmp2: " << tmp2 << endl;
-//	cout << x.length2() - pow(radius,2.0f) << endl;
-//	cout << y.length2() - pow(radius,2.0f) << endl;
-	//TODO: currently it's all falling into this false case, so there's some error with computing the a,b,c (a is too large?)
-	if (pow(b,2)-4*a*c < 0 ) {
+	float a = r.dir.length2();
+	float b = 2*r.dir*(r.pos-pos);
+	float c = (pos - r.pos)* (pos - r.pos) - pow(radius,2.0f);
+	float tmp = (pow(b,2)-4*a*c);
+	if (tmp < 0) {
+		cout << "false" << endl;
 		return false;
 	} else {
-		// this t determines intersection point A + t*D = r.pos + t * r.dir
-		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a), 0.0f);
-		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a), 0.0f);
-//		cout << "tmp1: " << tmp1 << " tmp2: " << tmp2 << endl;
-		float tmp = min(tmp1,tmp2);
-//		cout << "tmp is: "<< tmp << endl;
-		if (tmp == 0.0f || tmp == INT_MAX || tmp <= 1.0f) {
-			return false;
-		}
-		else if (tmp < t) {
-			t = tmp;
-			vec4 intersection = r.pos + t * r.dir; // this is a point on the sphere
-			// if we have normal n on the sphere, then if it's transformed, we use (M^-1)^T * n as the normal
-			// intersection - pos is the normal on the sphere
-			normal = tmat.inverse().transpose() * (intersection - pos);
-			normal.normalize();
-			return true;
-		}
+		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
+		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
+		tmp = min(tmp1,tmp2);
+		if (tmp < t) {t = tmp; return true; }
 		return false;
 	}
 }

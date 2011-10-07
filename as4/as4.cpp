@@ -194,30 +194,24 @@ void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	glBegin(GL_POINTS);
 	
-	for (float i = -1; i < 1 ; i += 1.0f/viewport.w) {
-		for (float j = -1; j < 1; j+= 1.0f/viewport.h) {
-
+	for (float i = -1.0f; i < 1.0f ; i += 1.0f/viewport.w) {
+		for (float j = -1.0f; j < 1.0f; j+= 1.0f/viewport.h) {
 			Ray r = camera.generate_ray(i,j,viewport);
 			float t = INT_MAX;
 			bool use = false;
 			vec4 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
 				normal = vec4(0,0,0,0);
-//				cout << "calling with t: " << t << endl;
 				use = renderables[k]->ray_intersect(r,t,normal);
-//				cout << "t is now: " << t << endl;
 			}
 			if (use) {
-				cout << "i: " << i << " j: " << j << endl;				
 				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
-				cout << "final t: " << t << endl;				
-	//			cout << intersection << endl;
 				vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
-				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-				setPixel(i*viewport.w/2.0f, j*viewport.h/2.0f, color[0], color[1], color[2]);
+//				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
+				setPixel(intersection[0],intersection[1],1,1,1);
+//				setPixel(i*viewport.w, j*viewport.h, 1,1,1);//color[0], color[1], color[2]);
 				use = false;
 			}
-			
 		}
 	}
 
@@ -231,6 +225,7 @@ void myDisplay() {
 		fileWriter.printScreen();
 		quitProgram();	
 	}
+//	exit(0);
 }
 
 //Reshape the viewport if the window is resized
@@ -356,7 +351,7 @@ void processArgs(int argc, char* argv[]) {
 				int r;
 				iss >> word;
 				if (iss) {
-					r = atoi(word.c_str());
+					r = atof(word.c_str());
 					Sphere* sph = new Sphere(r);
 					sph->translate(translation);
 					sph->scale(scale);
