@@ -91,10 +91,12 @@ public:
 	void translate(vec3 t);
 	void translate(int x, int y, int z) ;
 	void rotate(int angle, vec3 u);
-	void scale(int xScale, int yScale, int zScale);
+	void scale(float xScale, float yScale, float zScale);
 	void scale(vec3 s);
+	mat3 dehomogenize(mat4 t);
+	vec3 dehomogenize(vec4 v);
 	
-	virtual bool ray_intersect (Ray &, float &, vec4 &)=0; // returns whether ray intersects this object, sets t to proper value
+	virtual bool ray_intersect (Ray &, float &, vec3 &)=0; // returns whether ray intersects this object, sets t to proper value
 
 };
 
@@ -107,7 +109,7 @@ public:
 	vec4 pos,up,viewer;
 	Camera();	
 	//Ray generate_ray();
-	bool ray_intersect (Ray &, float &, vec4 &);
+	bool ray_intersect (Ray &, float &, vec3 &);
 	Ray generate_ray(float x, float y);
 };
 
@@ -118,7 +120,7 @@ public:
 	vec4 base;
 	
 	Sphere (float a);	
-	bool ray_intersect ( Ray &, float &, vec4 &);
+	bool ray_intersect ( Ray &, float &, vec3 &);
 };
 
 class Triangle : public Renderable {
@@ -127,7 +129,7 @@ public:
 	vec4 v1, v2, v3;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
-	bool ray_intersect ( Ray &, float &, vec4 & );
+	bool ray_intersect ( Ray &, float &, vec3 & );
 };
 
 class Scene {

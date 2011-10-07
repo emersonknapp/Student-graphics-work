@@ -88,15 +88,31 @@ void Renderable::scale (vec3 s) {
 	scale(s[0], s[1], s[2]);
 }
 
-void Renderable::scale(int xScale, int yScale, int zScale) { // generates scale matrix and updates tmat
+void Renderable::scale(float xScale, float yScale, float zScale) { // generates scale matrix and updates tmat
+	if (xScale == 0) xScale = 1.0f;
+	if (yScale == 0) yScale = 1.0f;
+	if (zScale == 0) zScale = 1.0f;
+	
 	mat4 s = mat4(
-				vec4(xScale,0,0,0),
-				vec4(0,yScale,0,0),
-				vec4(0,0,zScale,0),
+				vec4(1.0f/xScale,0,0,0),
+				vec4(0,1.0f/yScale,0,0),
+				vec4(0,0,1.0f/zScale,0),
 				vec4(0,0,0,1)
 				);
 	tmat = tmat * s;
 	imat = tmat.inverse();
+}
+
+mat3 Renderable::dehomogenize(mat4 t) {
+	return mat3(
+				vec3(tmat[0][0],tmat[0][1],tmat[0][2]),
+				vec3(tmat[1][0],tmat[1][1],tmat[1][2]),
+				vec3(tmat[2][0],tmat[2][1],tmat[2][2])
+				);
+}
+
+vec3 Renderable::dehomogenize(vec4 v) {
+	return vec3(v[0],v[1],v[2]);
 }
 
 
@@ -107,7 +123,7 @@ Camera::Camera() {
 }
 //
 
-bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
+bool Camera::ray_intersect (Ray &r, float &t, vec3 &normal) {
 	return false;
 }
 
@@ -115,7 +131,9 @@ Ray Camera::generate_ray (float x, float y) {
 	// |x|,|y| should be 0 <= j <= 1
 	vec4 tmp = vec4(x,y,0,1);
 	vec4 dir = (tmp - tmat*pos);
-	return Ray(tmat*pos, dir);
+//	if (dir[0] != 0) cout << "dir: " << pos << " tmat*dir: " << tmat*dir << endl;
+	tmp = tmat*dir;
+	return Ray(tmat*pos, tmp - vec4(0,0,0,tmp[3]));
 }
 
 
@@ -124,9 +142,8 @@ Sphere::Sphere(float a) : Renderable() {
 	base = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
+bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 	vec4 pos = tmat * base;
-//	cout << r.dir << endl;
 	float a = r.dir.length2();
 	float b = 2*r.dir*(r.pos-pos);
 	float c = (pos - r.pos)* (pos - r.pos) - pow(radius,2.0f);
@@ -137,10 +154,13 @@ bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
 		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
 		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
 		tmp = min(tmp1,tmp2);
-		if (tmp < t && tmp > 1) {
+		if (tmp < t && tmp >= 1) {
 			t = tmp; 
-			vec4 intersection = r.pos * t * r.dir;
-			normal = tmat.inverse().transpose() * (intersection - pos);
+			vec4 intersection = r.pos + t * r.dir;
+			mat3 tmpTmat = dehomogenize(tmat);
+			vec3 sphNormal = dehomogenize(intersection) - dehomogenize(pos);//vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]);
+			sphNormal.normalize();
+			normal = tmpTmat.inverse().transpose() * sphNormal;
 			normal.normalize();
 			return true;
 		} else { return false;}
@@ -153,7 +173,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v3 = c;
 }
 	
-bool Triangle::ray_intersect ( Ray &r, float &t, vec4 &normal ) {
+bool Triangle::ray_intersect ( Ray &r, float &t, vec3 &normal ) {
 	// res : Beta | gamma | t
 	cout << "Triangle ray intersect check" << endl;
 	vec3 res = mat4(
