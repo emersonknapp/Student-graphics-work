@@ -145,7 +145,8 @@ bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 								vec3(tmat[1][0],tmat[1][1],tmat[1][2]),
 								vec3(tmat[2][0],tmat[2][1],tmat[2][2])
 								);
-			normal = tmpTmat.inverse().transpose() * (vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]));
+			vec3 sphNormal = vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]);
+			normal = tmpTmat.inverse().transpose() * sphNormal;
 			normal.normalize();
 			return true;
 		} else { return false;}
