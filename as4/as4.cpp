@@ -70,6 +70,8 @@ void setPixel(int x, int y, GLfloat r, GLfloat g, GLfloat b) {
 	glVertex2f(x+0.5, y+0.5);
 }
 
+
+
 vec3 multiplyVectors(vec3 a, vec3 b) {
 	vec3 c;
 	c[0] = a[0] * b[0];

@@ -93,6 +93,8 @@ public:
 	void rotate(int angle, vec3 u);
 	void scale(float xScale, float yScale, float zScale);
 	void scale(vec3 s);
+	mat3 dehomogenize(mat4 t);
+	vec3 dehomogenize(vec4 v);
 	
 	virtual bool ray_intersect (Ray &, float &, vec3 &)=0; // returns whether ray intersects this object, sets t to proper value
 

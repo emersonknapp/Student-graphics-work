@@ -103,6 +103,18 @@ void Renderable::scale(float xScale, float yScale, float zScale) { // generates 
 	imat = tmat.inverse();
 }
 
+mat3 Renderable::dehomogenize(mat4 t) {
+	return mat3(
+				vec3(tmat[0][0],tmat[0][1],tmat[0][2]),
+				vec3(tmat[1][0],tmat[1][1],tmat[1][2]),
+				vec3(tmat[2][0],tmat[2][1],tmat[2][2])
+				);
+}
+
+vec3 Renderable::dehomogenize(vec4 v) {
+	return vec3(v[0],v[1],v[2]);
+}
+
 
 Camera::Camera() {
 	pos = vec4(0,0,-1.0f,1.0f);
@@ -120,7 +132,8 @@ Ray Camera::generate_ray (float x, float y) {
 	vec4 tmp = vec4(x,y,0,1);
 	vec4 dir = (tmp - tmat*pos);
 //	if (dir[0] != 0) cout << "dir: " << pos << " tmat*dir: " << tmat*dir << endl;
-	return Ray(tmat*pos, tmat*dir);
+	tmp = tmat*dir;
+	return Ray(tmat*pos, tmp - vec4(0,0,0,tmp[3]));
 }
 
 
@@ -144,12 +157,8 @@ bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 		if (tmp < t && tmp >= 1) {
 			t = tmp; 
 			vec4 intersection = r.pos + t * r.dir;
-			mat3 tmpTmat = mat3(
-								vec3(tmat[0][0],tmat[0][1],tmat[0][2]),
-								vec3(tmat[1][0],tmat[1][1],tmat[1][2]),
-								vec3(tmat[2][0],tmat[2][1],tmat[2][2])
-								);
-			vec3 sphNormal = vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]);
+			mat3 tmpTmat = dehomogenize(tmat);
+			vec3 sphNormal = dehomogenize(intersection) - dehomogenize(pos);//vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]);
 			sphNormal.normalize();
 			normal = tmpTmat.inverse().transpose() * sphNormal;
 			normal.normalize();
