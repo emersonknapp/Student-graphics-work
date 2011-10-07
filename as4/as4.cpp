@@ -41,7 +41,7 @@ static struct timeval lastTime;
 #define DEBUG true
 #define BITSPERPIXEL 24
 
-#define MAXRECURSION 1
+#define MAXRECURSION 2
 #define MAXLINE 255
 
 using namespace std;
@@ -194,24 +194,25 @@ void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	glBegin(GL_POINTS);
 	
-	for (float i = -1.0f; i < 1.0f ; i += 1.0f/viewport.w) {
-		for (float j = -1.0f; j < 1.0f; j+= 1.0f/viewport.h) {
-			Ray r = camera.generate_ray(i,j,viewport);
+	for (float i = -1.0f; i < 1.0f ; i += 0.5f/viewport.w) {
+		for (float j = -1.0f; j < 1.0f; j+= 0.5f/viewport.h) {
+//			cout << "i: " << i*viewport.w << " j: " << j*viewport.h << endl;
+			Ray r = camera.generate_ray(i,j);
 			float t = INT_MAX;
 			bool use = false;
 			vec4 normal;
 			for (int k = 0; k < renderables.size() ; k++ ) {
 				normal = vec4(0,0,0,0);
 				use = renderables[k]->ray_intersect(r,t,normal);
+				if (use) {
+					vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
+					vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
+	//				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
+					setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
+					use = false;
+				}
 			}
-			if (use) {
-				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
-				vec3 color = shade(r, intersection, normal, 1); // recursionDepth = 1 for debug purposes
-//				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-				setPixel(intersection[0],intersection[1],1,1,1);
-//				setPixel(i*viewport.w, j*viewport.h, 1,1,1);//color[0], color[1], color[2]);
-				use = false;
-			}
+
 		}
 	}
 

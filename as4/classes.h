@@ -108,7 +108,7 @@ public:
 	Camera();	
 	//Ray generate_ray();
 	bool ray_intersect (Ray &, float &, vec4 &);
-	Ray generate_ray(float x, float y, Viewport v);
+	Ray generate_ray(float x, float y);
 };
 
 class Sphere : public Renderable {

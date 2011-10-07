@@ -111,11 +111,11 @@ bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
 	return false;
 }
 
-Ray Camera::generate_ray (float x, float y, Viewport v) {
+Ray Camera::generate_ray (float x, float y) {
 	// |x|,|y| should be 0 <= j <= 1
 	vec4 tmp = vec4(x,y,0,1);
-	vec4 dir = (tmp - pos);
-	return Ray(pos, dir);
+	vec4 dir = (tmp - tmat*pos);
+	return Ray(tmat*pos, dir);
 }
 
 
@@ -126,19 +126,24 @@ Sphere::Sphere(float a) : Renderable() {
 
 bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
 	vec4 pos = tmat * base;
+//	cout << r.dir << endl;
 	float a = r.dir.length2();
 	float b = 2*r.dir*(r.pos-pos);
 	float c = (pos - r.pos)* (pos - r.pos) - pow(radius,2.0f);
 	float tmp = (pow(b,2)-4*a*c);
-	if (tmp < 0) {
-		cout << "false" << endl;
+	if (tmp <= 1) {
 		return false;
 	} else {
 		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
 		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
 		tmp = min(tmp1,tmp2);
-		if (tmp < t) {t = tmp; return true; }
-		return false;
+		if (tmp < t && tmp > 1) {
+			t = tmp; 
+			vec4 intersection = r.pos * t * r.dir;
+			normal = tmat.inverse().transpose() * (intersection - pos);
+			normal.normalize();
+			return true;
+		} else { return false;}
 	}
 }
 
