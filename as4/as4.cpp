@@ -34,12 +34,13 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 400
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
 #define FRAMERATE 10
 #define EPSILON 0.05
 #define DEBUG true
 #define BITSPERPIXEL 24
+#define T_MAX 400
 
 #define MAXRECURSION 2
 #define MAXLINE 255
@@ -66,7 +67,9 @@ void setPixel(float x, float y, GLfloat r, GLfloat g, GLfloat b) {
 	glVertex2f(x, y);
 }
 
-
+vec3 dehomogenize(vec4 v) {
+	return vec3(v[0],v[1],v[2]);
+}
 
 vec3 multiplyVectors(vec3 a, vec3 b) {
 	vec3 c;
@@ -118,16 +121,11 @@ void FileWriter::printScreen() {
 //***************************************************
 // does phong shading on a point
 //***************************************************
-vec3 shade(vec4 hitPoint, vec4 norm, int index, int recursionDepth) {
-	vec3 normal = vec3(norm);
-	normal.normalize();
+vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
+	vec3 normal = dehomogenize(norm);
 
 	vec3 color = vec3(0,0,0); //Default black
 
-	//Recursion cutoff check
-	if (recursionDepth >= MAXRECURSION) {
-		return color;
-	}
 	//Process:
 	//draw ray from the intersection point to each of the point lights (define direction as pointLight.pos - intersection).
 	// Find the intersection point t.  If t < 1, then there's something in the way, so just skip that point light. 
@@ -138,7 +136,7 @@ vec3 shade(vec4 hitPoint, vec4 norm, int index, int recursionDepth) {
 	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
-		Ray lightCheck = Ray(hitPoint, plights[i]->pos - hitPoint);
+		//Ray lightCheck = Ray(hitPoint, plights[i]->pos - hitPoint);
 		float t = 1.0f;
 		Material material;
 		/*
@@ -147,18 +145,21 @@ vec3 shade(vec4 hitPoint, vec4 norm, int index, int recursionDepth) {
 			vec3 throwAway = vec3(0,0,0);
 			renderables[k]->ray_intersect(lightCheck,t,throwAway);
 		}*/
-		if (t == 1.0f) { // then shade. if t != 1, then the light is blocked by another object
+		
+		if (true) { // then shade. if t != 1, then the light is blocked by another object
 			material = renderables[index]->material;
 			vec3 lightColor = plights[i]->intensity;
-			vec3 lightVector = plights[i]->pos - hitPoint;
+			vec3 lightVector = dehomogenize(plights[i]->pos - hitPoint);
 			lightVector.normalize();
-			//vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+			vec3 viewVector = dehomogenize(r.pos-hitPoint);
+			viewVector.normalize();
+			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Ambient term
-			//color += multiplyVectors(lightColor, material.ka);
+			color += prod(lightColor, material.ka);
 			//Diffuse term
-			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
+			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
-//			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*vec3(ray.pos[0],ray.pos[1],ray.pos[2]), 0.0), material.sp);
+			color += prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 		}
 		
 	}
@@ -183,52 +184,57 @@ vec3 shade(vec4 hitPoint, vec4 norm, int index, int recursionDepth) {
 	return color;
 }
 
+vec3 traceRay(Ray r, int depth) {
+	//Recursion cutoff check
+	if (depth >= MAXRECURSION) {
+		return vec3(0,0,0);
+	}
+	
+	float newT;
+	int renderableIndex=-1;
+	float t = T_MAX;
+	bool hasHit = false;
+	
+	for (int i = 0; i < renderables.size(); i++ ) {
+		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
+			hasHit = true;			
+			renderableIndex = i;
+			t = newT;
+		}
+	}
+	if (hasHit) {
+		vec4 hitPoint = r.pos + t*r.dir;
+		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
+		
+		return shade(r, hitPoint, normal, renderableIndex);
+		//return vec3(normal[0], normal[1], normal[2]);
+		//return vec3(t,t,t);
+	} else {
+		return vec3(0,0,0);
+	}
 
+	
+}
 //***************************************************
 // Function what actually draws to screen
 //***************************************************
 void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	glBegin(GL_POINTS);
-
-
-	Ray q = camera.generate_ray(-1,1);
 	
-	for (float i = 0; i < 1; i += 1.0/viewport.w) {
-		for (float j = 0; j < 1; j+= 1.0/viewport.h) {
-			//cout << i*viewport.w << " " << j*viewport.h << endl;
-			Ray r = camera.generate_ray(i,j);
+	for (float x = 0; x < viewport.w; x++) {
+		for (float y = 0; y < viewport.h; y++) {
+						
+			//Ray camRay = camera.generate_ray(i,j);
+			float u = x/(viewport.w + 0.00);
+			float v = y/(viewport.h + 0.00);
+			vec4 p = (1-u)*((1-v)*camera.LL + v*camera.UL) + (u * ((1-v) * camera.LR + v * camera.UR));
+			//printf("Drawing point %f %f = %f %f %f \n", u, v, p[0], p[1], p[2]);
+			Ray r = Ray(camera.pos, p-camera.pos);			
 			
-			float t = INT_MAX;
-			vec4 normal = vec4(0,0,0,0);
-			int renderableIndex;
-			
-			float hit=INT_MAX;
-			bool hasHit = false;
-			vec4 tempnorm;
-			
-			
-			for (int k = 0; k < renderables.size() ; k++ ) {
-				if(renderables[k]->ray_intersect(r,hit,tempnorm)) {					
-					hasHit=true;
-					if (hit < t) {
-						t = hit;
-						renderableIndex = k;
-						normal = tempnorm;
-					}
-				}
-			}
-			
-			if (hasHit) {
-				//cout << i*viewport.w << " " << j*viewport.h << endl;
-				//cout << normal << endl;
-				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
-				//cout << intersection << endl;
-				vec3 color = shade(intersection, normal, renderableIndex, 1); // recursionDepth = 1 for debug purposes
-				setPixel(i, j, normal[0], normal[1], normal[2]);
-				//setPixel(i,j, 1,1,1);
-			}
-		}
+			vec3 color = traceRay(r, 0);
+			setPixel(x,y,color[0], color[1], color[2]);
+		}	
 	}
 	setPixel(0,0,1,1,1);
 
@@ -242,7 +248,6 @@ void myDisplay() {
 		fileWriter.printScreen();
 		quitProgram();	
 	}
-//	exit(0);
 }
 
 //Reshape the viewport if the window is resized
@@ -254,7 +259,7 @@ void myReshape(int w, int h) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();				// loading the identity matrix for the screen
 	
-	gluOrtho2D(0, 1, 0, 1);
+	gluOrtho2D(0, viewport.w, 0, viewport.h);
 
 }
 
@@ -362,8 +367,7 @@ void processArgs(int argc, char* argv[]) {
 				} else {
 					Error("Bad SP");
 				}
-			}
-			
+			}	
 			else if (word == "sph") { //Parse a sphere
 				int r;
 				iss >> word;
@@ -380,7 +384,8 @@ void processArgs(int argc, char* argv[]) {
 				}
 				if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
 				
-			} else if (word == "tri") { //triangle x1 y1 z1 x2 y2 z2 x3 y3 z3
+			} 
+			else if (word == "tri") { //triangle x1 y1 z1 x2 y2 z2 x3 y3 z3
 				vec4 vertices[3];
 				for (int i=0; i<3; i++) {
 					int v[3];
@@ -401,12 +406,14 @@ void processArgs(int argc, char* argv[]) {
 				tri->material = parseMaterial;
 				renderables.push_back(tri);
 				if (DEBUG) cout << "Added triangle to scene." << endl;
-			} else if (word == "camera") { //camera
+			} 
+			else if (word == "camera") { //camera
 				camera = Camera();
 				camera.translate(translation);
 				camera.scale(scale);
 				camera.rotate(rotationAmount, rotateVec);
-			} else if (word == "print") { //print outputfile
+			} 
+			else if (word == "print") { //print outputfile
 				fileWriter.drawing = true;
 				iss >> word;
 				if (iss) {
@@ -414,16 +421,16 @@ void processArgs(int argc, char* argv[]) {
 				} else {
 					fileWriter.fileName = "out.png";
 				}
-			} else if (word == "translate") { //translate x y z
-				vec3 stuff(0,0,0);
+			} 
+			else if (word == "translate") { //translate x y z
 				for(int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						stuff[i] = atoi(word.c_str());
+						translation[i] = atoi(word.c_str());
 					} else Error("Not enough arguments to translation.");
-				}
-				translation = stuff;
-			} else if (word == "rotate") { //rotate theta vec
+				}				
+			} 
+			else if (word == "rotate") { //rotate theta vec
 				vec4 stuff(0,0,0,0);
 				for(int i=0; i<4; i++) {
 					iss >> word;
@@ -433,7 +440,8 @@ void processArgs(int argc, char* argv[]) {
 				}
 				rotationAmount = stuff[0];
 			 	rotateVec = vec3(stuff[1], stuff[2], stuff[3]);
-			} else if (word == "scale") { //scale x y z
+			} 
+			else if (word == "scale") { //scale x y z
 				vec3 stuff(0,0,0);
 				for(int i=0; i<3; i++) {
 					iss >> word;
@@ -442,7 +450,8 @@ void processArgs(int argc, char* argv[]) {
 					} else Error("Not enough arguments to scale.");
 				}
 			 	scale = stuff;
-			} else if (word == "pl") { //pointlight x y z r g b
+			} 
+			else if (word == "pl") { //pointlight x y z r g b
 				vec4 pos;
 				vec3 color;
 				for (int i=0; i<3; i++) {
@@ -457,11 +466,12 @@ void processArgs(int argc, char* argv[]) {
 						color[i] = atoi(word.c_str());
 					} else Error("Not enough arguments to PointLight");
 				}
-				pos[3] = 0;
+				pos[3] = 1;
 				PLight* p = new PLight(pos, color);
 				plights.push_back(p);
 				if (DEBUG) cout << "Added point light to scene." << endl;
-			} else if (word == "dl") { //directionalight x y z r g 
+			} 
+			else if (word == "dl") { //directionalight x y z r g 
 				vec4 dir;
 				vec3 color;
 				for (int i=0; i<3; i++) {
@@ -480,12 +490,14 @@ void processArgs(int argc, char* argv[]) {
 				DLight* d = new DLight(dir, color);
 				dlights.push_back(d);
 				if (DEBUG) cout << "Added directional light to scene." << endl;
-			} else if (word == "cleartrans"){ 
+			} 
+			else if (word == "cleartrans"){ 
 				translation = vec3(0,0,0);
 				scale = vec3(1,1,1);
 				rotateVec = vec3(0,0,0);
 				rotationAmount = 0;
-			} else{
+			} 
+			else{
 				Error("Unrecognized object " + word);
 			}
 		}

@@ -31,6 +31,7 @@ Ray::Ray() {
 Ray::Ray(vec4 a, vec4 b) {
 	pos = a;
 	dir = b;
+	dir.normalize();
 }
 	
 
@@ -116,6 +117,7 @@ vec3 Renderable::dehomogenize(vec4 v) {
 }
 
 
+
 Camera::Camera() {
 	pos = vec4(0,0,1,1);
 	UL = vec4(-1, 1, 0, 1);
@@ -126,8 +128,11 @@ Camera::Camera() {
 }
 //
 
-bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
-	return false;
+float Camera::ray_intersect (Ray r) {
+	return -1;
+}
+vec4 Camera::normal (vec4 v) {
+	return vec4(0,0,1,0);
 }
 
 Ray Camera::generate_ray (float u, float v) {
@@ -143,44 +148,128 @@ Sphere::Sphere(float a) : Renderable() {
 	pos = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
-	vec4 raydir = imat*r.dir;
+float Sphere::ray_intersect (Ray r) {
 	vec4 raypos = imat*r.pos;
+	vec4 raydir = imat*r.dir;
+	vec3 P0 = vec3(raypos[0], raypos[1], raypos[2]);
+	vec3 V = vec3(raydir[0], raydir[1], raydir[2]);
+	vec3 O = vec3(0,0,0);
 	
-
-	float a = raydir * raydir;
-	float b = 2*((raypos-pos)*raydir);
-	float c = (raypos-pos)*(raypos-pos) - pow(radius,2.0f);
+	float a = 1;
+	float b = 2*V * (P0-O);
+	float c = (P0-O).length2() - radius*radius;
 	
-	
-	float discrim = pow(b,2)-4*a*c;
-	if (discrim < 0) {
-		return false;
-	} else {
+	float discrim = b*b - 4*a*c;
+	if (discrim >= 0) {
+		float x1 = ((-1*b) - sqrt(discrim))/2;
+		float x2 = ((-1*b) + sqrt(discrim))/2;
+		float t = min(x1,x2);
 		
-		float x1 = (-b + sqrt(discrim)) / (2*a);
-		float x2 = (-b - sqrt(discrim)) / (2*a);
-		t = min(x1,x2);
-		if (t < 1) {
-			return false;
-		} else {
-
-			vec4 intersection = raypos + (t * raydir);
-			//if (z < .1 && z > -.1 ) cout << intersection << endl;
-			
-			t = (tmat*intersection - r.pos)[2] / r.dir[2];
-			vec4 sphNormal = intersection;
-			
-			/*
-			sphNormal.normalize();
-			vec4 temp = imat.transpose() * sphNormal;
-			temp.normalize();
-			*/
-			normal = tmat*sphNormal;
-			return true;
-		}
-	}
+		vec4 intersection = raypos + t * raydir;
+        t = (tmat*intersection - r.pos)[2] / r.dir[2];
+		return t;
+	} else 
+		return -1;
 	
+	//cout << r.dir << endl;
+	/*
+	vec4 raydir = r.dir;
+	vec4 raypos = r.pos;
+	vec4 tpos = tmat*pos;
+
+	vec3 P0 = vec3(raypos[0], raypos[1], raypos[2]);
+	vec3 V = vec3(raydir[0], raydir[1], raydir[2]);
+	vec3 O = vec3(tpos[0], tpos[1], tpos[2]);
+	
+	vec3 L = O-P0;
+	float tca = L * V;
+	if (tca < 0) return -1;
+	
+	float r2 = radius*radius;
+	float d2 = L*L - tca*tca;
+	if (d2 > r2) return -1;
+	
+	cout << raydir << endl;
+	cout << raypos << endl;
+	cout << tpos << endl;
+	
+	
+	
+	float thc = sqrt(r2 - d2);
+	cout << tca  << " " << thc << endl;
+	float t = min(tca-thc, tca+thc);
+	
+	vec4 intersection = (raypos + (t*raydir));
+	//if (intersection[2] > 1.95)
+	cout << imat*intersection << endl << endl;
+	
+	return t;
+	*/
+	/*
+	vec3 e = vec3(raypos[0], raypos[1], raypos[2]);
+	vec3 d = vec3(raydir[0], raydir[1], raydir[2]);
+	vec3 incident = e;
+	float d_square = d*d;
+	float d_dot_incident = d*incident;
+	float discrim = (d_dot_incident*d_dot_incident) - d_square * ((incident*incident)-(radius*radius));
+	*/
+	//cout << "Ray info" << endl;
+
+	//cout <<r.pos << endl;
+	/*
+	vec3 A = vec3(raypos[0], raypos[1], raypos[2]);
+	vec3 C = vec3(0,0,0);
+	vec3 D = vec3(raydir[0], raydir[1], raydir[2]);
+	
+ 
+	double b = 2*D*(A-C);
+	double c = (A-C)*(A-C) - radius*radius; 
+	double discrim = b*b - 4*c;
+	*/
+	
+	/*
+	if (discrim >= 0) {
+		
+		float sq_discrim = sqrt(discrim)/d_square;
+		float neg_b = -d_dot_incident/d_square;
+		float x1 = neg_b - sq_discrim;
+		float x2 = neg_b + sq_discrim;
+		
+		
+		
+		double x1 = (-b + sqrt(discrim)) / 2;
+		double x2 = (-b - sqrt(discrim)) / 2;
+		double tempT = min(x1,x2);
+		
+		
+		//vec4 intersection = raypos + tempT * raydir;
+		
+		vec3 intersection = vec3(0,0,0);
+		if (x1 > 6.95) {
+			//cout << e << endl;
+			//cout << d << endl;
+			cout << discrim << endl;
+			cout << x1 << " " << x2 << endl;
+	
+		}
+		
+        //t = (tmat*intersection - r.pos)[2] / r.dir[2];
+		t = intersection[2];
+		
+
+		return t>=1;
+	}
+	*/
+	
+	//return false;
+}
+
+vec4 Sphere::normal(vec4 surface) {
+	vec4 place = imat*surface;
+	vec4 norm = place - pos;
+	norm = tmat*norm;
+	norm.normalize();
+	return norm;
 }
 
 Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
@@ -189,8 +278,9 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v3 = c;
 }
 	
-bool Triangle::ray_intersect ( Ray &r, float &t, vec4 &normal ) {
+float Triangle::ray_intersect ( Ray r) {
 	// res : Beta | gamma | t
+	float t;
 	cout << "Triangle ray intersect check" << endl;
 	vec3 res = mat4(
 					vec4((v2-v1)[0],(v3-v1)[0],-r.dir[0],0),
@@ -204,13 +294,15 @@ bool Triangle::ray_intersect ( Ray &r, float &t, vec4 &normal ) {
 		if (tmp < t) {
 			t = tmp;
 			vec4 intersection = r.pos + t * r.dir; // this is a point on the triangle
-			normal = tmat.inverse().transpose() * ((v1-t) ^ (v3-t)); // the second part is the cross product of two vectors that define the triangle from point t
-			normal.normalize();
 		}
-		return true;
+		return t;
 	} else {
-		return false;
+		return -1;
 	}
+}
+
+vec4 Triangle::normal(vec4 surface) {
+	return vec4(0,0,0,0);
 }
 
 
