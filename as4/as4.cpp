@@ -143,7 +143,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		float newT;
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
-			if((newT=renderables[j]->ray_intersect(lightCheck)) < lightCheck.dir.length() && newT>0) {	
+			if((newT=renderables[j]->ray_intersect(lightCheck)) <= lightCheck.dir.length() && newT>0) {	
 				shadePixel = false;
 				break;
 			}
