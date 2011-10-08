@@ -182,8 +182,7 @@ vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 		}
 	}
 	*/
-	
-	return 	color;
+	return color;
 }
 
 
