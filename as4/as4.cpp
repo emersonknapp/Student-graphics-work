@@ -34,8 +34,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 100
+#define SCREEN_HEIGHT 100
 #define FRAMERATE 10
 #define EPSILON 0.15
 #define DEBUG true
@@ -65,9 +65,9 @@ Material			parsedMaterial;
 // Helper Functions
 //****************************************************
 
-void setPixel(int x, int y, GLfloat r, GLfloat g, GLfloat b) {
+void setPixel(float x, float y, GLfloat r, GLfloat g, GLfloat b) {
 	glColor3f(r, g, b);
-	glVertex2f(x+0.5, y+0.5);
+	glVertex2f(x, y);
 }
 
 
@@ -193,26 +193,42 @@ vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	glBegin(GL_POINTS);
+
+
+	Ray q = camera.generate_ray(-1,1);
 	
-	for (float i = -1.0f; i < 1.0f ; i += 0.5f/viewport.w) {
-		for (float j = -1.0f; j < 1.0f; j+= 0.5f/viewport.h) {
-//			cout << "i: " << i*viewport.w << " j: " << j*viewport.h << endl;
+	for (float i = 0; i < 1; i += 1.0/viewport.w) {
+		for (float j = 0; j < 1; j+= 1.0/viewport.h) {
 			Ray r = camera.generate_ray(i,j);
+			
 			float t = INT_MAX;
-			bool use = false;
+			float hit;
+			int renderableIndex;
+			bool hasHit = false;
 			vec3 normal;
+			
 			for (int k = 0; k < renderables.size() ; k++ ) {
-				normal = vec3(0,0,0);
-				use = renderables[k]->ray_intersect(r,t,normal);
-				if (use) {
-					vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
-					vec3 color = shade(r, intersection, normal, 1,k); // recursionDepth = 1 for debug purposes
-	//				if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-					setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
-					use = false;
+				//cout << "Testing against renderable " << k << endl;
+				if(renderables[k]->ray_intersect(r,hit,normal)) {
+					//cout << "Hit renderable " << k << endl;
+					hasHit=true;
+					if (hit < t) {
+						t = hit;
+						renderableIndex = k;
+						setPixel(i,j, 1,1,1);
+					}
 				}
 			}
-
+			if (hasHit) {
+				/*
+				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
+				vec3 color = shade(r, intersection, normal, 1,k); // recursionDepth = 1 for debug purposes
+	//			if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
+				color = vec3(1,1,1);
+				setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
+				use = false;
+				*/
+			}
 		}
 	}
 
@@ -238,7 +254,7 @@ void myReshape(int w, int h) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();				// loading the identity matrix for the screen
 	
-	gluOrtho2D(-w, w, -h, h);
+	gluOrtho2D(0, 1, 0, 1);
 
 }
 
