@@ -117,9 +117,12 @@ vec3 Renderable::dehomogenize(vec4 v) {
 
 
 Camera::Camera() {
-	pos = vec4(0,0,-1.0f,1.0f);
-	up = vec4(0,1.0f,0,1.0f);
-	viewer = vec4(0,0,1.0f,1.0f);
+	pos = vec4(0,0,1,1);
+	UL = vec4(-1, 1, 0, 1);
+	UR = vec4(1,1,0,1);
+	LL = vec4(-1,-1,0,1);
+	LR = vec4(1,-1,0,1);
+
 }
 //
 
@@ -127,13 +130,11 @@ bool Camera::ray_intersect (Ray &r, float &t, vec3 &normal) {
 	return false;
 }
 
-Ray Camera::generate_ray (float x, float y) {
-	// |x|,|y| should be 0 <= j <= 1
-	vec4 tmp = vec4(x,y,0,1);
-	vec4 dir = (tmp - tmat*pos);
-//	if (dir[0] != 0) cout << "dir: " << pos << " tmat*dir: " << tmat*dir << endl;
-	tmp = tmat*dir;
-	return Ray(tmat*pos, tmp - vec4(0,0,0,tmp[3]));
+Ray Camera::generate_ray (float u, float v) {
+
+	vec4 p = u*(v*(tmat*UR) + (1-v)*(tmat*LR))+(1-u)*(v*(tmat*UL) + (1-v)*(tmat*LL));
+	Ray r = Ray(tmat*pos, tmat*(p-pos));
+	return r;
 }
 
 
@@ -143,28 +144,37 @@ Sphere::Sphere(float a) : Renderable() {
 }
 
 bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
-	vec4 pos = tmat * base;
-	float a = r.dir.length2();
-	float b = 2*r.dir*(r.pos-pos);
-	float c = (pos - r.pos)* (pos - r.pos) - pow(radius,2.0f);
-	float tmp = (pow(b,2)-4*a*c);
-	if (tmp <= 1) {
+	vec4 raydir = imat*r.dir;
+	vec4 raypos = imat*r.pos;
+		
+	vec4 pos = base;
+
+	float a = raydir * raydir;
+	float b = 2*raydir*(raypos-pos);
+	float c = raypos*raypos - 2 * raypos * pos + pos*pos - pow(radius,2.0f);
+	
+	
+	float discrim = (pow(b,2)-4*a*c);
+	if (discrim < 0) {
 		return false;
 	} else {
-		float tmp1 = max((-b + sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
-		float tmp2 = max((-b - sqrt(pow(b,2)-4*a*c)) / (2*a) , 0.0f);
-		tmp = min(tmp1,tmp2);
-		if (tmp < t && tmp >= 1) {
-			t = tmp; 
-			vec4 intersection = r.pos + t * r.dir;
+		float x1 = (-b + sqrt(discrim)) / (2*a);
+		float x2 = (-b - sqrt(discrim)) / (2*a);
+		float intersect = min(x1,x2);
+		if (intersect < 1) {
+			return false;
+		} else {
+			t = intersect; 
+			vec4 intersection = raypos + t * raydir;
 			mat3 tmpTmat = dehomogenize(tmat);
 			vec3 sphNormal = dehomogenize(intersection) - dehomogenize(pos);//vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]);
 			sphNormal.normalize();
 			normal = tmpTmat.inverse().transpose() * sphNormal;
 			normal.normalize();
 			return true;
-		} else { return false;}
+		}
 	}
+	
 }
 
 Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {

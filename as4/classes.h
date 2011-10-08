@@ -106,7 +106,8 @@ class Camera : public Renderable {
 	// we then scale this point to the size of the viewport, then run the regular camera transformations on it then generate the ray.
 	
 public:
-	vec4 pos,up,viewer;
+	vec4 pos;
+	vec4 UL, UR, LL, LR;
 	Camera();	
 	//Ray generate_ray();
 	bool ray_intersect (Ray &, float &, vec3 &);
