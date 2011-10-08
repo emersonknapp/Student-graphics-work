@@ -136,27 +136,29 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
-		//Ray lightCheck = Ray(hitPoint, plights[i]->pos - hitPoint);
-		float t = 1.0f;
+		Ray lightCheck = Ray(hitPoint, plights[i]->pos - hitPoint);
+		float t = T_MAX;
 		Material material;
-		/*
-		for (int k = 0; k < renderables.size() ; k++ ) {
-			t = 1.0f;
-			vec3 throwAway = vec3(0,0,0);
-			renderables[k]->ray_intersect(lightCheck,t,throwAway);
-		}*/
-		
-		if (true) { // then shade. if t != 1, then the light is blocked by another object
-			material = renderables[index]->material;
-			vec3 lightColor = plights[i]->intensity;
-			vec3 lightVector = dehomogenize(plights[i]->pos - hitPoint);
-			lightVector.normalize();
-			vec3 viewVector = dehomogenize(r.pos-hitPoint);
-			viewVector.normalize();
-			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-			//Ambient term
-			color += prod(lightColor, material.ka);
-			//Diffuse term
+		bool shadePixel = true;
+		float newT;
+		for (int j = 0; j < renderables.size(); j++ ) {
+			shadePixel = true;
+			if((newT=renderables[j]->ray_intersect(lightCheck)) < lightCheck.dir.length() && newT>0) {	
+				shadePixel = false;
+				break;
+			}
+		}
+		material = renderables[index]->material;
+		vec3 lightColor = plights[i]->intensity;
+		vec3 lightVector = dehomogenize(plights[i]->pos - hitPoint);
+		lightVector.normalize();
+		vec3 viewVector = dehomogenize(r.pos-hitPoint);
+		viewVector.normalize();
+		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+		//Ambient term
+		color += prod(lightColor, material.ka);
+		//Diffuse term
+		if (shadePixel) {
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			color += prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
@@ -164,7 +166,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		
 	}
 	
-	for (int i=0; i<dlights.size(); i++) {
+/*	for (int i=0; i<dlights.size(); i++) {
 		float t = 1.0f;
 		Material material;
 		if (true) {
@@ -182,7 +184,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			//Specular
 			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
 		}
-	}
+	}*/
 	return color;
 }
 
