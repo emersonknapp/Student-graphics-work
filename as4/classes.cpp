@@ -126,7 +126,7 @@ Camera::Camera() {
 }
 //
 
-bool Camera::ray_intersect (Ray &r, float &t, vec3 &normal) {
+bool Camera::ray_intersect (Ray &r, float &t, vec4 &normal) {
 	return false;
 }
 
@@ -140,37 +140,43 @@ Ray Camera::generate_ray (float u, float v) {
 
 Sphere::Sphere(float a) : Renderable() {
 	radius = a;
-	base = vec4(0,0,0,1);
+	pos = vec4(0,0,0,1);
 }
 
-bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
+bool Sphere::ray_intersect (Ray& r, float &t, vec4& normal) {
 	vec4 raydir = imat*r.dir;
 	vec4 raypos = imat*r.pos;
-		
-	vec4 pos = base;
+	
 
 	float a = raydir * raydir;
-	float b = 2*raydir*(raypos-pos);
-	float c = raypos*raypos - 2 * raypos * pos + pos*pos - pow(radius,2.0f);
+	float b = 2*((raypos-pos)*raydir);
+	float c = (raypos-pos)*(raypos-pos) - pow(radius,2.0f);
 	
 	
-	float discrim = (pow(b,2)-4*a*c);
+	float discrim = pow(b,2)-4*a*c;
 	if (discrim < 0) {
 		return false;
 	} else {
+		
 		float x1 = (-b + sqrt(discrim)) / (2*a);
 		float x2 = (-b - sqrt(discrim)) / (2*a);
-		float intersect = min(x1,x2);
-		if (intersect < 1) {
+		t = min(x1,x2);
+		if (t < 1) {
 			return false;
 		} else {
-			t = intersect; 
-			vec4 intersection = raypos + t * raydir;
+
+			vec4 intersection = raypos + (t * raydir);
+			//if (z < .1 && z > -.1 ) cout << intersection << endl;
+			
 			t = (tmat*intersection - r.pos)[2] / r.dir[2];
-			vec4 sphNormal = intersection - pos;
+			vec4 sphNormal = intersection;
+			
+			/*
 			sphNormal.normalize();
-			normal = imat.transpose() * sphNormal;
-			normal.normalize();
+			vec4 temp = imat.transpose() * sphNormal;
+			temp.normalize();
+			*/
+			normal = tmat*sphNormal;
 			return true;
 		}
 	}
@@ -183,7 +189,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v3 = c;
 }
 	
-bool Triangle::ray_intersect ( Ray &r, float &t, vec3 &normal ) {
+bool Triangle::ray_intersect ( Ray &r, float &t, vec4 &normal ) {
 	// res : Beta | gamma | t
 	cout << "Triangle ray intersect check" << endl;
 	vec3 res = mat4(

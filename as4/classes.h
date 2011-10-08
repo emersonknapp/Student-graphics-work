@@ -96,7 +96,7 @@ public:
 	mat3 dehomogenize(mat4 t);
 	vec3 dehomogenize(vec4 v);
 	
-	virtual bool ray_intersect (Ray &, float &, vec3 &)=0; // returns whether ray intersects this object, sets t to proper value
+	virtual bool ray_intersect (Ray &, float &, vec4 &)=0; // returns whether ray intersects this object, sets t to proper value
 
 };
 
@@ -110,7 +110,7 @@ public:
 	vec4 UL, UR, LL, LR;
 	Camera();	
 	//Ray generate_ray();
-	bool ray_intersect (Ray &, float &, vec3 &);
+	bool ray_intersect (Ray &, float &, vec4 &);
 	Ray generate_ray(float x, float y);
 };
 
@@ -118,10 +118,10 @@ class Sphere : public Renderable {
 // inherits tmat from Renderable
 public:
 	float radius;
-	vec4 base;
+	vec4 pos;
 	
 	Sphere (float a);	
-	bool ray_intersect ( Ray &, float &, vec3 &);
+	bool ray_intersect ( Ray &, float &, vec4 &);
 };
 
 class Triangle : public Renderable {
@@ -130,7 +130,7 @@ public:
 	vec4 v1, v2, v3;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
-	bool ray_intersect ( Ray &, float &, vec3 & );
+	bool ray_intersect ( Ray &, float &, vec4 & );
 };
 
 class Scene {

@@ -34,10 +34,10 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 200
-#define SCREEN_HEIGHT 200
+#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 400
 #define FRAMERATE 10
-#define EPSILON 0.15
+#define EPSILON 0.05
 #define DEBUG true
 #define BITSPERPIXEL 24
 
@@ -56,10 +56,6 @@ vector<Renderable*>	renderables;
 Camera				camera;
 FileWriter			fileWriter;
 Scene				scene;
-mat4				identity;
-Material			parsedMaterial;
-
-
 
 //****************************************************
 // Helper Functions
@@ -122,7 +118,9 @@ void FileWriter::printScreen() {
 //***************************************************
 // does phong shading on a point
 //***************************************************
-vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
+vec3 shade(vec4 hitPoint, vec4 norm, int index, int recursionDepth) {
+	vec3 normal = vec3(norm);
+	normal.normalize();
 
 	vec3 color = vec3(0,0,0); //Default black
 
@@ -150,12 +148,11 @@ vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 			renderables[k]->ray_intersect(lightCheck,t,throwAway);
 		}*/
 		if (t == 1.0f) { // then shade. if t != 1, then the light is blocked by another object
-			vec4 intersection = ray.pos + t * ray.dir;	
 			material = renderables[index]->material;
 			vec3 lightColor = plights[i]->intensity;
-			vec3 lightVector = plights[i]->pos - hitPoint; // this pos is the intersection point on the sphere
+			vec3 lightVector = plights[i]->pos - hitPoint;
 			lightVector.normalize();
-			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+			//vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Ambient term
 			//color += multiplyVectors(lightColor, material.ka);
 			//Diffuse term
@@ -199,31 +196,41 @@ void myDisplay() {
 	
 	for (float i = 0; i < 1; i += 1.0/viewport.w) {
 		for (float j = 0; j < 1; j+= 1.0/viewport.h) {
+			//cout << i*viewport.w << " " << j*viewport.h << endl;
 			Ray r = camera.generate_ray(i,j);
 			
 			float t = INT_MAX;
-			float hit;
+			vec4 normal = vec4(0,0,0,0);
 			int renderableIndex;
+			
+			float hit=INT_MAX;
 			bool hasHit = false;
-			vec3 normal;
+			vec4 tempnorm;
+			
 			
 			for (int k = 0; k < renderables.size() ; k++ ) {
-				if(renderables[k]->ray_intersect(r,hit,normal)) {
+				if(renderables[k]->ray_intersect(r,hit,tempnorm)) {					
 					hasHit=true;
 					if (hit < t) {
 						t = hit;
 						renderableIndex = k;
+						normal = tempnorm;
 					}
 				}
 			}
+			
 			if (hasHit) {
+				//cout << i*viewport.w << " " << j*viewport.h << endl;
+				//cout << normal << endl;
 				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
-				vec3 color = shade(r, intersection, normal, 1, renderableIndex); // recursionDepth = 1 for debug purposes
-	//			if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-				setPixel(i, j, color[0], color[1], color[2]);
+				//cout << intersection << endl;
+				vec3 color = shade(intersection, normal, renderableIndex, 1); // recursionDepth = 1 for debug purposes
+				setPixel(i, j, normal[0], normal[1], normal[2]);
+				//setPixel(i,j, 1,1,1);
 			}
 		}
 	}
+	setPixel(0,0,1,1,1);
 
 	glEnd();
 		
@@ -493,10 +500,6 @@ void processArgs(int argc, char* argv[]) {
 // the usual stuff, nothing exciting here
 //****************************************************
 int main(int argc, char *argv[]) {
-	identity = mat4(vec4(1,0,0,0),
-					vec4(0,1,0,0),
-					vec4(0,0,1,0),
-					vec4(0,0,0,1));
 	
 	srand((unsigned)time(NULL));
 	
