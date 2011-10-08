@@ -34,8 +34,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 100
-#define SCREEN_HEIGHT 100
+#define SCREEN_WIDTH 200
+#define SCREEN_HEIGHT 200
 #define FRAMERATE 10
 #define EPSILON 0.15
 #define DEBUG true
@@ -214,19 +214,17 @@ void myDisplay() {
 					if (hit < t) {
 						t = hit;
 						renderableIndex = k;
-						setPixel(i,j, 1,1,1);
+//						setPixel(i,j, 1,1,1);
 					}
 				}
 			}
 			if (hasHit) {
-				/*
+				
 				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
-				vec3 color = shade(r, intersection, normal, 1,k); // recursionDepth = 1 for debug purposes
+				vec3 color = shade(r, intersection, normal, 1, renderableIndex); // recursionDepth = 1 for debug purposes
 	//			if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-				color = vec3(1,1,1);
-				setPixel(i*viewport.w, j*viewport.h, color[0], color[1], color[2]);
-				use = false;
-				*/
+//				color = vec3(1,1,1);
+				setPixel(i, j, color[0], color[1], color[2]);
 			}
 		}
 	}

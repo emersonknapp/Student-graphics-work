@@ -166,6 +166,7 @@ bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 		} else {
 			t = intersect; 
 			vec4 intersection = raypos + t * raydir;
+			t = (tmat*intersection - r.pos)[2] / r.dir[2];
 			mat3 tmpTmat = dehomogenize(tmat);
 			vec3 sphNormal = dehomogenize(intersection) - dehomogenize(pos);//vec3(intersection[0],intersection[1],intersection[2]) - vec3(pos[0],pos[1],pos[2]);
 			sphNormal.normalize();
