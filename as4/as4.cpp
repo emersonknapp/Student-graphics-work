@@ -141,26 +141,28 @@ vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
 		Ray lightCheck = Ray(hitPoint, plights[i]->pos - hitPoint);
-		float t;
+		float t = 1.0f;
 		Material material;
+		/*
 		for (int k = 0; k < renderables.size() ; k++ ) {
 			t = 1.0f;
 			vec3 throwAway = vec3(0,0,0);
 			renderables[k]->ray_intersect(lightCheck,t,throwAway);
-		}
-		vec4 intersection = ray.pos + t * ray.dir;
+		}*/
+
 		if (t == 1.0f) { // then shade. if t != 1, then the light is blocked by another object
+//			vec4 intersection = ray.pos + t * ray.dir;			
 			material = renderables[index]->material;
 			vec3 lightColor = plights[i]->intensity;
-			vec3 lightVector = plights[i]->pos - intersection; // this pos is the intersection point on the sphere
+			vec3 lightVector = plights[i]->pos - hitPoint; // this pos is the intersection point on the sphere
 			lightVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Ambient term
 			color += multiplyVectors(lightColor, material.ka);
 			//Diffuse term
-			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
+//			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
 			//Specular term
-			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*vec3(ray.pos[0],ray.pos[1],ray.pos[2]), 0.0), material.sp);
+//			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*vec3(ray.pos[0],ray.pos[1],ray.pos[2]), 0.0), material.sp);
 		}
 		
 	}
