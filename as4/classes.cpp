@@ -167,12 +167,10 @@ bool Sphere::ray_intersect (Ray& r, float &t, vec3& normal) {
 			t = intersect; 
 			vec4 intersection = raypos + t * raydir;
 			t = (tmat*intersection - r.pos)[2] / r.dir[2];
-			
 			vec4 sphNormal = intersection - pos;
 			sphNormal.normalize();
 			normal = imat.transpose() * sphNormal;
 			normal.normalize();
-			
 			return true;
 		}
 	}

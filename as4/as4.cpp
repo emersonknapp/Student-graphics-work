@@ -149,9 +149,8 @@ vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 			vec3 throwAway = vec3(0,0,0);
 			renderables[k]->ray_intersect(lightCheck,t,throwAway);
 		}*/
-
 		if (t == 1.0f) { // then shade. if t != 1, then the light is blocked by another object
-//			vec4 intersection = ray.pos + t * ray.dir;			
+			vec4 intersection = ray.pos + t * ray.dir;	
 			material = renderables[index]->material;
 			vec3 lightColor = plights[i]->intensity;
 			vec3 lightVector = plights[i]->pos - hitPoint; // this pos is the intersection point on the sphere
@@ -209,23 +208,18 @@ void myDisplay() {
 			vec3 normal;
 			
 			for (int k = 0; k < renderables.size() ; k++ ) {
-				//cout << "Testing against renderable " << k << endl;
 				if(renderables[k]->ray_intersect(r,hit,normal)) {
-					//cout << "Hit renderable " << k << endl;
 					hasHit=true;
 					if (hit < t) {
 						t = hit;
 						renderableIndex = k;
-//						setPixel(i,j, 1,1,1);
 					}
 				}
 			}
 			if (hasHit) {
-				
 				vec4 intersection = r.pos + t * r.dir; // at this point, t is minimum
 				vec3 color = shade(r, intersection, normal, 1, renderableIndex); // recursionDepth = 1 for debug purposes
 	//			if (color != vec3(0,0,0)) cout << color << " at (" << i*viewport.w << "," << j*viewport.h << ")" << endl;
-//				color = vec3(1,1,1);
 				setPixel(i, j, color[0], color[1], color[2]);
 			}
 		}
