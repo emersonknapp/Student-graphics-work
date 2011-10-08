@@ -158,9 +158,9 @@ vec3 shade(Ray ray, vec4 hitPoint, vec3 normal, int recursionDepth, int index) {
 			lightVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Ambient term
-			color += multiplyVectors(lightColor, material.ka);
+			//color += multiplyVectors(lightColor, material.ka);
 			//Diffuse term
-//			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
+			color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
 			//Specular term
 //			color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*vec3(ray.pos[0],ray.pos[1],ray.pos[2]), 0.0), material.sp);
 		}
