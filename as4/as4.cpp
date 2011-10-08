@@ -163,24 +163,26 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		}
 		
 	}
-	/*
-	//Loop through directional lights
+	
 	for (int i=0; i<dlights.size(); i++) {
-		vec3 lightColor = dlights[i].intensity;
-		vec3 lightVector = vec3(0,0,0) - dlights[i].dir;
-		lightVector.normalize();
-		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-		//Ambient term
-		color += multiplyVectors(lightColor, material.ka);
-		//Diffuse term
-		color += multiplyVectors(material.kd, lightColor)*max(lightVector*normal, 0.0);
-		//Specular term
-		color += multiplyVectors(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
-		if (material.bToonShade && (viewVector*normal < EPSILON)) {
-			color = vec3(0, 0, 0);
+		float t = 1.0f;
+		Material material;
+		if (true) {
+			material = renderables[index]->material;
+			vec3 lightColor = dlights[i]->intensity;
+			vec3 lightVector = vec3(0,0,0) - dehomogenize(dlights[i]->dir); //this was vec3(0,0,0) - dlights[i].dir,
+			lightVector.normalize();
+			vec3 viewVector = dehomogenize(r.pos-hitPoint);
+			viewVector.normalize();
+			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
+			//Ambient
+			color += prod(lightColor, material.ka);
+			//Diffuse
+			color += prod(material.kd, lightColor) * max(lightVector*normal, 0.0);
+			//Specular
+			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
 		}
 	}
-	*/
 	return color;
 }
 
