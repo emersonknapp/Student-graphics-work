@@ -54,7 +54,7 @@ Viewport			viewport;
 vector<PLight*>		plights;
 vector<DLight*>		dlights;
 vector<Renderable*>	renderables;
-Camera				camera;
+Camera*				camera;
 FileWriter			fileWriter;
 Scene				scene;
 
@@ -87,6 +87,7 @@ void Error(string msg) {
 void quitProgram() {
 	//Make sure to delete stuff that was created using new.
 	for (int i=0; i < renderables.size(); i++) delete renderables[i];
+	for (int i=0; i<plights.size(); i++) delete plights[i];
 	FreeImage_DeInitialise();
 	exit(0);
 }
@@ -229,14 +230,9 @@ void myDisplay() {
 	for (float x = 0; x < viewport.w; x++) {
 		for (float y = 0; y < viewport.h; y++) {
 						
-			//Ray camRay = camera.generate_ray(i,j);
-			float u = x/(viewport.w + 0.00);
-			float v = y/(viewport.h + 0.00);
-			vec4 p = (1-u)*((1-v)*camera.LL + v*camera.UL) + (u * ((1-v) * camera.LR + v * camera.UR));
-			//printf("Drawing point %f %f = %f %f %f \n", u, v, p[0], p[1], p[2]);
-			Ray r = Ray(camera.pos, p-camera.pos);			
+			Ray camRay = camera->generate_ray(x/viewport.w,y/viewport.h);			
 			
-			vec3 color = traceRay(r, 0);
+			vec3 color = traceRay(camRay, 0);
 			setPixel(x,y,color[0], color[1], color[2]);
 		}	
 	}
@@ -396,7 +392,7 @@ void processArgs(int argc, char* argv[]) {
 					for (int j=0; j<3; j++) {
 						iss >> word;
 						if (iss) {
-							v[j]=atoi(word.c_str());
+							v[j]=atof(word.c_str());
 						} else {
 							Error("Not enough arguments to triangle.");
 						}
@@ -412,10 +408,10 @@ void processArgs(int argc, char* argv[]) {
 				if (DEBUG) cout << "Added triangle to scene." << endl;
 			} 
 			else if (word == "camera") { //camera
-				camera = Camera();
-				camera.translate(translation);
-				camera.scale(scale);
-				camera.rotate(rotationAmount, rotateVec);
+				camera = new Camera();
+				camera->translate(translation);
+				camera->scale(scale);
+				camera->rotate(rotationAmount, rotateVec);
 			} 
 			else if (word == "print") { //print outputfile
 				fileWriter.drawing = true;
@@ -430,7 +426,7 @@ void processArgs(int argc, char* argv[]) {
 				for(int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						translation[i] = atoi(word.c_str());
+						translation[i] = atof(word.c_str());
 					} else Error("Not enough arguments to translation.");
 				}				
 			} 
@@ -439,7 +435,7 @@ void processArgs(int argc, char* argv[]) {
 				for(int i=0; i<4; i++) {
 					iss >> word;
 					if (iss) {
-						stuff[i] = atoi(word.c_str());
+						stuff[i] = atof(word.c_str());
 					} else Error("Not enough arguments to rotate.");
 				}
 				rotationAmount = stuff[0];
@@ -461,13 +457,13 @@ void processArgs(int argc, char* argv[]) {
 				for (int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						pos[i] = atoi(word.c_str());
+						pos[i] = atof(word.c_str());
 					} else Error("Not enough arguments to PointLight");
 				}
 				for (int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						color[i] = atoi(word.c_str());
+						color[i] = atof(word.c_str());
 					} else Error("Not enough arguments to PointLight");
 				}
 				pos[3] = 1;
@@ -481,13 +477,13 @@ void processArgs(int argc, char* argv[]) {
 				for (int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						dir[i] = atoi(word.c_str());
+						dir[i] = atof(word.c_str());
 					} else Error("Not enough arguments to Directional Light");
 				}
 				for (int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						color[i] = atoi(word.c_str());
+						color[i] = atof(word.c_str());
 					} else Error("Not enough arguments to Directional Light");
 				}
 				dir[3] = 0;

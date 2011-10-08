@@ -89,7 +89,7 @@ public:
 	Renderable () ;
 	// methods
 	void translate(vec3 t);
-	void translate(int x, int y, int z) ;
+	void translate(float x, float y, float z) ;
 	void rotate(int angle, vec3 u);
 	void scale(float xScale, float yScale, float zScale);
 	void scale(vec3 s);

@@ -49,7 +49,7 @@ void Renderable::translate (vec3 t) {
 	translate(t[0], t[1], t[2]);
 }
 
-void Renderable::translate (int x, int y, int z) { // generates translation matrix and updates tmat
+void Renderable::translate (float x, float y, float z) { // generates translation matrix and updates tmat
 	mat4 m = mat4(
 				vec4(1,0,0,x),
 		 		vec4(0,1,0,y),
@@ -136,9 +136,14 @@ vec4 Camera::normal (vec4 v) {
 }
 
 Ray Camera::generate_ray (float u, float v) {
+	
+	vec4 p = (1-u)*((1-v)*(tmat*LL) + v*(tmat*UL)) + (u * ((1-v) * (tmat*LR) + v * (tmat*UR)));
+	//printf("Drawing point %f %f = %f %f %f \n", u, v, p[0], p[1], p[2]);
 
-	vec4 p = u*(v*(tmat*UR) + (1-v)*(tmat*LR))+(1-u)*(v*(tmat*UL) + (1-v)*(tmat*LL));
-	Ray r = Ray(tmat*pos, tmat*(p-pos));
+	//vec4 p = u*(v*UR + (1-v)*LR)+(1-u)*(v*UL + (1-v)*LL);
+	Ray r = Ray(tmat*pos, p-tmat*pos);
+	//Ray r = Ray(pos, p-pos);
+	
 	return r;
 }
 
