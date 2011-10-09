@@ -6,11 +6,11 @@ Material::Material() {
 	ka = vec3(0,0,0);
 	kd = vec3(0,0,0);
 	ks = vec3(0,0,0);
-	kr = 0;
+	kr = vec3(0,0,0);
 	sp = 0;
 }
 
-Material::Material(vec3 a, vec3 d, vec3 s, float r, int p) {
+Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
 	ka = a;
 	kd = d;
 	ks = s;

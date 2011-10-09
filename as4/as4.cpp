@@ -167,10 +167,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			color += prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
-			
-			//Reflective term
-			Ray reflRay = Ray(hitPoint, reflectionVector);
-			color += traceRay(Ray(hitPoint, reflectionVector), depth+1);
+
 		}
 		
 	}
@@ -206,11 +203,12 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			//Specular
 			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
 			
-			//Reflective term
-			Ray reflRay = Ray(hitPoint, reflectionVector);
-			color += prod(material.kr, traceRay(Ray(hitPoint, reflectionVector), depth+1));
 		}
 	}
+	vec3 otherReflectionVector = -dehomogenize(r.dir) + 2*(dehomogenize(r.dir)*normal)*normal;
+	Ray reflRay = Ray(hitPoint, otherReflectionVector);
+	color += prod(renderables[index]->material.kr, traceRay(reflRay, depth+1));
+	
 	return color;
 }
 
@@ -376,13 +374,16 @@ void processArgs(int argc, char* argv[]) {
 				if (DEBUG) cout << "added ks = " << parseMaterial.ks << endl;
 			}
 			else if (word == "kr") {
-				iss >> word;
-				if (iss) {
-					parseMaterial.kr = atof(word.c_str());
-					if (DEBUG) cout << "added kr = " << parseMaterial.kr << endl;
-				} else {
-					Error("Bad kr");
+				float v[3];
+				for (int i=0; i < 3; i++) {
+					iss >> word;
+					if (iss) {
+						v[i]=atof(word.c_str());
+					} else {
+						Error("Not enough arguments to kr.");
+					}
 				}
+				parseMaterial.kr = vec3(v[0],v[1],v[2]);
 			}
 			else if (word == "sp") {
 				iss >> word;

@@ -63,11 +63,11 @@ public:
 class Material {
 public:
 	Material();
-	Material(vec3 a, vec3 d, vec3 s, float r, int p);
+	Material(vec3 a, vec3 d, vec3 s, vec3 r, int p);
 	vec3 ka; //ambient
 	vec3 kd; //diffuse
 	vec3 ks; //specular
-	float kr; //reflection coefficient
+	vec3 kr; //reflection coefficient
 	int sp; //specular power
 };
 
