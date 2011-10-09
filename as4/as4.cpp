@@ -125,7 +125,7 @@ void FileWriter::printScreen() {
 //***************************************************
 // does phong shading on a point
 //***************************************************
-vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
+vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	vec3 normal = dehomogenize(norm);
 
 	vec3 color = vec3(0,0,0); //Default black
@@ -201,13 +201,9 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			//Diffuse
 			color += prod(material.kd, lightColor) * max(lightVector*normal, 0.0);
 			//Specular
-			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
-			
+			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);		
 		}
 	}
-	vec3 otherReflectionVector = -dehomogenize(r.dir) + 2*(dehomogenize(r.dir)*normal)*normal;
-	Ray reflRay = Ray(hitPoint, otherReflectionVector);
-	color += prod(renderables[index]->material.kr, traceRay(reflRay, depth+1));
 	
 	return color;
 }
@@ -222,6 +218,7 @@ vec3 traceRay(Ray r, int depth) {
 	int renderableIndex=-1;
 	float t = T_MAX;
 	bool hasHit = false;
+	vec3 color = vec3(0,0,0);
 	
 	for (int i = 0; i < renderables.size(); i++ ) {
 		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
@@ -231,13 +228,27 @@ vec3 traceRay(Ray r, int depth) {
 		}
 	}
 	if (hasHit) {
+		if (depth > 0) {
+			cout << "reflected object intersection " << endl;
+		}
 		//return vec3(1,1,1);
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
+		color += shade(r, hitPoint, normal, renderableIndex);
 		
-		return shade(r, hitPoint, normal, renderableIndex, depth);
-		//return vec3(normal[0], normal[1], normal[2]);
-		//return vec3(t,t,t);
+		vec3 n = dehomogenize(normal);
+		vec3 d = dehomogenize(r.dir);
+		
+		vec3 temp = dehomogenize(hitPoint);
+		vec3 refl = temp - (2*(temp*n)*n);
+		refl.normalize();
+		Ray newray = Ray(hitPoint, refl);
+		vec3 kr = renderables[renderableIndex]->material.kr;
+		vec3 reflColor = traceRay(newray, depth+1);
+		color += prod(kr,reflColor);
+
+
+		return color;
 	} else { 
 		return vec3(0,0,0);
 	}
@@ -401,9 +412,7 @@ void processArgs(int argc, char* argv[]) {
 					r = atof(word.c_str());
 					Sphere* sph = new Sphere(r);
 					sph->rotate(rotationAmount, rotateVec);
-					cout << sph->tmat * vec4(1,1,1,1) << endl;
 					sph->scale(scale);
-					cout << sph->tmat * vec4(1,1,1,1) << endl;
 					sph->translate(translation);
 					sph->material = parseMaterial;
 					renderables.push_back(sph);
