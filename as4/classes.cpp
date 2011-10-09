@@ -283,19 +283,18 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
+	norm = (v2-v1) * (v3-v1);
 }
 	
 float Triangle::ray_intersect ( Ray r) {
 	// res : Beta | gamma | t
 	float t;
-	cout << "Triangle ray intersect check" << endl;
-	vec3 res = mat4(
-					vec4((v2-v1)[0],(v3-v1)[0],-r.dir[0],0),
-					vec4((v2-v1)[1],(v3-v1)[1],-r.dir[1],0),
-					vec4((v2-v1)[2],(v3-v1)[3],-r.dir[2],0),
-					vec4(0,0,0,0)
-					).inverse() * vec4(r.pos) - v1;
-	cout << "Checking parameters are within range..." << endl;
+	vec3 res = mat3(
+					vec3((v2-v1)[0],(v3-v1)[0],-r.dir[0]),
+					vec3((v2-v1)[1],(v3-v1)[1],-r.dir[1]),
+					vec3((v2-v1)[2],(v3-v1)[2],-r.dir[2])
+					).inverse() * dehomogenize(r.pos) - dehomogenize(v1);
+				cout << res << endl;
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] <= 1 && res[2] < t) {
 		int tmp = res[2];
 		if (tmp < t) {
@@ -309,7 +308,7 @@ float Triangle::ray_intersect ( Ray r) {
 }
 
 vec4 Triangle::normal(vec4 surface) {
-	return vec4(0,0,0,0);
+	return norm;
 }
 
 
