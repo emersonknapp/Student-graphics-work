@@ -171,7 +171,9 @@ float Sphere::ray_intersect (Ray r) {
 		float t = min(x1,x2);
 		
 		vec4 intersection = raypos + t * raydir;
-        t = (tmat*intersection - r.pos)[2] / r.dir[2];
+        if (r.dir[2] != 0) t = (tmat*intersection - r.pos)[2] / r.dir[2];
+		else if (r.dir[1] != 0) t = (tmat*intersection - r.pos)[1] / r.dir[1];
+		else if (r.dir[0] != 0) t = (tmat*intersection - r.pos)[0] / r.dir[0];
 		return t;
 	} else 
 		return -1;

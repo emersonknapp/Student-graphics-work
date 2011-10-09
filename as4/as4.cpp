@@ -37,7 +37,7 @@ static struct timeval lastTime;
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
 #define FRAMERATE 10
-#define EPSILON 0.05
+#define EPSILON 0.1
 #define DEBUG true
 #define BITSPERPIXEL 24
 #define T_MAX 400
@@ -167,10 +167,25 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		
 	}
 	
-/*	for (int i=0; i<dlights.size(); i++) {
-		float t = 1.0f;
+	for (int i=0; i<dlights.size(); i++) {
+		vec4 dlightDir = (-dlights[i]->dir);//+vec4(2,2,2,2));
+		Ray lightCheck = Ray(hitPoint+norm*EPSILON, dlightDir);
+		float t = T_MAX;
 		Material material;
-		if (true) {
+		bool shadePixel = true;
+		float newT;
+		for (int j = 0; j < renderables.size(); j++ ) {
+			shadePixel = true;
+			if (renderables[j]->ray_intersect(lightCheck) > 0 && j == 0) {
+				cout << renderables[j]->ray_intersect(lightCheck) << endl;
+			}
+			if((newT=renderables[j]->ray_intersect(lightCheck)) < 1 && newT>0) {
+				return vec3(1,0,0);
+				shadePixel = false;
+				break;
+			}
+		}
+		if (shadePixel) {
 			material = renderables[index]->material;
 			vec3 lightColor = dlights[i]->intensity;
 			vec3 lightVector = vec3(0,0,0) - dehomogenize(dlights[i]->dir); //this was vec3(0,0,0) - dlights[i].dir,
@@ -185,7 +200,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			//Specular
 			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
 		}
-	}*/
+	}
 	return color;
 }
 
