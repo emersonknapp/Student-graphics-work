@@ -17,5 +17,6 @@ sph 1
 cleartrans
 kd .1 .1 .1
 ks 1 1 1
-tri 5 5 -17 6 -1 -20 1 4 -20
+kr 1 1 1
+tri 5 5 -17 1 4 -20 6 -1 -20
 camera

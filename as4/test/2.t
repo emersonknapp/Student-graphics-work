@@ -1,9 +1,5 @@
-kd 1 1 1
-ka .1 .1 .1
-translate 0 0 -3
-scale 1 1 1
-sph 1
-dl 1 0 -1 1 1 1
+kd .5 .5 .5
+tri 0 0 -4 -1 -1 -4 1 -1 -4
+pl 0 0 0 1 1 1
 cleartrans
 camera
-

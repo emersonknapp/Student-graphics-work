@@ -42,7 +42,7 @@ static struct timeval lastTime;
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
-#define MAXRECURSION 2
+#define MAXRECURSION 3
 #define MAXLINE 255
 
 using namespace std;
@@ -62,6 +62,8 @@ Scene				scene;
 //****************************************************
 // Helper Functions
 //****************************************************
+
+vec3 traceRay(Ray, int);
 
 void setPixel(float x, float y, GLfloat r, GLfloat g, GLfloat b) {
 	glColor3f(r, g, b);
@@ -123,7 +125,7 @@ void FileWriter::printScreen() {
 //***************************************************
 // does phong shading on a point
 //***************************************************
-vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
+vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 	vec3 normal = dehomogenize(norm);
 
 	vec3 color = vec3(0,0,0); //Default black
@@ -151,7 +153,8 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		vec3 viewVector = dehomogenize(r.pos-hitPoint);
 		viewVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-		//Diffuse term
+		reflectionVector.normalize();
+		
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
 			if((newT=renderables[j]->ray_intersect(lightCheck)) <= lightCheck.dir.length() && newT>0 && index != j) {	
@@ -160,9 +163,14 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			}
 		}
 		if (shadePixel) {
+			//Diffuse term
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			color += prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
+			
+			//Reflective term
+			Ray reflRay = Ray(hitPoint, reflectionVector);
+			color += traceRay(Ray(hitPoint, reflectionVector), depth+1);
 		}
 		
 	}
@@ -197,6 +205,10 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			color += prod(material.kd, lightColor) * max(lightVector*normal, 0.0);
 			//Specular
 			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
+			
+			//Reflective term
+			Ray reflRay = Ray(hitPoint, reflectionVector);
+			color += prod(material.kr, traceRay(Ray(hitPoint, reflectionVector), depth+1));
 		}
 	}
 	return color;
@@ -204,7 +216,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 
 vec3 traceRay(Ray r, int depth) {
 	//Recursion cutoff check
-	if (depth >= MAXRECURSION) {
+	if (depth > MAXRECURSION) {
 		return vec3(0,0,0);
 	}
 	
@@ -225,7 +237,7 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		
-		return shade(r, hitPoint, normal, renderableIndex);
+		return shade(r, hitPoint, normal, renderableIndex, depth);
 		//return vec3(normal[0], normal[1], normal[2]);
 		//return vec3(t,t,t);
 	} else { 
