@@ -426,9 +426,9 @@ void processArgs(int argc, char* argv[]) {
 					vertices[i] = vec4(v[0], v[1], v[2], 1);
 				}
 				Triangle* tri = new Triangle(vertices[0], vertices[1], vertices[2]);
-				tri->translate(translation);
-				tri->scale(scale);
 				tri->rotate(rotationAmount, rotateVec);
+				tri->scale(scale);
+				tri->translate(translation);
 				tri->material = parseMaterial;
 				renderables.push_back(tri);
 				if (DEBUG) cout << "Added triangle to scene." << endl;

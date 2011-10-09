@@ -186,8 +186,6 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
-	norm = dehomogenize(tmat)*(dehomogenize(v3-v1) ^ dehomogenize(v2 - v1));
-	norm.normalize();
 }
 	
 float Triangle::ray_intersect ( Ray r) {
@@ -201,7 +199,7 @@ float Triangle::ray_intersect ( Ray r) {
 					vec3(a[0],b[0],-raydir[0]),
 					vec3(a[1],b[1],-raydir[1]),
 					vec3(a[2],b[2],-raydir[2])
-					).inverse() * (tmat*(dehomogenize(raypos) - dehomogenize(v1)));
+					).inverse() * dehomogenize(tmat*(raypos - v1));
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] < 1) {
 		t = res[2];
 		vec4 intersection = raypos + t * raydir; // this is a point on the triangle
@@ -215,7 +213,9 @@ float Triangle::ray_intersect ( Ray r) {
 }
 
 vec4 Triangle::normal(vec4 surface) {
-	return norm;
+	vec4 n = tmat * vec4(dehomogenize(v3-v1)^dehomogenize(v2-v1),0);
+	n.normalize();
+	return n;
 }
 
 
