@@ -148,17 +148,18 @@ float Sphere::ray_intersect (Ray r) {
 	vec4 raydir = imat*r.dir;
 	//cout << raypos << " " << r.pos << endl;
 	//cout << raydir << " " << r.dir << endl;
+	//cout << tmat*vec3(0,0,0) << endl;
+	vec3 rayO = raypos.dehomogenize();
+	vec3 rayD = raydir.dehomogenize();
 	
-	vec3 P0 = raypos.dehomogenize();
-	vec3 V = raydir.dehomogenize();
-	cout << V << endl;
+	//float a = rayD.length2();
+	float b = 2*(rayD * rayO);
+	float c = rayO.length2()-1;
 	
-	float b = 2*V * P0;
-	float c = P0.length2();
 	
 	float discrim = b*b - 4*c;
 	
-	cout << discrim << endl;
+	//cout << discrim << endl;
 	if (discrim >= 0) {
 		float x1 = ((-1*b) - sqrt(discrim))/2;
 		float x2 = ((-1*b) + sqrt(discrim))/2;

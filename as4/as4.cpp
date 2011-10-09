@@ -34,8 +34,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 30
-#define SCREEN_HEIGHT 30
+#define SCREEN_WIDTH 500
+#define SCREEN_HEIGHT 500
 #define FRAMERATE 10
 #define EPSILON 0.005
 #define DEBUG true
@@ -202,12 +202,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);		
 		}
 	}
-<<<<<<< HEAD
-	vec3 otherReflectionVector = -dehomogenize(r.dir) + 2*(dehomogenize(r.dir)*normal)*normal;
-	Ray reflRay = Ray(hitPoint+norm*EPSILON, otherReflectionVector);
-	color += prod(renderables[index]->material.kr, traceRay(reflRay, depth+1));
-=======
->>>>>>> efbd9ec1214b1def7b93f85440439ec4ddaf0c0f
 	
 	return color;
 }
@@ -233,7 +227,8 @@ vec3 traceRay(Ray r, int depth) {
 	}
 
 	if (hasHit) {
-		return vec3(1,1,1);
+
+		
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		color += shade(r, hitPoint, normal, renderableIndex);
