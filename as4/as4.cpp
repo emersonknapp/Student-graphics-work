@@ -38,7 +38,7 @@ static struct timeval lastTime;
 #define SCREEN_HEIGHT 500
 #define FRAMERATE 10
 #define EPSILON 0.005
-#define DEBUG false
+#define DEBUG true
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
@@ -125,7 +125,7 @@ void FileWriter::printScreen() {
 //***************************************************
 // does phong shading on a point
 //***************************************************
-vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
+vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	vec3 normal = dehomogenize(norm);
 
 	vec3 color = vec3(0,0,0); //Default black
@@ -201,13 +201,15 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			//Diffuse
 			color += prod(material.kd, lightColor) * max(lightVector*normal, 0.0);
 			//Specular
-			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
-			
+			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);		
 		}
 	}
+<<<<<<< HEAD
 	vec3 otherReflectionVector = -dehomogenize(r.dir) + 2*(dehomogenize(r.dir)*normal)*normal;
 	Ray reflRay = Ray(hitPoint+norm*EPSILON, otherReflectionVector);
 	color += prod(renderables[index]->material.kr, traceRay(reflRay, depth+1));
+=======
+>>>>>>> efbd9ec1214b1def7b93f85440439ec4ddaf0c0f
 	
 	return color;
 }
@@ -222,6 +224,7 @@ vec3 traceRay(Ray r, int depth) {
 	int renderableIndex=-1;
 	float t = T_MAX;
 	bool hasHit = false;
+	vec3 color = vec3(0,0,0);
 	
 	for (int i = 0; i < renderables.size(); i++ ) {
 		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
@@ -230,14 +233,28 @@ vec3 traceRay(Ray r, int depth) {
 			t = newT;
 		}
 	}
+
 	if (hasHit) {
-		//return vec3(1,1,1);
+		if (depth > 0) {
+			//return vec3(1,1,1);
+		}
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
+		color += shade(r, hitPoint, normal, renderableIndex);
 		
-		return shade(r, hitPoint, normal, renderableIndex, depth);
-		//return vec3(normal[0], normal[1], normal[2]);
-		//return vec3(t,t,t);
+		vec3 n = dehomogenize(normal);
+		vec3 d = dehomogenize(r.dir);
+		
+		vec3 temp = dehomogenize(hitPoint);
+		vec3 refl = temp - (2*(temp*n)*n);
+		refl.normalize();
+		Ray newray = Ray(hitPoint+EPSILON*normal, refl);
+		vec3 kr = renderables[renderableIndex]->material.kr;
+		vec3 reflColor = traceRay(newray, depth+1);
+		color += prod(kr,reflColor);
+		//color = refl;
+
+		return color;
 	} else { 
 		return vec3(0,0,0);
 	}
@@ -399,11 +416,10 @@ void processArgs(int argc, char* argv[]) {
 				iss >> word;
 				if (iss) {
 					r = atof(word.c_str());
-					Sphere* sph = new Sphere(r);
+					Sphere* sph = new Sphere();
 					sph->rotate(rotationAmount, rotateVec);
-					cout << sph->tmat * vec4(1,1,1,1) << endl;
+					sph->scale(r,r,r);
 					sph->scale(scale);
-					cout << sph->tmat * vec4(1,1,1,1) << endl;
 					sph->translate(translation);
 					sph->material = parseMaterial;
 					renderables.push_back(sph);

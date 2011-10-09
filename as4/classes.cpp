@@ -143,9 +143,8 @@ Ray Camera::generate_ray (float u, float v) {
 }
 
 
-Sphere::Sphere(float a) : Renderable() {
-	radius = a;
-	pos = vec4(0,0,0,1);
+Sphere::Sphere() : Renderable() {
+	
 }
 
 float Sphere::ray_intersect (Ray r) {
@@ -154,20 +153,18 @@ float Sphere::ray_intersect (Ray r) {
 	
 	vec3 P0 = dehomogenize(raypos);
 	vec3 V = dehomogenize(raydir);
-	vec3 O = vec3(0,0,0);
 	
-	float a = 1;
-	float b = 2*V * (P0-O);
-	float c = (P0-O).length2() - radius*radius;
+	float b = 2*V * P0;
+	float c = P0.length2();
 	
-	float discrim = b*b - 4*a*c;
+	float discrim = b*b - 4*c;
 	if (discrim >= 0) {
 		float x1 = ((-1*b) - sqrt(discrim))/2;
 		float x2 = ((-1*b) + sqrt(discrim))/2;
 		float t = min(x1,x2);
 		
 		vec4 intersection = raypos + t * raydir;
-		if (intersection[0] > radius*.46)
+		if (intersection[0] > .46)
 		//cout << intersection << " " << tmat*intersection << endl;
         if (r.dir[2] != 0) t = (tmat*intersection - r.pos)[2] / r.dir[2];
 		else if (r.dir[1] != 0) t = (tmat*intersection - r.pos)[1] / r.dir[1];
@@ -178,10 +175,9 @@ float Sphere::ray_intersect (Ray r) {
 }
 
 vec4 Sphere::normal(vec4 surface) {
-	vec4 place = imat*surface;
-	vec4 norm = place - pos;
-	norm = tmat*norm;
-	norm.normalize();
+	vec4 norm = surface - tmat*vec4(0,0,0,1);
+	vec3 n = dehomogenize(norm).normalize();
+	norm = vec4(n,0);
 	return norm;
 }
 
