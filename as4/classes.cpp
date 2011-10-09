@@ -114,11 +114,11 @@ vec3 Renderable::dehomogenize(vec4 v) {
 
 
 Camera::Camera() {
-	pos = vec4(0,0,3,1);
-	UL = vec4(-1, 1, 0, 1);
-	UR = vec4(1,1,0,1);
-	LL = vec4(-1,-1, 0,1);
-	LR = vec4(1,-1,0,1);
+	pos = vec4(0,0,0,1);
+	UL = vec4(-1, 1, -3, 1);
+	UR = vec4(1,1,-3,1);
+	LL = vec4(-1,-1, -3,1);
+	LR = vec4(1,-1,-3,1);
 
 }
 //
@@ -151,21 +151,24 @@ Sphere::Sphere(float a) : Renderable() {
 float Sphere::ray_intersect (Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
-	vec3 P0 = vec3(raypos[0], raypos[1], raypos[2]);
-	vec3 V = vec3(raydir[0], raydir[1], raydir[2]);
+	
+	vec3 P0 = dehomogenize(raypos);
+	vec3 V = dehomogenize(raydir);
 	vec3 O = vec3(0,0,0);
 	
 	float a = 1;
 	float b = 2*V * (P0-O);
 	float c = (P0-O).length2() - radius*radius;
 	
-float discrim = b*b - 4*a*c;
+	float discrim = b*b - 4*a*c;
 	if (discrim >= 0) {
 		float x1 = ((-1*b) - sqrt(discrim))/2;
 		float x2 = ((-1*b) + sqrt(discrim))/2;
 		float t = min(x1,x2);
 		
 		vec4 intersection = raypos + t * raydir;
+		if (intersection[0] > radius*.46)
+		//cout << intersection << " " << tmat*intersection << endl;
         if (r.dir[2] != 0) t = (tmat*intersection - r.pos)[2] / r.dir[2];
 		else if (r.dir[1] != 0) t = (tmat*intersection - r.pos)[1] / r.dir[1];
 		else if (r.dir[0] != 0) t = (tmat*intersection - r.pos)[0] / r.dir[0];
@@ -195,6 +198,7 @@ float Triangle::ray_intersect ( Ray r) {
 	float t;
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
+	
 	vec3 res = mat3(
 					vec3((v2-v1)[0],(v3-v1)[0],-raydir[0]),
 					vec3((v2-v1)[1],(v3-v1)[1],-raydir[1]),
