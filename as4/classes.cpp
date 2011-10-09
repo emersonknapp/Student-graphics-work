@@ -56,7 +56,37 @@ void Renderable::translate (float x, float y, float z) { // generates translatio
 	imat = tmat.inverse();
 	
 }
-void Renderable::rotate(float angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
+
+void Renderable::rotate(vec3 r) {
+	rotate(r[0], r[1], r[2]);
+}
+
+void Renderable::rotate(float xx, float yy, float zz) { // generates rotation matrix and updates tmat. rotates angle around vector u
+	float x = xx/2;
+	float y = yy/2;
+	float z = zz/2;
+	mat4 rx = mat4(
+				vec4(1, 0, 0, 0),
+				vec4(0, cos(x), -sin(x), 0),
+				vec4(0, sin(x), cos(x), 0),
+				vec4(0, 0, 0, 1)
+			  );
+	mat4 ry = mat4(
+				vec4(cos(y), 0, sin(y), 0),
+				vec4(0, 1, 0, 0),
+				vec4(-sin(y), 0, cos(y), 0),
+				vec4(0, 0, 0, 1)
+			  );
+	mat4 rz = mat4(
+				vec4(cos(z), -sin(z), 0, 0),
+				vec4(sin(z), cos(z), 0, 0),
+				vec4(0, 0, 1, 0),
+				vec4(0, 0, 0, 1)
+			  );
+	mat4 rmat = rx * rz * ry;
+	tmat = tmat*rmat;
+	imat = tmat.inverse();
+	/*
 	if (angle != 0 && u != vec3(0,0,0)) {
 		u.normalize();
 		float factor = sin(angle/2.0f);
@@ -78,6 +108,7 @@ void Renderable::rotate(float angle, vec3 u) { // generates rotation matrix and 
 		tmat = tmat * r;
 		imat = tmat.inverse();
 	}
+	*/
 }
 
 void Renderable::scale (vec3 s) {
@@ -110,11 +141,11 @@ mat3 Renderable::dehomogenize(mat4 t) {
 
 
 Camera::Camera() {
-	pos = vec4(0,0,3,1);
-	UL = vec4(-1, 1, 0, 1);
-	UR = vec4(1,1,0,1);
-	LL = vec4(-1,-1, 0,1);
-	LR = vec4(1,-1,0,1);
+	pos = vec4(0,0,0,1);
+	UL = vec4(-1, 1, -3, 1);
+	UR = vec4(1,1,-3,1);
+	LL = vec4(-1,-1, -3,1);
+	LR = vec4(1,-1,-3,1);
 
 }
 //
@@ -146,16 +177,14 @@ Sphere::Sphere() : Renderable() {
 float Sphere::ray_intersect (Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
+	raydir.normalize();
 	//cout << raypos << " " << r.pos << endl;
 	//cout << raydir << " " << r.dir << endl;
-	//cout << tmat*vec3(0,0,0) << endl;
 	vec3 rayO = raypos.dehomogenize();
 	vec3 rayD = raydir.dehomogenize();
 	
-	//float a = rayD.length2();
 	float b = 2*(rayD * rayO);
 	float c = rayO.length2()-1;
-	
 	
 	float discrim = b*b - 4*c;
 	

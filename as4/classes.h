@@ -90,7 +90,8 @@ public:
 	// methods
 	void translate(vec3 t);
 	void translate(float x, float y, float z) ;
-	void rotate(float angle, vec3 u);
+	void rotate(float, float, float);
+	void rotate(vec3);
 	void scale(float xScale, float yScale, float zScale);
 	void scale(vec3 s);
 	virtual vec4 normal(vec4)=0;

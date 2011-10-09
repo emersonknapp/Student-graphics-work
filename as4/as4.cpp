@@ -89,6 +89,8 @@ void quitProgram() {
 	//Make sure to delete stuff that was created using new.
 	for (int i=0; i < renderables.size(); i++) delete renderables[i];
 	for (int i=0; i<plights.size(); i++) delete plights[i];
+	for (int i=0; i<dlights.size(); i++) delete dlights[i];
+	delete camera;
 	FreeImage_DeInitialise();
 	exit(0);
 }
@@ -236,7 +238,7 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		color += shade(r, hitPoint, normal, renderableIndex);
-		
+		/*
 		vec3 n = normal.dehomogenize();
 		vec3 d = r.dir.dehomogenize();
 		
@@ -248,6 +250,7 @@ vec3 traceRay(Ray r, int depth) {
 		vec3 reflColor = traceRay(newray, depth+1);
 		color += prod(kr,reflColor);
 		//color = refl;
+		*/
 
 		return color;
 	} else { 
@@ -334,8 +337,7 @@ void processArgs(int argc, char* argv[]) {
 		Material parseMaterial;
 		vec3 translation(0,0,0);
 		vec3 scale(1,1,1);
-		vec3 rotateVec(0,0,0);
-		int rotationAmount = 0;
+		vec3 rotation(0,0,0);
 		
 		string arg = argv[i];
 		
@@ -411,10 +413,10 @@ void processArgs(int argc, char* argv[]) {
 				iss >> word;
 				if (iss) {
 					r = atof(word.c_str());
+					scale = r*scale;
 					Sphere* sph = new Sphere();
-					sph->rotate(rotationAmount, rotateVec);
-					sph->scale(r,r,r);
 					sph->scale(scale);
+					sph->rotate(rotation);
 					sph->translate(translation);
 					sph->material = parseMaterial;
 					renderables.push_back(sph);
@@ -439,8 +441,8 @@ void processArgs(int argc, char* argv[]) {
 					vertices[i] = vec4(v[0], v[1], v[2], 1);
 				}
 				Triangle* tri = new Triangle(vertices[0], vertices[1], vertices[2]);
-				tri->rotate(rotationAmount, rotateVec);
 				tri->scale(scale);
+				tri->rotate(rotation);
 				tri->translate(translation);
 				tri->material = parseMaterial;
 				renderables.push_back(tri);
@@ -450,7 +452,7 @@ void processArgs(int argc, char* argv[]) {
 				camera = new Camera();
 				camera->translate(translation);
 				camera->scale(scale);
-				camera->rotate(rotationAmount, rotateVec);
+				camera->rotate(rotation);
 			} 
 			else if (word == "print") { //print outputfile
 				fileWriter.drawing = true;
@@ -470,15 +472,12 @@ void processArgs(int argc, char* argv[]) {
 				}				
 			} 
 			else if (word == "rotate") { //rotate theta vec
-				vec4 stuff(0,0,0,0);
-				for(int i=0; i<4; i++) {
+				for(int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						stuff[i] = atof(word.c_str());
+						rotation[i] = atof(word.c_str());
 					} else Error("Not enough arguments to rotate.");
 				}
-				rotationAmount = stuff[0];
-			 	rotateVec = vec3(stuff[1], stuff[2], stuff[3]);
 			} 
 			else if (word == "scale") { //scale x y z
 				for(int i=0; i<3; i++) {
@@ -531,8 +530,7 @@ void processArgs(int argc, char* argv[]) {
 			else if (word == "cleartrans"){ 
 				translation = vec3(0,0,0);
 				scale = vec3(1,1,1);
-				rotateVec = vec3(0,0,0);
-				rotationAmount = 0;
+				rotation= vec3(0,0,0);
 			} 
 			else{
 				Error("Unrecognized object " + word);
