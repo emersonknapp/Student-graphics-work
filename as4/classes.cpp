@@ -56,19 +56,19 @@ void Renderable::translate (float x, float y, float z) { // generates translatio
 	imat = tmat.inverse();
 	
 }
-void Renderable::rotate(int angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
+void Renderable::rotate(float angle, vec3 u) { // generates rotation matrix and updates tmat. rotates angle around vector u
 	if (angle != 0 && u != vec3(0,0,0)) {
 		u.normalize();
 		float factor = sin(angle/2.0f);
 		vec4 q = vec4(cos(angle/2.0f),u[0]*factor,u[1]*factor,u[2]*factor);
-		int w = q[0];
-		int x = q[1];
-		int y = q[2];
-		int z = q[3];
-		int ww = pow(q[0],2);
-		int xx = pow(q[1],2);
-		int yy = pow(q[2],2);
-		int zz = pow(q[3],2);
+		float w = q[0];
+		float x = q[1];
+		float y = q[2];
+		float z = q[3];
+		float ww = pow(q[0],2);
+		float xx = pow(q[1],2);
+		float yy = pow(q[2],2);
+		float zz = pow(q[3],2);
 		mat4 r = mat4(
 					vec4(ww+xx-yy-zz,2*x*y+2*w*z,2*x*z-2*w*y,0),
 					vec4(2*x*y-2*w*z,ww-xx+yy-zz,2*y*z+2*w*x,0),
@@ -93,7 +93,7 @@ void Renderable::scale(float xScale, float yScale, float zScale) { // generates 
 				vec4(xScale,0,0,0),
 				vec4(0,yScale,0,0),
 				vec4(0,0,zScale,0),
-				vec4(0,0,0,1)
+				vec4(0,0,0,1.0f)
 				);
 	tmat = tmat * s;
 	imat = tmat.inverse();
@@ -186,7 +186,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
-	norm = dehomogenize(v3-v1) ^ dehomogenize(v2 - v1);
+	norm = dehomogenize(tmat)*(dehomogenize(v3-v1) ^ dehomogenize(v2 - v1));
 	norm.normalize();
 }
 	
@@ -195,11 +195,13 @@ float Triangle::ray_intersect ( Ray r) {
 	float t;
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
+	vec4 a = tmat*(v2-v1);
+	vec4 b = tmat*(v3-v1);
 	vec3 res = mat3(
-					vec3((v2-v1)[0],(v3-v1)[0],-raydir[0]),
-					vec3((v2-v1)[1],(v3-v1)[1],-raydir[1]),
-					vec3((v2-v1)[2],(v3-v1)[2],-raydir[2])
-					).inverse() * (dehomogenize(raypos) - dehomogenize(v1));
+					vec3(a[0],b[0],-raydir[0]),
+					vec3(a[1],b[1],-raydir[1]),
+					vec3(a[2],b[2],-raydir[2])
+					).inverse() * (tmat*(dehomogenize(raypos) - dehomogenize(v1)));
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] < 1) {
 		t = res[2];
 		vec4 intersection = raypos + t * raydir; // this is a point on the triangle

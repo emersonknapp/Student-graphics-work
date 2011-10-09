@@ -238,7 +238,7 @@ vec3 traceRay(Ray r, int depth) {
 		return shade(r, hitPoint, normal, renderableIndex);
 		//return vec3(normal[0], normal[1], normal[2]);
 		//return vec3(t,t,t);
-	} else {
+	} else { 
 		return vec3(0,0,0);
 	}
 
@@ -399,7 +399,9 @@ void processArgs(int argc, char* argv[]) {
 					r = atof(word.c_str());
 					Sphere* sph = new Sphere(r);
 					sph->rotate(rotationAmount, rotateVec);
+					cout << sph->tmat * vec4(1,1,1,1) << endl;
 					sph->scale(scale);
+					cout << sph->tmat * vec4(1,1,1,1) << endl;
 					sph->translate(translation);
 					sph->material = parseMaterial;
 					renderables.push_back(sph);
