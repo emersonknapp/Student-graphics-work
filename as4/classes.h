@@ -90,7 +90,7 @@ public:
 	// methods
 	void translate(vec3 t);
 	void translate(float x, float y, float z) ;
-	void rotate(int angle, vec3 u);
+	void rotate(float angle, vec3 u);
 	void scale(float xScale, float yScale, float zScale);
 	void scale(vec3 s);
 	virtual vec4 normal(vec4)=0;
@@ -132,7 +132,8 @@ public:
 class Triangle : public Renderable {
 public:
 	//vertices
-	vec4 v1, v2, v3, norm;
+	vec4 v1, v2, v3;
+	vec3 norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
 	float ray_intersect ( Ray);
