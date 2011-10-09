@@ -204,7 +204,10 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);		
 		}
 	}
-	
+
+
+
+
 	return color;
 }
 
