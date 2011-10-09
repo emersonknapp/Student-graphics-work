@@ -132,7 +132,7 @@ public:
 class Triangle : public Renderable {
 public:
 	//vertices
-	vec4 v1, v2, v3;
+	vec4 v1, v2, v3, norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
 	float ray_intersect ( Ray);
