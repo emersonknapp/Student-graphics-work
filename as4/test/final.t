@@ -14,8 +14,8 @@ kd 0 1 1
 ks 1 1 1
 translate -2 -2 -15
 sph 1
+cleartrans
 kd .1 .1 .1
 ks 1 1 1
-cleartrans
-tri 5 5 -17 1 4 -20 6 -1 -20
+tri 5 5 -17 6 -1 -20 1 4 -20
 camera
