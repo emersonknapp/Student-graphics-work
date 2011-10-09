@@ -4,10 +4,10 @@ ka .05 .05 .05
 ks .3 .3 .3
 kr 1 1 1
 sp 90
-translate -1 0 -7
+translate -1.3 0 -7
 sph 1
 kd 1 .3 .3
-translate 1 0 -7
+translate 1.3 0 -7
 sph 1
 cleartrans
 camera

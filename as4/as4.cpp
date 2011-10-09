@@ -227,11 +227,11 @@ vec3 traceRay(Ray r, int depth) {
 			t = newT;
 		}
 	}
+
 	if (hasHit) {
 		if (depth > 0) {
-			cout << "reflected object intersection " << endl;
+			//return vec3(1,1,1);
 		}
-		//return vec3(1,1,1);
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		color += shade(r, hitPoint, normal, renderableIndex);
@@ -242,11 +242,11 @@ vec3 traceRay(Ray r, int depth) {
 		vec3 temp = dehomogenize(hitPoint);
 		vec3 refl = temp - (2*(temp*n)*n);
 		refl.normalize();
-		Ray newray = Ray(hitPoint, refl);
+		Ray newray = Ray(hitPoint+EPSILON*normal, refl);
 		vec3 kr = renderables[renderableIndex]->material.kr;
 		vec3 reflColor = traceRay(newray, depth+1);
 		color += prod(kr,reflColor);
-
+		//color = refl;
 
 		return color;
 	} else { 
