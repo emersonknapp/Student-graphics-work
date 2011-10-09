@@ -121,10 +121,8 @@ public:
 class Sphere : public Renderable {
 // inherits tmat from Renderable
 public:
-	float radius;
-	vec4 pos;
 	
-	Sphere (float a);	
+	Sphere ();	
 	float ray_intersect ( Ray);
 	vec4 normal(vec4);
 };

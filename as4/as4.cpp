@@ -38,7 +38,7 @@ static struct timeval lastTime;
 #define SCREEN_HEIGHT 500
 #define FRAMERATE 10
 #define EPSILON 0.005
-#define DEBUG false
+#define DEBUG true
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
@@ -410,8 +410,9 @@ void processArgs(int argc, char* argv[]) {
 				iss >> word;
 				if (iss) {
 					r = atof(word.c_str());
-					Sphere* sph = new Sphere(r);
+					Sphere* sph = new Sphere();
 					sph->rotate(rotationAmount, rotateVec);
+					sph->scale(r,r,r);
 					sph->scale(scale);
 					sph->translate(translation);
 					sph->material = parseMaterial;
