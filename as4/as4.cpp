@@ -37,7 +37,7 @@ static struct timeval lastTime;
 #define SCREEN_WIDTH 400
 #define SCREEN_HEIGHT 400
 #define FRAMERATE 10
-#define EPSILON 0.1
+#define EPSILON 0.005
 #define DEBUG true
 #define BITSPERPIXEL 24
 #define T_MAX 400
@@ -202,7 +202,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 
 			for (int j = 0; j < renderables.size(); j++ ) {
 				shadePixel = true;
-				if((newT=renderables[j]->ray_intersect(lightCheck)) < 1 && newT>0) {
+				if((newT=renderables[j]->ray_intersect(lightCheck)) < T_MAX && newT>0) {
 					shadePixel = false;
 					break;
 				}
