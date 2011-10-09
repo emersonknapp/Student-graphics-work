@@ -96,7 +96,6 @@ public:
 	virtual vec4 normal(vec4)=0;
 	
 	mat3 dehomogenize(mat4 t);
-	vec3 dehomogenize(vec4 v);
 	
 	virtual float ray_intersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
 

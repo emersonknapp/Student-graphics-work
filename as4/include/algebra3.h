@@ -236,7 +236,7 @@ double& operator [] ( int i);				// indexing
 double operator[] (int i) const;			// read-only indexing
 
 // special functions
-
+vec3 dehomogenize();
 double length() const;			// length of a vec4
 double length2() const;			// squared length of a vec4
 vec4& normalize();			    // normalize a vec4 in place
@@ -810,14 +810,27 @@ inline double vec4::operator [] ( int i) const {
 
 // SPECIAL FUNCTIONS
 
+inline vec3 vec4::dehomogenize() {
+	vec4 me = *this;
+	return vec3(me[0], me[1], me[2]);
+}
+
 inline double vec4::length() const
 { return sqrt(length2()); }
 
 inline double vec4::length2() const
 { return n[VX]*n[VX] + n[VY]*n[VY] + n[VZ]*n[VZ] + n[VW]*n[VW]; }
 
-inline vec4& vec4::normalize() // it is up to caller to avoid divide-by-zero
-{ *this /= length(); return *this; }
+//inline vec4& vec4::normalize() // it is up to caller to avoid divide-by-zero
+//{ *this /= length(); return *this; }
+
+inline vec4& vec4::normalize() {
+	vec3 x = this->dehomogenize();
+	x.normalize();
+	double w = (*this)[3];
+	*this = vec4(x, w);
+	return *this;
+}
 
 inline vec4& vec4::apply(V_FCT_PTR fct)
 { n[VX] = (*fct)(n[VX]); n[VY] = (*fct)(n[VY]); n[VZ] = (*fct)(n[VZ]);
