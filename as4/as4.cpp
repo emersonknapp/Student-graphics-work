@@ -210,7 +210,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			color += prod(material.ks, lightColor) * pow(max(reflectionVector*viewVector,0.0),material.sp);
 		}
 	}
-	return color;
+	return vec3(1,1,1);
 }
 
 vec3 traceRay(Ray r, int depth) {
@@ -412,7 +412,7 @@ void processArgs(int argc, char* argv[]) {
 			else if (word == "tri") { //triangle x1 y1 z1 x2 y2 z2 x3 y3 z3
 				vec4 vertices[3];
 				for (int i=0; i<3; i++) {
-					int v[3];
+					float v[3];
 					for (int j=0; j<3; j++) {
 						iss >> word;
 						if (iss) {
