@@ -206,7 +206,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 		}
 	}
 	vec3 otherReflectionVector = -dehomogenize(r.dir) + 2*(dehomogenize(r.dir)*normal)*normal;
-	Ray reflRay = Ray(hitPoint, otherReflectionVector);
+	Ray reflRay = Ray(hitPoint+norm*EPSILON, otherReflectionVector);
 	color += prod(renderables[index]->material.kr, traceRay(reflRay, depth+1));
 	
 	return color;
