@@ -175,7 +175,12 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		Material material;
 		bool shadePixel = true;
 		float newT;
-<<<<<<< HEAD
+		
+		material = renderables[index]->material;
+		vec3 lightColor = dlights[i]->intensity;
+		//Ambient
+		color += prod(lightColor, material.ka);
+
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
 			if (renderables[j]->ray_intersect(lightCheck) > 0 && j == 0) {
@@ -187,19 +192,14 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 				break;
 			}
 		}
-=======
 
->>>>>>> e453154a002af45cd8464234d43769fc4a7e561f
 		if (shadePixel) {
-			material = renderables[index]->material;
-			vec3 lightColor = dlights[i]->intensity;
 			vec3 lightVector = vec3(0,0,0) - dehomogenize(dlights[i]->dir); //this was vec3(0,0,0) - dlights[i].dir,
 			lightVector.normalize();
 			vec3 viewVector = dehomogenize(r.pos-hitPoint);
 			viewVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-			//Ambient
-			color += prod(lightColor, material.ka);
+
 			for (int j = 0; j < renderables.size(); j++ ) {
 				shadePixel = true;
 				if((newT=renderables[j]->ray_intersect(lightCheck)) < 1 && newT>0) {
