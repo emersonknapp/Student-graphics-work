@@ -38,7 +38,7 @@ static struct timeval lastTime;
 #define SCREEN_HEIGHT 500
 #define FRAMERATE 10
 #define EPSILON 0.005
-#define DEBUG true
+#define DEBUG false
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
@@ -437,18 +437,20 @@ void processArgs(int argc, char* argv[]) {
 					vertices[i] = vec4(v[0], v[1], v[2], 1);
 				}
 				Triangle* tri = new Triangle(vertices[0], vertices[1], vertices[2]);
+				cout << (tri->tmat)*(tri->v1) << endl;
 				tri->scale(scale);
 				tri->rotate(rotation);
 				tri->translate(translation);
+				cout << (tri->tmat)*(tri->v1) << endl << endl;
 				tri->material = parseMaterial;
 				renderables.push_back(tri);
 				if (DEBUG) cout << "Added triangle to scene." << endl;
 			} 
 			else if (word == "camera") { //camera
 				camera = new Camera();
-				camera->translate(translation);
 				camera->scale(scale);
 				camera->rotate(rotation);
+				camera->translate(translation);
 			} 
 			else if (word == "print") { //print outputfile
 				fileWriter.drawing = true;

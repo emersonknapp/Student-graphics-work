@@ -61,31 +61,33 @@ void Renderable::rotate(vec3 r) {
 	rotate(r[0], r[1], r[2]);
 }
 
-void Renderable::rotate(float xx, float yy, float zz) { // generates rotation matrix and updates tmat. rotates angle around vector u
-	float x = xx/2;
-	float y = yy/2;
-	float z = zz/2;
-	mat4 rx = mat4(
-				vec4(1, 0, 0, 0),
-				vec4(0, cos(x), -sin(x), 0),
-				vec4(0, sin(x), cos(x), 0),
-				vec4(0, 0, 0, 1)
+void Renderable::rotate(float x, float y, float z) { // generates rotation matrix and updates tmat. rotates angle around vector u	
+	
+	mat3 rx = mat3(
+				vec3(1, 0, 0),
+				vec3(0, cos(x), -sin(x)),
+				vec3(0, sin(x), cos(x))
 			  );
-	mat4 ry = mat4(
-				vec4(cos(y), 0, sin(y), 0),
-				vec4(0, 1, 0, 0),
-				vec4(-sin(y), 0, cos(y), 0),
-				vec4(0, 0, 0, 1)
+	mat3 ry = mat3(
+				vec3(cos(y), 0, sin(y)),
+				vec3(0, 1, 0),
+				vec3(-sin(y), 0, cos(y))
 			  );
-	mat4 rz = mat4(
-				vec4(cos(z), -sin(z), 0, 0),
-				vec4(sin(z), cos(z), 0, 0),
-				vec4(0, 0, 1, 0),
-				vec4(0, 0, 0, 1)
+	mat3 rz = mat3(
+				vec3(cos(z), -sin(z), 0),
+				vec3(sin(z), cos(z), 0),
+				vec3(0, 0, 1)
 			  );
-	mat4 rmat = rx * rz * ry;
-	tmat = tmat*rmat;
+	mat3 rmat = rx * rz * ry;
+	mat4 hrmat = mat4(
+					vec4(rmat[0], 0),
+					vec4(rmat[1], 0),
+					vec4(rmat[2], 0),
+					vec4(0,0,0,1)
+				 );
+	tmat = tmat*hrmat;
 	imat = tmat.inverse();
+	
 	/*
 	if (angle != 0 && u != vec3(0,0,0)) {
 		u.normalize();
@@ -223,14 +225,15 @@ float Triangle::ray_intersect ( Ray r) {
 	float t;
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
+	raydir.normalize();
 
-	vec4 a = tmat*(v2-v3);
-	vec4 b = tmat*(v1-v3);
+	vec4 a = v2-v3;
+	vec4 b = v1-v3;
 	vec3 res = mat3(
 					vec3(a[0],b[0],-raydir[0]),
 					vec3(a[1],b[1],-raydir[1]),
 					vec3(a[2],b[2],-raydir[2])
-					).inverse() * (tmat*(raypos - v3)).dehomogenize();
+					).inverse() * (raypos - v3).dehomogenize();
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] < 1) {
 		t = res[2];
 		vec4 intersection = raypos + t * raydir; // this is a point on the triangle
