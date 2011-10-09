@@ -95,9 +95,9 @@ void Renderable::scale(float xScale, float yScale, float zScale) { // generates 
 	if (zScale == 0) zScale = 1.0f;
 	
 	mat4 s = mat4(
-				vec4(1.0f/xScale,0,0,0),
-				vec4(0,1.0f/yScale,0,0),
-				vec4(0,0,1.0f/zScale,0),
+				vec4(xScale,0,0,0),
+				vec4(0,yScale,0,0),
+				vec4(0,0,zScale,0),
 				vec4(0,0,0,1)
 				);
 	tmat = tmat * s;

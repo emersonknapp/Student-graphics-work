@@ -142,13 +142,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		Material material;
 		bool shadePixel = true;
 		float newT;
-		for (int j = 0; j < renderables.size(); j++ ) {
-			shadePixel = true;
-			if((newT=renderables[j]->ray_intersect(lightCheck)) <= lightCheck.dir.length() && newT>0) {	
-				shadePixel = false;
-				break;
-			}
-		}
+
 		material = renderables[index]->material;
 		vec3 lightColor = plights[i]->intensity;
 		vec3 lightVector = dehomogenize(plights[i]->pos - hitPoint);
@@ -159,6 +153,13 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		//Ambient term
 		color += prod(lightColor, material.ka);
 		//Diffuse term
+		for (int j = 0; j < renderables.size(); j++ ) {
+			shadePixel = true;
+			if((newT=renderables[j]->ray_intersect(lightCheck)) <= lightCheck.dir.length() && newT>0 && index != j) {	
+				shadePixel = false;
+				break;
+			}
+		}
 		if (shadePixel) {
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
@@ -174,6 +175,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		Material material;
 		bool shadePixel = true;
 		float newT;
+<<<<<<< HEAD
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
 			if (renderables[j]->ray_intersect(lightCheck) > 0 && j == 0) {
@@ -185,6 +187,9 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 				break;
 			}
 		}
+=======
+
+>>>>>>> e453154a002af45cd8464234d43769fc4a7e561f
 		if (shadePixel) {
 			material = renderables[index]->material;
 			vec3 lightColor = dlights[i]->intensity;
@@ -195,6 +200,13 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Ambient
 			color += prod(lightColor, material.ka);
+			for (int j = 0; j < renderables.size(); j++ ) {
+				shadePixel = true;
+				if((newT=renderables[j]->ray_intersect(lightCheck)) < 1 && newT>0) {
+					shadePixel = false;
+					break;
+				}
+			}
 			//Diffuse
 			color += prod(material.kd, lightColor) * max(lightVector*normal, 0.0);
 			//Specular
@@ -389,9 +401,9 @@ void processArgs(int argc, char* argv[]) {
 				if (iss) {
 					r = atof(word.c_str());
 					Sphere* sph = new Sphere(r);
-					sph->translate(translation);
-					sph->scale(scale);
 					sph->rotate(rotationAmount, rotateVec);
+					sph->scale(scale);
+					sph->translate(translation);
 					sph->material = parseMaterial;
 					renderables.push_back(sph);
 				} else {
