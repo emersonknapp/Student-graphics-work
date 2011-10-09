@@ -197,13 +197,13 @@ float Triangle::ray_intersect ( Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
 
-	vec4 a = tmat*(v2-v1);
-	vec4 b = tmat*(v3-v1);
+	vec4 a = tmat*(v2-v3);
+	vec4 b = tmat*(v1-v3);
 	vec3 res = mat3(
 					vec3(a[0],b[0],-raydir[0]),
 					vec3(a[1],b[1],-raydir[1]),
 					vec3(a[2],b[2],-raydir[2])
-					).inverse() * dehomogenize(tmat*(raypos - v1));
+					).inverse() * dehomogenize(tmat*(raypos - v3));
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] < 1) {
 		t = res[2];
 		vec4 intersection = raypos + t * raydir; // this is a point on the triangle
@@ -217,7 +217,7 @@ float Triangle::ray_intersect ( Ray r) {
 }
 
 vec4 Triangle::normal(vec4 surface) {
-	vec4 n = tmat * vec4(dehomogenize(v3-v1)^dehomogenize(v2-v1),0);
+	vec4 n = tmat * vec4(dehomogenize(v1-v3)^dehomogenize(v2-v3),0);
 	n.normalize();
 	return n;
 }
