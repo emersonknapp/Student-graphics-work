@@ -1,11 +1,6 @@
 #include "classes.h"
 
-
-
-
 using namespace std;
-
-
 
 Material::Material() {
 	ka = vec3(0,0,0);
@@ -119,7 +114,7 @@ vec3 Renderable::dehomogenize(vec4 v) {
 
 
 Camera::Camera() {
-	pos = vec4(0,0,1,1);
+	pos = vec4(0,0,3,1);
 	UL = vec4(-1, 1, 0, 1);
 	UR = vec4(1,1,0,1);
 	LL = vec4(-1,-1, 0,1);
@@ -177,98 +172,6 @@ float Sphere::ray_intersect (Ray r) {
 		return t;
 	} else 
 		return -1;
-	
-	//cout << r.dir << endl;
-	/*
-	vec4 raydir = r.dir;
-	vec4 raypos = r.pos;
-	vec4 tpos = tmat*pos;
-
-	vec3 P0 = vec3(raypos[0], raypos[1], raypos[2]);
-	vec3 V = vec3(raydir[0], raydir[1], raydir[2]);
-	vec3 O = vec3(tpos[0], tpos[1], tpos[2]);
-	
-	vec3 L = O-P0;
-	float tca = L * V;
-	if (tca < 0) return -1;
-	
-	float r2 = radius*radius;
-	float d2 = L*L - tca*tca;
-	if (d2 > r2) return -1;
-	
-	cout << raydir << endl;
-	cout << raypos << endl;
-	cout << tpos << endl;
-	
-	
-	
-	float thc = sqrt(r2 - d2);
-	cout << tca  << " " << thc << endl;
-	float t = min(tca-thc, tca+thc);
-	
-	vec4 intersection = (raypos + (t*raydir));
-	//if (intersection[2] > 1.95)
-	cout << imat*intersection << endl << endl;
-	
-	return t;
-	*/
-	/*
-	vec3 e = vec3(raypos[0], raypos[1], raypos[2]);
-	vec3 d = vec3(raydir[0], raydir[1], raydir[2]);
-	vec3 incident = e;
-	float d_square = d*d;
-	float d_dot_incident = d*incident;
-	float discrim = (d_dot_incident*d_dot_incident) - d_square * ((incident*incident)-(radius*radius));
-	*/
-	//cout << "Ray info" << endl;
-
-	//cout <<r.pos << endl;
-	/*
-	vec3 A = vec3(raypos[0], raypos[1], raypos[2]);
-	vec3 C = vec3(0,0,0);
-	vec3 D = vec3(raydir[0], raydir[1], raydir[2]);
-	
- 
-	double b = 2*D*(A-C);
-	double c = (A-C)*(A-C) - radius*radius; 
-	double discrim = b*b - 4*c;
-	*/
-	
-	/*
-	if (discrim >= 0) {
-		
-		float sq_discrim = sqrt(discrim)/d_square;
-		float neg_b = -d_dot_incident/d_square;
-		float x1 = neg_b - sq_discrim;
-		float x2 = neg_b + sq_discrim;
-		
-		
-		
-		double x1 = (-b + sqrt(discrim)) / 2;
-		double x2 = (-b - sqrt(discrim)) / 2;
-		double tempT = min(x1,x2);
-		
-		
-		//vec4 intersection = raypos + tempT * raydir;
-		
-		vec3 intersection = vec3(0,0,0);
-		if (x1 > 6.95) {
-			//cout << e << endl;
-			//cout << d << endl;
-			cout << discrim << endl;
-			cout << x1 << " " << x2 << endl;
-	
-		}
-		
-        //t = (tmat*intersection - r.pos)[2] / r.dir[2];
-		t = intersection[2];
-		
-
-		return t>=1;
-	}
-	*/
-	
-	//return false;
 }
 
 vec4 Sphere::normal(vec4 surface) {

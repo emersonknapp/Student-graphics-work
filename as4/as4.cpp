@@ -55,6 +55,7 @@ vector<PLight*>		plights;
 vector<DLight*>		dlights;
 vector<Renderable*>	renderables;
 Camera*				camera;
+vec3				ambience;
 FileWriter			fileWriter;
 Scene				scene;
 
@@ -133,7 +134,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	// If t=1, then we're good, so run Phong Shading to get the color of the pixel. Reflect this, with shade() recursive calls
 	// don't forget to increase recursionDepth!
 	
-	
+	color += ambience;
 	//Loop through point lights
 	for (int i=0; i<plights.size(); i++) {
 		//check if there's shadow
@@ -150,8 +151,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		vec3 viewVector = dehomogenize(r.pos-hitPoint);
 		viewVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-		//Ambient term
-		color += prod(lightColor, material.ka);
 		//Diffuse term
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
@@ -178,8 +177,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		
 		material = renderables[index]->material;
 		vec3 lightColor = dlights[i]->intensity;
-		//Ambient
-		color += prod(lightColor, material.ka);
 
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
@@ -348,8 +345,8 @@ void processArgs(int argc, char* argv[]) {
 						Error("Not enough arguments to ka.");
 					}
 				}
-				parseMaterial.ka = vec3(v[0],v[1],v[2]);
-				if (DEBUG) cout << "added ka = " << parseMaterial.ka << endl;
+				ambience = vec3(v[0],v[1],v[2]);
+				if (DEBUG) cout << "added ka = " << ambience << endl;
 			}
 			else if (word == "kd") {
 				float v[3];
@@ -571,11 +568,3 @@ int main(int argc, char *argv[]) {
   
   	return 0;
 }
-
-
-
-
-
-
-
-
