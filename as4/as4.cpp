@@ -38,7 +38,7 @@ static struct timeval lastTime;
 #define SCREEN_HEIGHT 400
 #define FRAMERATE 10
 #define EPSILON 0.005
-#define DEBUG true
+#define DEBUG false
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
@@ -221,6 +221,7 @@ vec3 traceRay(Ray r, int depth) {
 		}
 	}
 	if (hasHit) {
+		//return vec3(1,1,1);
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		
@@ -457,14 +458,12 @@ void processArgs(int argc, char* argv[]) {
 			 	rotateVec = vec3(stuff[1], stuff[2], stuff[3]);
 			} 
 			else if (word == "scale") { //scale x y z
-				vec3 stuff(0,0,0);
 				for(int i=0; i<3; i++) {
 					iss >> word;
 					if (iss) {
-						stuff[i] = atof(word.c_str());
+						scale[i] = atof(word.c_str());
 					} else Error("Not enough arguments to scale.");
 				}
-			 	scale = stuff;
 			} 
 			else if (word == "pl") { //pointlight x y z r g b
 				vec4 pos;
