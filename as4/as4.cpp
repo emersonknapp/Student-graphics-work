@@ -180,10 +180,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
-			if (renderables[j]->ray_intersect(lightCheck) > 0 && j == 0) {
-				//cout << renderables[j]->ray_intersect(lightCheck) << endl;
-			}
-			if((newT=renderables[j]->ray_intersect(lightCheck)) < 1 && newT>0) {
+			if((newT=renderables[j]->ray_intersect(lightCheck)) < T_MAX && newT>0) {
 				//return vec3(1,0,0);
 				shadePixel = false;
 				break;
@@ -196,14 +193,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			vec3 viewVector = dehomogenize(r.pos-hitPoint);
 			viewVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
-
-			for (int j = 0; j < renderables.size(); j++ ) {
-				shadePixel = true;
-				if((newT=renderables[j]->ray_intersect(lightCheck)) < T_MAX && newT>0) {
-					shadePixel = false;
-					break;
-				}
-			}
 			//Diffuse
 			color += prod(material.kd, lightColor) * max(lightVector*normal, 0.0);
 			//Specular
