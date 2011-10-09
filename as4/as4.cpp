@@ -34,8 +34,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 500
-#define SCREEN_HEIGHT 500
+#define SCREEN_WIDTH 30
+#define SCREEN_HEIGHT 30
 #define FRAMERATE 10
 #define EPSILON 0.005
 #define DEBUG true
@@ -70,9 +70,7 @@ void setPixel(float x, float y, GLfloat r, GLfloat g, GLfloat b) {
 	glVertex2f(x, y);
 }
 
-vec3 dehomogenize(vec4 v) {
-	return vec3(v[0],v[1],v[2]);
-}
+
 
 vec3 multiplyVectors(vec3 a, vec3 b) {
 	vec3 c;
@@ -126,7 +124,7 @@ void FileWriter::printScreen() {
 // does phong shading on a point
 //***************************************************
 vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
-	vec3 normal = dehomogenize(norm);
+	vec3 normal = norm.dehomogenize();
 
 	vec3 color = vec3(0,0,0); //Default black
 
@@ -148,9 +146,9 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 
 		material = renderables[index]->material;
 		vec3 lightColor = plights[i]->intensity;
-		vec3 lightVector = dehomogenize(plights[i]->pos - hitPoint);
+		vec3 lightVector = (plights[i]->pos - hitPoint).dehomogenize();
 		lightVector.normalize();
-		vec3 viewVector = dehomogenize(r.pos-hitPoint);
+		vec3 viewVector = (r.pos-hitPoint).dehomogenize();
 		viewVector.normalize();
 		vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 		reflectionVector.normalize();
@@ -193,9 +191,9 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		}
 
 		if (shadePixel) {
-			vec3 lightVector = vec3(0,0,0) - dehomogenize(dlights[i]->dir); //this was vec3(0,0,0) - dlights[i].dir,
+			vec3 lightVector = vec3(0,0,0) - (dlights[i]->dir).dehomogenize(); //this was vec3(0,0,0) - dlights[i].dir,
 			lightVector.normalize();
-			vec3 viewVector = dehomogenize(r.pos-hitPoint);
+			vec3 viewVector = (r.pos-hitPoint).dehomogenize();
 			viewVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			//Diffuse
@@ -229,17 +227,15 @@ vec3 traceRay(Ray r, int depth) {
 	}
 
 	if (hasHit) {
-		if (depth > 0) {
-			//return vec3(1,1,1);
-		}
+		return vec3(1,1,1);
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		color += shade(r, hitPoint, normal, renderableIndex);
 		
-		vec3 n = dehomogenize(normal);
-		vec3 d = dehomogenize(r.dir);
+		vec3 n = normal.dehomogenize();
+		vec3 d = r.dir.dehomogenize();
 		
-		vec3 temp = dehomogenize(hitPoint);
+		vec3 temp = hitPoint.dehomogenize();
 		vec3 refl = temp - (2*(temp*n)*n);
 		refl.normalize();
 		Ray newray = Ray(hitPoint+EPSILON*normal, refl);

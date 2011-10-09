@@ -107,18 +107,14 @@ mat3 Renderable::dehomogenize(mat4 t) {
 				);
 }
 
-vec3 Renderable::dehomogenize(vec4 v) {
-	return vec3(v[0],v[1],v[2]);
-}
-
 
 
 Camera::Camera() {
-	pos = vec4(0,0,0,1);
-	UL = vec4(-1, 1, -3, 1);
-	UR = vec4(1,1,-3,1);
-	LL = vec4(-1,-1, -3,1);
-	LR = vec4(1,-1,-3,1);
+	pos = vec4(0,0,3,1);
+	UL = vec4(-1, 1, 0, 1);
+	UR = vec4(1,1,0,1);
+	LL = vec4(-1,-1, 0,1);
+	LR = vec4(1,-1,0,1);
 
 }
 //
@@ -150,21 +146,26 @@ Sphere::Sphere() : Renderable() {
 float Sphere::ray_intersect (Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
+	//cout << raypos << " " << r.pos << endl;
+	//cout << raydir << " " << r.dir << endl;
 	
-	vec3 P0 = dehomogenize(raypos);
-	vec3 V = dehomogenize(raydir);
+	vec3 P0 = raypos.dehomogenize();
+	vec3 V = raydir.dehomogenize();
+	cout << V << endl;
 	
 	float b = 2*V * P0;
 	float c = P0.length2();
 	
 	float discrim = b*b - 4*c;
+	
+	cout << discrim << endl;
 	if (discrim >= 0) {
 		float x1 = ((-1*b) - sqrt(discrim))/2;
 		float x2 = ((-1*b) + sqrt(discrim))/2;
 		float t = min(x1,x2);
 		
 		vec4 intersection = raypos + t * raydir;
-		if (intersection[0] > .46)
+		//if (intersection[0] > .46)
 		//cout << intersection << " " << tmat*intersection << endl;
         if (r.dir[2] != 0) t = (tmat*intersection - r.pos)[2] / r.dir[2];
 		else if (r.dir[1] != 0) t = (tmat*intersection - r.pos)[1] / r.dir[1];
@@ -176,7 +177,7 @@ float Sphere::ray_intersect (Ray r) {
 
 vec4 Sphere::normal(vec4 surface) {
 	vec4 norm = surface - tmat*vec4(0,0,0,1);
-	vec3 n = dehomogenize(norm).normalize();
+	vec3 n = norm.dehomogenize().normalize();
 	norm = vec4(n,0);
 	return norm;
 }
@@ -199,7 +200,7 @@ float Triangle::ray_intersect ( Ray r) {
 					vec3(a[0],b[0],-raydir[0]),
 					vec3(a[1],b[1],-raydir[1]),
 					vec3(a[2],b[2],-raydir[2])
-					).inverse() * dehomogenize(tmat*(raypos - v3));
+					).inverse() * (tmat*(raypos - v3)).dehomogenize();
 	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] < 1) {
 		t = res[2];
 		vec4 intersection = raypos + t * raydir; // this is a point on the triangle
@@ -213,7 +214,7 @@ float Triangle::ray_intersect ( Ray r) {
 }
 
 vec4 Triangle::normal(vec4 surface) {
-	vec4 n = tmat * vec4(dehomogenize(v1-v3)^dehomogenize(v2-v3),0);
+	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);
 	n.normalize();
 	return n;
 }
