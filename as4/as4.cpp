@@ -34,8 +34,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 #define FRAMERATE 10
 #define EPSILON 0.05
 #define DEBUG true
