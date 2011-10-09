@@ -65,25 +65,31 @@ void Renderable::rotate(float xx, float yy, float zz) { // generates rotation ma
 	float x = xx/2;
 	float y = yy/2;
 	float z = zz/2;
-	mat4 rx = mat4(
-				vec4(1, 0, 0, 0),
-				vec4(0, cos(x), -sin(x), 0),
-				vec4(0, sin(x), cos(x), 0),
-				vec4(0, 0, 0, 1)
-			  );
-	mat4 ry = mat4(
-				vec4(cos(y), 0, sin(y), 0),
-				vec4(0, 1, 0, 0),
-				vec4(-sin(y), 0, cos(y), 0),
-				vec4(0, 0, 0, 1)
-			  );
-	mat4 rz = mat4(
-				vec4(cos(z), -sin(z), 0, 0),
-				vec4(sin(z), cos(z), 0, 0),
-				vec4(0, 0, 1, 0),
-				vec4(0, 0, 0, 1)
-			  );
-	mat4 rmat = rx * rz * ry;
+//	mat4 rx = mat4(
+//				vec4(1, 0, 0, 0),
+//				vec4(0, cos(x), -sin(x), 0),
+//				vec4(0, sin(x), cos(x), 0),
+//				vec4(0, 0, 0, 1)
+//			  );
+//	mat4 ry = mat4(
+//				vec4(cos(y), 0, sin(y), 1),
+//				vec4(0, 1, 0, 1),
+//				vec4(-sin(y), 0, cos(y), 1),
+//				vec4(0, 0, 0, 1)
+//			  );
+//	mat4 rz = mat4(
+//				vec4(cos(z), -sin(z), 0, 0),
+//				vec4(sin(z), cos(z), 0, 0),
+//				vec4(0, 0, 1, 0),
+//				vec4(0, 0, 0, 1)
+//			  );
+	//mat4 rmat = rx * rz * ry;
+	mat4 rmat = mat4(
+					vec4(cos(y)*cos(z), -cos(x)*sin(z)+sin(x)*sin(y)*cos(z),sin(x)*sin(z)+cos(x)*sin(y)*cos(z),0),
+					vec4(cos(y)*sin(z), cos(x)*cos(z)+sin(x)*sin(y)*sin(z), -sin(x)*cos(z)+cos(x)*sin(y)*sin(z),0),
+					vec4(-sin(y), sin(x)*cos(y), cos(x)*cos(y),0),
+					vec4(0,0,0,1)
+					);
 	tmat = tmat*rmat;
 	imat = tmat.inverse();
 	/*
