@@ -34,8 +34,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 400
+#define SCREEN_WIDTH 500
+#define SCREEN_HEIGHT 500
 #define FRAMERATE 10
 #define EPSILON 0.005
 #define DEBUG false
@@ -320,7 +320,6 @@ void initScene(){
 void processArgs(int argc, char* argv[]) {
 	
 	for (int i=1; i<argc; i++) {
-		Material material;
 		Material parseMaterial;
 		vec3 translation(0,0,0);
 		vec3 scale(1,1,1);
