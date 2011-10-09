@@ -34,8 +34,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 400
 #define FRAMERATE 10
 #define EPSILON 0.1
 #define DEBUG true
@@ -177,10 +177,10 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
 			if (renderables[j]->ray_intersect(lightCheck) > 0 && j == 0) {
-				cout << renderables[j]->ray_intersect(lightCheck) << endl;
+				//cout << renderables[j]->ray_intersect(lightCheck) << endl;
 			}
 			if((newT=renderables[j]->ray_intersect(lightCheck)) < 1 && newT>0) {
-				return vec3(1,0,0);
+				//return vec3(1,0,0);
 				shadePixel = false;
 				break;
 			}
@@ -384,7 +384,7 @@ void processArgs(int argc, char* argv[]) {
 				}
 			}	
 			else if (word == "sph") { //Parse a sphere
-				int r;
+				float r;
 				iss >> word;
 				if (iss) {
 					r = atof(word.c_str());
