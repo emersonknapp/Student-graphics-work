@@ -34,10 +34,10 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 500
-#define SCREEN_HEIGHT 500
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
 #define FRAMERATE 10
-#define EPSILON 0.005
+#define EPSILON 0.001
 #define DEBUG false
 #define BITSPERPIXEL 24
 #define T_MAX 400
@@ -158,6 +158,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
 			if((newT=renderables[j]->ray_intersect(lightCheck)) <= lightCheck.dir.length() && newT>0 && index != j) {	
+//				return vec3(1,0,0);
 				shadePixel = false;
 				break;
 			}
@@ -224,7 +225,6 @@ vec3 traceRay(Ray r, int depth) {
 	
 	for (int i = 0; i < renderables.size(); i++ ) {
 		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
-			if (depth > 0) cout << newT << endl;
 			hasHit = true;			
 			renderableIndex = i;
 			t = newT;
