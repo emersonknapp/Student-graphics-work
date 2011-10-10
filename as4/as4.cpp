@@ -42,7 +42,7 @@ static struct timeval lastTime;
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
-#define MAXRECURSION 2
+#define MAXRECURSION 4
 #define MAXLINE 255
 
 using namespace std;

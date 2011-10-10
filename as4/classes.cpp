@@ -85,7 +85,7 @@ void Renderable::rotate(float x, float y, float z) { // generates rotation matri
 				vec3(sin(z), cos(z), 0),
 				vec3(0, 0, 1)
 			  );
-	mat3 rmat = ry * rz * rxg;
+	mat3 rmat = ry * rz * rx;
 	rotmat = mat4(
 					vec4(rmat[0], 0),
 					vec4(rmat[1], 0),
