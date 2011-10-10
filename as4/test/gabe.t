@@ -86,10 +86,9 @@ sph 1
 
 kd .2 .2 .7
 translate 0 0 -50
-sph 20
+sph 10
 
 cleartrans
 translate 30 20 20
 rotate -.5 .785 0
 camera
-print sphereGrid.png
