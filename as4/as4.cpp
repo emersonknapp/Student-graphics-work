@@ -42,7 +42,7 @@ static struct timeval lastTime;
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
-#define MAXRECURSION 3
+#define MAXRECURSION 2
 #define MAXLINE 255
 
 using namespace std;
@@ -225,6 +225,7 @@ vec3 traceRay(Ray r, int depth) {
 	
 	for (int i = 0; i < renderables.size(); i++ ) {
 		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
+			if (depth > 0) cout << newT << endl;
 			hasHit = true;			
 			renderableIndex = i;
 			t = newT;
@@ -237,19 +238,19 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		color += shade(r, hitPoint, normal, renderableIndex);
-		/*
-		vec3 n = normal.dehomogenize();
-		vec3 d = r.dir.dehomogenize();
 		
-		vec3 temp = hitPoint.dehomogenize();
-		vec3 refl = temp - (2*(temp*n)*n);
+		vec3 n = -normal.dehomogenize();
+		vec3 d = r.dir.dehomogenize();
+		n.normalize();
+		d.normalize();
+		
+		vec3 refl = d - 2*(d*n)*n;
+//		cout << d*n << " " << refl*n << endl;
 		refl.normalize();
-		Ray newray = Ray(hitPoint+EPSILON*normal, refl);
+		Ray newray = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
 		vec3 kr = renderables[renderableIndex]->material.kr;
 		vec3 reflColor = traceRay(newray, depth+1);
 		color += prod(kr,reflColor);
-		//color = refl;
-		*/
 
 		return color;
 	} else { 
