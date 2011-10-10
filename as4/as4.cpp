@@ -183,8 +183,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		material = renderables[index]->material;
 		vec3 lightColor = dlights[i]->intensity;
 
-		for (int j = 0; j < renderables.size(); j++ ) {
-			shadePixel = true;
+		for (int j = 0; j < renderables.size(); j++) {
 			if((newT=renderables[j]->ray_intersect(lightCheck)) < T_MAX && newT>0) {
 				//return vec3(1,0,0);
 				shadePixel = false;
@@ -413,9 +412,8 @@ void processArgs(int argc, char* argv[]) {
 				iss >> word;
 				if (iss) {
 					r = atof(word.c_str());
-					scale = r*scale;
 					Sphere* sph = new Sphere();
-					sph->scale(scale);
+					sph->scale(r*scale);
 					sph->rotate(rotation);
 					sph->translate(translation);
 					sph->material = parseMaterial;

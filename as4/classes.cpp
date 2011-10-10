@@ -218,7 +218,9 @@ float Sphere::ray_intersect (Ray r) {
 }
 
 vec4 Sphere::normal(vec4 surface) {
-	vec4 norm = tmat.inverse().transpose()*(imat*surface);
+	vec3 hit = (imat*surface).dehomogenize();
+	vec4 norm = imat.transpose()*vec4(hit,0);
+	norm.normalize();
 	
 	//vec4 norm = surface - tmat*vec4(0,0,0,1);
 	//vec3 n = norm.dehomogenize().normalize();
