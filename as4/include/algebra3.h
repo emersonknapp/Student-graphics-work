@@ -1312,6 +1312,5 @@ inline mat4 perspective3D(const double d)
 		vec4(0.0, 0.0, 1.0, 0.0),
 		vec4(0.0, 0.0, 1.0/d, 0.0)); }
 
-
 #endif // ALGEBRA3H
 

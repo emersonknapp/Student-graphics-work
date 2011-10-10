@@ -2,6 +2,9 @@
 
 using namespace std;
 
+mat4 Identity4 = mat4(vec4(1, 0, 0, 0), vec4(0,1,0,0), vec4(0,0,1,0), vec4(0,0,0,1));
+
+
 Material::Material() {
 	ka = vec3(0,0,0);
 	kd = vec3(0,0,0);
@@ -38,6 +41,9 @@ Renderable::Renderable () {
 			vec4(0,0,1,0),
 			vec4(0,0,0,1)
 			);
+	rotmat = Identity4;
+	scalemat = Identity4;
+	transmat = Identity4;
 }
 
 void Renderable::translate (vec3 t) {
@@ -45,13 +51,14 @@ void Renderable::translate (vec3 t) {
 }
 
 void Renderable::translate (float x, float y, float z) { // generates translation matrix and updates tmat
-	mat4 m = mat4(
+	transmat = mat4(
 				vec4(1,0,0,x),
 		 		vec4(0,1,0,y),
 		 		vec4(0,0,1,z),
 		 		vec4(0,0,0,1)
 				);
-	tmat = tmat * m;
+
+	tmat = transmat * rotmat * scalemat;
 	
 	imat = tmat.inverse();
 	
@@ -79,13 +86,16 @@ void Renderable::rotate(float x, float y, float z) { // generates rotation matri
 				vec3(0, 0, 1)
 			  );
 	mat3 rmat = rx * rz * ry;
-	mat4 hrmat = mat4(
+	rotmat = mat4(
 					vec4(rmat[0], 0),
 					vec4(rmat[1], 0),
 					vec4(rmat[2], 0),
 					vec4(0,0,0,1)
 				 );
-	tmat = tmat*hrmat;
+	//mat4 negt = -transmat;
+	//negt[3][3] = 1;
+	//rotmat = transmat * rotmat * transmat.inverse();
+	tmat = transmat * rotmat * scalemat;
 	imat = tmat.inverse();
 	
 	/*
@@ -122,13 +132,13 @@ void Renderable::scale(float xScale, float yScale, float zScale) { // generates 
 	if (yScale == 0) yScale = 1.0f;
 	if (zScale == 0) zScale = 1.0f;
 	
-	mat4 s = mat4(
+	scalemat = mat4(
 				vec4(xScale,0,0,0),
 				vec4(0,yScale,0,0),
 				vec4(0,0,zScale,0),
 				vec4(0,0,0,1.0f)
 				);
-	tmat = tmat * s;
+	tmat = transmat * rotmat * scalemat;
 	imat = tmat.inverse();
 }
 

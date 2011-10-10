@@ -84,6 +84,9 @@ class Renderable {
 public:
 	mat4 tmat;
 	mat4 imat;
+	mat4 rotmat;
+	mat4 transmat;
+	mat4 scalemat;
 	Material material;
 	// constructors
 	Renderable () ;
