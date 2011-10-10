@@ -20,4 +20,3 @@ cleartrans
 translate 0 -30 8
 rotate 1.2 0 0 
 camera
-print gabe2.png
