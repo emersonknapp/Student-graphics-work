@@ -34,15 +34,15 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 500
-#define SCREEN_HEIGHT 500
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
 #define FRAMERATE 10
-#define EPSILON 0.005
+#define EPSILON 0.001
 #define DEBUG false
 #define BITSPERPIXEL 24
 #define T_MAX 400
 
-#define MAXRECURSION 3
+#define MAXRECURSION 2
 #define MAXLINE 255
 
 using namespace std;
@@ -158,6 +158,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		for (int j = 0; j < renderables.size(); j++ ) {
 			shadePixel = true;
 			if((newT=renderables[j]->ray_intersect(lightCheck)) <= lightCheck.dir.length() && newT>0 && index != j) {	
+//				return vec3(1,0,0);
 				shadePixel = false;
 				break;
 			}
@@ -236,19 +237,19 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = renderables[renderableIndex]->normal(hitPoint);
 		color += shade(r, hitPoint, normal, renderableIndex);
-		/*
-		vec3 n = normal.dehomogenize();
-		vec3 d = r.dir.dehomogenize();
 		
-		vec3 temp = hitPoint.dehomogenize();
-		vec3 refl = temp - (2*(temp*n)*n);
+		vec3 n = -normal.dehomogenize();
+		vec3 d = r.dir.dehomogenize();
+		n.normalize();
+		d.normalize();
+		
+		vec3 refl = d - 2*(d*n)*n;
+//		cout << d*n << " " << refl*n << endl;
 		refl.normalize();
-		Ray newray = Ray(hitPoint+EPSILON*normal, refl);
+		Ray newray = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
 		vec3 kr = renderables[renderableIndex]->material.kr;
 		vec3 reflColor = traceRay(newray, depth+1);
 		color += prod(kr,reflColor);
-		//color = refl;
-		*/
 
 		return color;
 	} else { 
