@@ -12,3 +12,4 @@ tri 0 0 0 -1 1 0 1 1 0
 cleartrans
 translate 0 0 4
 camera
+

@@ -1,49 +1,4 @@
-// Simple OpenGL example for CS184 sp08 by Trevor Standley, modified from sample code for CS184 on Sp06
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <cstring>
-
-#ifdef _WIN32
-#	include <windows.h>
-#else
-#	include <sys/time.h>
-#endif
-
-#ifdef OSX
-#include <GLUT/glut.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/glut.h>
-#include <GL/glu.h>
-#endif
-
-#include <time.h>
-#include <math.h>
-
-#include "algebra3.h"
-#include "FreeImage.h"
-#include "classes.h"
-
-#ifdef _WIN32
-static DWORD lastTime;
-#else
-static struct timeval lastTime;
-#endif
-
-#define PI 3.14159265
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
-#define FRAMERATE 10
-#define EPSILON 0.001
-#define DEBUG false
-#define BITSPERPIXEL 24
-#define T_MAX 400
-
-#define MAXRECURSION 4
-#define MAXLINE 255
+#include "as4.h"
 
 using namespace std;
 
@@ -56,7 +11,7 @@ vector<DLight*>		dlights;
 vector<Renderable*>	renderables;
 Camera*				camera;
 vec3				ambience;
-FileWriter			fileWriter;
+ImageWriter			imageWriter;
 Scene				scene;
 
 //****************************************************
@@ -66,18 +21,16 @@ Scene				scene;
 vec3 traceRay(Ray, int);
 
 void setPixel(float x, float y, GLfloat r, GLfloat g, GLfloat b) {
-	glColor3f(r, g, b);
-	glVertex2f(x, y);
-}
-
-
-
-vec3 multiplyVectors(vec3 a, vec3 b) {
-	vec3 c;
-	c[0] = a[0] * b[0];
-	c[1] = a[1] * b[1];
-	c[2] = a[2] * b[2];
-	return c;
+	if (imageWriter.drawing) {
+		unsigned char color[3];
+		color[0] = min((int)floor(r*255), 255);
+		color[1] = min((int)floor(g*255), 255);
+		color[2] = min((int)floor(b*255), 255);
+		imageWriter.setPixel(x, y, color);
+	} else {
+		glColor3f(r, g, b);
+		glVertex2f(x, y);
+	}
 }
 
 void Error(string msg) {
@@ -95,27 +48,30 @@ void quitProgram() {
 	exit(0);
 }
 
-void FileWriter::printScreen() {
+void ImageWriter::printScreen() {
+	
 	const char* name = fileName.c_str();
 	//bitmap holds FreeImage Pixels
-	FIBITMAP* bitmap = FreeImage_Allocate(viewport.w, viewport.h, BITSPERPIXEL);
-	if (!bitmap) exit(1);
-	RGBQUAD color;
+
 	
-	//pRGB holds openGL pixel output
-	unsigned char *pRGB = new unsigned char [3* (viewport.w+1) * (viewport.h+1) + 3];
-	glReadBuffer(GL_BACK);
-	glReadPixels(0, 0, viewport.w, viewport.h, GL_RGB, GL_UNSIGNED_BYTE, pRGB);
+	if (glOn) {
+		RGBQUAD color;
 
-	for (int i=0; i<viewport.w*viewport.h; i++) {
-		int index = i*3;
+		//pRGB holds openGL pixel output
+		unsigned char *pRGB = new unsigned char [3* (width+1) * (height+1) + 3];
+		glReadBuffer(GL_BACK);
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pRGB);
 
-		int x = i%viewport.w;
-		int y = (i - i%viewport.w)/viewport.w;
-		color.rgbRed = pRGB[index];
-		color.rgbGreen = pRGB[index+1];
-		color.rgbBlue = pRGB[index+2];
-		FreeImage_SetPixelColor(bitmap, x, y, &color);
+		for (int i=0; i<width*height; i++) {
+			int index = i*3;
+
+			int x = i%width;
+			int y = (i - i%width)/width;
+			color.rgbRed = pRGB[index];
+			color.rgbGreen = pRGB[index+1];
+			color.rgbBlue = pRGB[index+2];
+			FreeImage_SetPixelColor(bitmap, x, y, &color);
+		}
 	}
 
 	FreeImage_Save(FIF_PNG, bitmap, name, 0);
@@ -262,8 +218,10 @@ vec3 traceRay(Ray r, int depth) {
 // Function what actually draws to screen
 //***************************************************
 void myDisplay() {
-	glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
-	glBegin(GL_POINTS);
+	if (!imageWriter.drawing) {
+		glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
+		glBegin(GL_POINTS);
+	}
 	
 	for (float x = 0; x < viewport.w; x++) {
 		for (float y = 0; y < viewport.h; y++) {
@@ -274,16 +232,20 @@ void myDisplay() {
 			setPixel(x,y,color[0], color[1], color[2]);
 		}	
 	}
-	setPixel(0,0,1,1,1);
-
-	glEnd();
-		
-	glFlush();
-	glutSwapBuffers();					// swap buffers (we earlier set double buffer)
 	
-	if (fileWriter.drawing) {
+	if(!imageWriter.drawing) {
+		glEnd();
+		
+		glFlush();
+		glutSwapBuffers();					// swap buffers (we earlier set double buffer)
+	}
+	
+	
+	
+	if (imageWriter.drawing) {
+		
 		if (DEBUG) cout << "Completed render! Outputting to file." << endl;
-		fileWriter.printScreen();
+		imageWriter.printScreen();
 		quitProgram();	
 	}
 }
@@ -310,8 +272,8 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		string name = "pic";
 		name += key;
 		name += ".png";
-		fileWriter.fileName = name;
-		fileWriter.printScreen();
+		imageWriter.fileName = name;
+		imageWriter.init(viewport.w, viewport.h);
 	}
 }
 
@@ -439,12 +401,9 @@ void processArgs(int argc, char* argv[]) {
 					vertices[i] = vec4(v[0], v[1], v[2], 1);
 				}
 				Triangle* tri = new Triangle(vertices[0], vertices[1], vertices[2]);
-				cout << (tri->tmat)*(tri->v1) << (tri->tmat)*(tri->v2) << (tri->tmat)*(tri->v3) << endl;
 				tri->scale(scale);
 				tri->rotate(rotation);
 				tri->translate(translation);
-				
-				cout << (tri->tmat)*(tri->v1) << (tri->tmat)*(tri->v2) << (tri->tmat)*(tri->v3) << endl << endl;
 				tri->material = parseMaterial;
 				renderables.push_back(tri);
 				if (DEBUG) cout << "Added triangle to scene." << endl;
@@ -456,12 +415,13 @@ void processArgs(int argc, char* argv[]) {
 				camera->translate(translation);
 			} 
 			else if (word == "print") { //print outputfile
-				fileWriter.drawing = true;
+				imageWriter.init(viewport.w, viewport.h);
+				imageWriter.glOn = false;
 				iss >> word;
 				if (iss) {
-					fileWriter.fileName = word;
+					imageWriter.fileName = word;
 				} else {
-					fileWriter.fileName = "out.png";
+					imageWriter.fileName = "out.png";
 				}
 			} 
 			else if (word == "translate") { //translate x y z
@@ -552,31 +512,36 @@ int main(int argc, char *argv[]) {
 	srand((unsigned)time(NULL));
 	
 	//Initialize FreeImage library
-	FreeImage_Initialise();
+	
 	//cout << "FreeImage " << FreeImage_GetVersion() << endl;
 	//cout << FreeImage_GetCopyrightMessage() << endl;
 	
 	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
 	processArgs(argc, argv);
-  	glutInit(&argc, argv);
 	
-  	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	if (imageWriter.drawing) {
+		myDisplay();
+	} else {
+	  	glutInit(&argc, argv);
+	
+	  	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
-  	//The size and position of the window
-  	glutInitWindowSize(viewport.w, viewport.h);
-  	glutInitWindowPosition(-1, -1);
-  	glutCreateWindow("Ray Tracer");
+	  	//The size and position of the window
+	  	glutInitWindowSize(viewport.w, viewport.h);
+	  	glutInitWindowPosition(-1, -1);
+	  	glutCreateWindow("Ray Tracer");
 	
-  	initScene();							// quick function to set up scene
+	  	initScene();							// quick function to set up scene
 
-	glutIgnoreKeyRepeat(1);
-	glutKeyboardFunc(processNormalKeys);
-	glutKeyboardUpFunc(processNormalKeyups);
-	glutIdleFunc(glutPostRedisplay);
-  	glutDisplayFunc(myDisplay);				// function to run when its time to draw something
-  	glutReshapeFunc(myReshape);				// function to run when the window gets resized
+		glutIgnoreKeyRepeat(1);
+		glutKeyboardFunc(processNormalKeys);
+		glutKeyboardUpFunc(processNormalKeyups);
+		glutIdleFunc(glutPostRedisplay);
+	  	glutDisplayFunc(myDisplay);				// function to run when its time to draw something
+	  	glutReshapeFunc(myReshape);				// function to run when the window gets resized
 	
-	glutMainLoop();							// infinite loop that will keep drawing and resizing and whatever else
+		glutMainLoop();							// infinite loop that will keep drawing and resizing and whatever else
+	}
   
   	return 0;
 }

@@ -92,35 +92,10 @@ void Renderable::rotate(float x, float y, float z) { // generates rotation matri
 					vec4(rmat[2], 0),
 					vec4(0,0,0,1)
 				 );
-	//mat4 negt = -transmat;
-	//negt[3][3] = 1;
-	//rotmat = transmat * rotmat * transmat.inverse();
+
 	tmat = transmat * rotmat * scalemat;
 	imat = tmat.inverse();
 	
-	/*
-	if (angle != 0 && u != vec3(0,0,0)) {
-		u.normalize();
-		float factor = sin(angle/2.0f);
-		vec4 q = vec4(cos(angle/2.0f),u[0]*factor,u[1]*factor,u[2]*factor);
-		float w = q[0];
-		float x = q[1];
-		float y = q[2];
-		float z = q[3];
-		float ww = pow(q[0],2);
-		float xx = pow(q[1],2);
-		float yy = pow(q[2],2);
-		float zz = pow(q[3],2);
-		mat4 r = mat4(
-					vec4(ww+xx-yy-zz,2*x*y+2*w*z,2*x*z-2*w*y,0),
-					vec4(2*x*y-2*w*z,ww-xx+yy-zz,2*y*z+2*w*x,0),
-					vec4(2*x*z+2*w*y,2*y*z-2*w*z,ww-xx-yy+zz,0),
-					vec4(0,0,0,ww+xx+yy+zz)
-				);
-		tmat = tmat * r;
-		imat = tmat.inverse();
-	}
-	*/
 }
 
 void Renderable::scale (vec3 s) {
@@ -172,11 +147,8 @@ vec4 Camera::normal (vec4 v) {
 Ray Camera::generate_ray (float u, float v) {
 	
 	vec4 p = (1-u)*((1-v)*(tmat*LL) + v*(tmat*UL)) + (u * ((1-v) * (tmat*LR) + v * (tmat*UR)));
-	//printf("Drawing point %f %f = %f %f %f \n", u, v, p[0], p[1], p[2]);
 
-	//vec4 p = u*(v*UR + (1-v)*LR)+(1-u)*(v*UL + (1-v)*LL);
 	Ray r = Ray(tmat*pos, p-tmat*pos);
-	//Ray r = Ray(pos, p-pos);
 	
 	return r;
 }
@@ -190,8 +162,6 @@ float Sphere::ray_intersect (Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
 	raydir.normalize();
-	//cout << raypos << " " << r.pos << endl;
-	//cout << raydir << " " << r.dir << endl;
 	vec3 rayO = raypos.dehomogenize();
 	vec3 rayD = raydir.dehomogenize();
 	
@@ -200,15 +170,12 @@ float Sphere::ray_intersect (Ray r) {
 	
 	float discrim = b*b - 4*c;
 	
-	//cout << discrim << endl;
 	if (discrim >= 0) {
 		float x1 = ((-1*b) - sqrt(discrim))/2;
 		float x2 = ((-1*b) + sqrt(discrim))/2;
 		float t = min(x1,x2);
 		
 		vec4 intersection = raypos + t * raydir;
-		//if (intersection[0] > .46)
-		//cout << intersection << " " << tmat*intersection << endl;
         if (r.dir[2] != 0) t = (tmat*intersection - r.pos)[2] / r.dir[2];
 		else if (r.dir[1] != 0) t = (tmat*intersection - r.pos)[1] / r.dir[1];
 		else if (r.dir[0] != 0) t = (tmat*intersection - r.pos)[0] / r.dir[0];
@@ -222,9 +189,6 @@ vec4 Sphere::normal(vec4 surface) {
 	vec4 norm = imat.transpose()*vec4(hit,0);
 	norm.normalize();
 	
-	//vec4 norm = surface - tmat*vec4(0,0,0,1);
-	//vec3 n = norm.dehomogenize().normalize();
-	//norm = vec4(n,0);
 	return norm;
 }
 
@@ -296,5 +260,3 @@ DLight::DLight(vec4 d, vec3 i) {
 	dir = d;
 	intensity = i;
 }
-
-

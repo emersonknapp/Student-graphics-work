@@ -17,3 +17,4 @@ kd .1 .1 .1
 kr 1 1 1
 tri 5 5 -17 1 4 -20 6 -1 -20
 camera
+print final.png

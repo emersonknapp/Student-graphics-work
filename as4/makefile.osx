@@ -11,9 +11,9 @@ OPTMAC = -fast
 
 TARGETS = as4
 
-OBJECTS = classes.o as4.o
+OBJECTS = classes.o as4.o imagewriter.o
 
-SOURCES = as4.cpp classes.cpp
+SOURCES = as4.cpp classes.cpp imagewriter.cpp
 
 #-----------------------------------------
 # Mac specific stuff
@@ -39,6 +39,9 @@ clean:
 
 as4: as4.o
 	$(CC) $(OBJECTS) $(FRAMEWORK) $(LDOPTSMAC) -o $(TARGETS)
+	
+imagewriter.o: imagewriter.cpp
+	$(CC) $(SOURCES) -c $(CCOPTSMAC)
 
 classes.o: classes.cpp
 	$(CC) $(SOURCES) -c $(CCOPTSMAC)
