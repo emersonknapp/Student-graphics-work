@@ -3,8 +3,6 @@ as3_ebk/as3.o
 as3_ebk/as3
 
 as4/as4
-as4/as4.o
-as4/classes.o
+as4/*.o
 as4/*.png
 as4/out
-as4/classes.o
