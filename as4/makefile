@@ -22,9 +22,11 @@ GL_LIB  =   -lglut -lGLU -lGL -lX11 -lfreeimage
 
 #-----------------------------------------
 
-TARGETS = as4
+TARGET = as4
 
-OBJECTS = as4.o
+OBJECTS = imagewriter.o classes.o as4.o
+
+SOURCES = imagewriter.cpp classes.cpp as4.cpp
 
 #-----------------------------------------
 
@@ -37,19 +39,25 @@ LDOPTS = $(OPT) $(INCS) $(LIBS)
 #-----------------------------------------
 #-----------------------------------------
 
-default: $(TARGETS)
+default: $(TARGET)
 
 clean:
-	/bin/rm -f *.o $(TARGETS)
+	/bin/rm -f *.o $(TARGET)
 
 #-----------------------------------------
 #-----------------------------------------
 
 as4: as4.o
-	$(CC) as4.o $(LDOPTS) -o as4 
+	$(CC) $(OBJECTS) $(LDOPTS) -o $(TARGET) 
 
 as4.o: as4.cpp
-	$(CC) as4.cpp -c $(CCOPTS)
+	$(CC) $(SOURCES) -c $(CCOPTS)
+	
+imagewriter.o: imagewriter.cpp
+	$(CC) $(SOURCES) -c $(CCOPTS)
+
+classes.o: classes.cpp
+	$(CC) $(SOURCES) -c $(CCOPTS)
 
 
 #export LD_LIBRARY_PATH="/usr/sww/pkg/Mesa/lib:/usr/lib:/usr/sww/lib"
