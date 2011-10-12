@@ -13,7 +13,7 @@ y=-4
 while z > -8:
 	z -=1
 	y+=1
-	for x in range(-4,4,2):
+	for x in range(-3,4,2):
 		f.write('kd '+str(random.random())+' '+str(random.random())+' '+str(random.random())+'\n')
 		f.write("translate "+str(x)+" "+str(y)+ " " + str(z)+" \n")
 		f.write('sph .5\n')

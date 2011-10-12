@@ -31,4 +31,3 @@ sph 1
 cleartrans
 translate 0 0 3
 camera
-print

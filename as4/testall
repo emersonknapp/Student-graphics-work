@@ -1,8 +1,0 @@
-for t in test/*.t; 
-do 
-	echo "Running $t"; 
-	./as4 $t; 
-	echo ""
-done
-mv *.png images
-open images/*.png
