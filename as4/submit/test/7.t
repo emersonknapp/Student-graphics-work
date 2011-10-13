@@ -257,4 +257,4 @@ cleartrans
 translate 3 0 10
 rotate 0 .2 0
 camera
-print images/img8.png
+print images/img7.png

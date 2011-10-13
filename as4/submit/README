@@ -27,3 +27,7 @@ img1.png contains both point and directional lights. There is a directional ligh
 
 The "print" command in our .t files prints out the image as a .png, if that command is missing a GLUT window is opened.
 
+img5.png and img7.png were generated using a python script, and are fun.
+
+img6.png demonstrates reflections in a more simple environment. run 6.t
+
