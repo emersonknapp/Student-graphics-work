@@ -139,6 +139,7 @@ public:
 	
 	float ray_intersect ( Ray);
 	vec4 normal(vec4);
+	vec4 normal();
 };
 
 class Scene {
