@@ -1,0 +1,12 @@
+Emerson Knapp
+	cs184-ae
+Gabe Fierro
+	cs184-ad
+	
+submitted from Emerson's account, cs184-ae
+
+Raytracer
+
+The code was written/tested on a Macbook running 10.7, and was also compiled/tested on the cory/star machines. We used the FreeImage library and the algebra3.h library (though we edited the latter to facilitate calculations with homogenized vec4).
+
+All of the images are in the subdirectory "images," and they were generated from the scene files in the "tests" directory. To generate each image, run "./as4 tests/$file" where $file is the name of the test file.
