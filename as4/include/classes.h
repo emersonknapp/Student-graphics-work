@@ -49,19 +49,20 @@ public:
 class Light {
 public:
 	vec3 intensity;
-	vec4 lightVector(vec4 pos);
+	vec4 v;
+	virtual vec4 lightVector(vec4) = 0;
 };
 
 class PLight: public Light {
 public:
 	PLight(vec4, vec3);
-	vec4 pos;
+	vec4 lightVector(vec4);
 };
 
 class DLight: public Light {
 public:
 	DLight(vec4 , vec3 );
-	vec4 dir;
+	vec4 lightVector(vec4);
 };
 
 class Material {
@@ -145,18 +146,5 @@ public:
 	vec4 normal(vec4);
 	vec4 normal();
 };
-
-class Scene {
-public:
-	Scene();
-	~Scene();
-	vector<Renderable*> renderables;
-	vector<PLight*> plights;
-	vector<DLight*> dlights;
-	vector<Camera*> cameras;
-	int activeCamera;	
-};
-
-
 
 #endif

@@ -295,20 +295,6 @@ vec4 Triangle::normal() {
 	return n;
 }
 
-
-
-
-Scene::Scene() {
-	activeCamera=0;
-}
-
-Scene::~Scene() {
-	for (int i=0; i<renderables.size(); i++) delete renderables[i];
-	for (int i=0; i<plights.size(); i++) delete plights[i];
-	for (int i=0; i<dlights.size(); i++) delete dlights[i];
-	for (int i=0; i<cameras.size(); i++) delete cameras[i];
-}
-
 Viewport::Viewport () {
 	w = 0;
 	h = 0;
@@ -319,11 +305,19 @@ Viewport::Viewport (int width, int height) {
 }
 
 PLight::PLight(vec4 p, vec3 i) {
-	pos = p;
+	v = p;
 	intensity = i;
 }
 
 DLight::DLight(vec4 d, vec3 i) {
-	dir = d;
+	v = d;
 	intensity = i;
+}
+
+vec4 PLight::lightVector(vec4 origin) {
+	return v-origin;
+}
+
+vec4 DLight::lightVector(vec4 origin) {
+	return -v;
 }

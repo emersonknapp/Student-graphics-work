@@ -31,6 +31,7 @@
 
 #include "classes.h"
 #include "imagewriter.h"
+#include "scene.h"
 
 #ifdef _WIN32
 static DWORD lastTime;
@@ -39,8 +40,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 400
 #define FRAMERATE 10
 #define EPSILON 0.001
 #define DEBUG false
@@ -51,5 +52,7 @@ static struct timeval lastTime;
 
 //Simple function to display a message and exit the program with status 1
 void Error(string);
+
+enum {POINT, DIR};
 
 #endif

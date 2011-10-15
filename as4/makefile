@@ -24,9 +24,9 @@ GL_LIB  =   -lglut -lGLU -lGL -lX11 -lfreeimage
 
 TARGET = as4
 
-OBJECTS = imagewriter.o classes.o as4.o
+OBJECTS = imagewriter.o classes.o scene.o as4.o
 
-SOURCES = imagewriter.cpp classes.cpp as4.cpp
+SOURCES = imagewriter.cpp classes.cpp scene.cpp as4.cpp
 
 #-----------------------------------------
 
@@ -52,11 +52,14 @@ as4: as4.o
 
 as4.o: as4.cpp
 	$(CC) $(SOURCES) -c $(CCOPTS)
-	
+
 imagewriter.o: imagewriter.cpp
 	$(CC) $(SOURCES) -c $(CCOPTS)
 
 classes.o: classes.cpp
+	$(CC) $(SOURCES) -c $(CCOPTS)
+
+scene.o: scene.cpp
 	$(CC) $(SOURCES) -c $(CCOPTS)
 
 

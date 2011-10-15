@@ -1,18 +1,12 @@
-#include "as4.h"
+#include "scene.h"
 
-class Scene {
-public:
-	void parseScene(string);
-	bool parseLine(string);
-	vector<vec3> vertices;
-	map<string, Material*> materials;
-	vector<int[3]> triangles;
-	vector<Renderable*> renderables;
-	Camera * camera;
-	int lastVertex;
-	vec3 ambience;
-
-};
+Scene::Scene(string filename) {
+	parseScene(filename);
+	Material parseMaterial;
+	translation = vec3(0,0,0);
+	scale = vec3(1,1,1);
+	rotation = vec3(0,0,0);
+}
 
 vec3 Scene::getVertex(int i) {
 	if (i >= 0) {
@@ -22,55 +16,59 @@ vec3 Scene::getVertex(int i) {
 	}
 }
 
-void Scene::parseLine(string line) {
-	string operator;
+bool Scene::parseLine(string line) {
+	
+
+	string op;
+	
 	if (line.empty())
 		return true;
 	stringstream ss(stringstream::in | stringstream::out);
 	ss.str(line);
-	ss >> operator;
-	if (operator[0] == '#') {
+	ss >> op;
+	if (op[0] == '#') {
 		return true;
 	} 
-	else if (operator.compare("v") == 0) {
+	else if (op.compare("v") == 0) {
 		double x, y, z;
 		ss >> x >> y >> z;
 		vertices.push_back(vec3(x,y,z));
 	} 
-	else if (operator.compare("f") == 0) {
+	else if (op.compare("f") == 0) {
 		int i, j, k;
 		ss >> i >> j >> k;
 		//Do something with triangles
 	} 
-	else if (operator.compare("ka") == 0) {
+	else if (op.compare("ka") == 0) {
 		float r, g, b;
 		ss >> r >> g >> b;
 		ambience = vec3(r, g, b);
 		if (DEBUG) cout << "added ka = " << ambience << endl;
 	}
-	else if (operator.compare("kd") == 0) {
+	else if (op.compare("kd") == 0) {
 		float r, g, b;
 		ss >> r >> g >> b;
 		parseMaterial.kd = vec3(r, g, b);
 		if (DEBUG) cout << "added kd = " << parseMaterial.kd << endl;				
 	} 	
-	else if (operator.compare("ks") == 0) {
+	else if (op.compare("ks") == 0) {
 		float r, g, b;
+		ss >> r >> g >> b;
 		parseMaterial.ks = vec3(r, g, b);
 		if (DEBUG) cout << "added ks = " << parseMaterial.ks << endl;
 	} 
-	else if (operator.compare("kr") == 0) {
+	else if (op.compare("kr") == 0) {
 		float r,g,b;
 		ss >> r >> g >> b;
 		parseMaterial.kr = vec3(r, g, b);
 	}
-	else if (operator.compare("sp")==0) {
+	else if (op.compare("sp")==0) {
 		int sp;
-		ss >> s;
+		ss >> sp;
 		parseMaterial.sp = sp;
 		if (DEBUG) cout << "added sp = " << parseMaterial.sp << endl;
 	}	
-	else if (operator.compare("s")==0) { //Parse a sphere
+	else if (op.compare("s")==0) { //Parse a sphere
 		float r;
 		ss >> r;
 		Sphere* sph = new Sphere();
@@ -80,8 +78,9 @@ void Scene::parseLine(string line) {
 		sph->material = parseMaterial;
 		renderables.push_back(sph);
 		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
+		//cout << translation << rotation << scale << endl;
 	} 
-	else if (operator.compare("t")==0) { //triangle i j k
+	else if (op.compare("t")==0) { //triangle i j k
 		int i, j, k;
 		ss >> i >> j >> k;
 		vec4 a, b, c;
@@ -96,121 +95,88 @@ void Scene::parseLine(string line) {
 		renderables.push_back(tri);
 		if (DEBUG) cout << "Added triangle to scene." << endl;
 	} 
-	else if (operator.compare("cam")==0) { //camera
-		delete camera;
+	else if (op.compare("cam")==0) { //camera
+		//cout << "Creating camera " << translation << rotation << scale << endl;
 		camera = new Camera();
 		camera->scale(scale);
 		camera->rotate(rotation);
 		camera->translate(translation);
 	} 
-	else if (operator.compare( "pr") { //print outputfile
-		imageWriter.init(viewport.w, viewport.h);
-		imageWriter.glOn = false;
-		string name;
-		ss >> name;
-		//CHECKING WHAT HAPPENS WITH MISSING PARAMETER
-		cout << name;
-		imageWriter.fileName = name;
-	} 
-	else if (operator.compare( "translate") { //translate x y z
+	else if (op.compare("translate")==0) { //translate x y z
+		if (DEBUG) cout << "Translating." << endl;
 		float x,y,z;
 		ss >> x >> y >> z;
-		translation = vec3(x,y,z);				
+		translation[0] = x;
+		translation[1] = y;
+		translation[2] = z;	
+	}
+	else if (op.compare("rotate")==0) { //rotate theta vec
+		float x,y,z;
+		ss >> x >> y >> z;
+		rotation = vec3(x,y,z);
+	} 
+	else if (op.compare("scale")==0) { //scale x y z
+		float x,y,z;
+		ss>>x>>y>>z;
+		scale = vec3(x,y,z);
+	} 
+	else if (op.compare("pl")==0) { //pointlight x y z r g b
+		float x,y,z,r,g,b;
+		ss >> x >> y >> z >> r >> g >> b;
+		PLight* p = new PLight(vec4(x,y,z,1), vec3(r,g,b));
+		lights.push_back(p);
+	} 
+	else if (op.compare("dl")==0) { //directionalight x y z r g 
+		float x,y,z,r,g,b;
+		ss >> x >> y >> z >> r >> g >> b;
+		DLight* d = new DLight(vec4(x,y,z,0), vec3(r,g,b));
+		lights.push_back(d);
+	} 
+	else if (op.compare("ct")==0) { //clear transformations
+		translation = vec3(0,0,0);
+		scale = vec3(1,1,1);
+		rotation= vec3(0,0,0);
+	} 
+	else{
+		cout << "Warning: unrecognized command " << op << endl;
 	}
 	if (ss.fail())
 		return false;
 	return true;
 }
 
+void Scene::parseScene(string filename) {
+	ifstream inFile(filename.c_str(), ifstream::in);
+	char line[1024];
 
-else if (operator.compare( "rotate") { //rotate theta vec
-	for(int i=0; i<3; i++) {
-		iss >> word;
-		if (iss) {
-			rotation[i] = atof(word.c_str());
-		} else Error("Not enough arguments to rotate.");
+	if (!inFile) {
+		Error("Could not open file " + filename);
 	}
-} 
-else if (operator.compare( "scale") { //scale x y z
-	for(int i=0; i<3; i++) {
-		iss >> word;
-		if (iss) {
-			scale[i] = atof(word.c_str());
-		} else Error("Not enough arguments to scale.");
+
+
+	 while (inFile.good()) {
+		inFile.getline(line, 1023);
+		if(!parseLine(string(line))) {
+			Error("Bad line in input file.");
+		}
 	}
-} 
-else if (operator.compare( "pl") { //pointlight x y z r g b
-	vec4 pos;
-	vec3 color;
-	for (int i=0; i<3; i++) {
-		iss >> word;
-		if (iss) {
-			pos[i] = atof(word.c_str());
-		} else Error("Not enough arguments to PointLight");
-	}
-	for (int i=0; i<3; i++) {
-		iss >> word;
-		if (iss) {
-			color[i] = atof(word.c_str());
-		} else Error("Not enough arguments to PointLight");
-	}
-	pos[3] = 1;
-	PLight* p = new PLight(pos, color);
-	plights.push_back(p);
-	if (DEBUG) cout << "Added point light to scene." << endl;
-} 
-else if (operator.compare( "dl") { //directionalight x y z r g 
-	vec4 dir;
-	vec3 color;
-	for (int i=0; i<3; i++) {
-		iss >> word;
-		if (iss) {
-			dir[i] = atof(word.c_str());
-		} else Error("Not enough arguments to Directional Light");
-	}
-	for (int i=0; i<3; i++) {
-		iss >> word;
-		if (iss) {
-			color[i] = atof(word.c_str());
-		} else Error("Not enough arguments to Directional Light");
-	}
-	dir[3] = 0;
-	DLight* d = new DLight(dir, color);
-	dlights.push_back(d);
-	if (DEBUG) cout << "Added directional light to scene." << endl;
-} 
-else if (operator.compare( "ct"){ //clear transformations
-	translation = vec3(0,0,0);
-	scale = vec3(1,1,1);
-	rotation= vec3(0,0,0);
-} 
-else{
-	
+	inFile.close();
 }
 
-void Scene::parseScene(string filename) {
-	for (int i=1; i<argc; i++) {
-		Material* usemtl;
-		vec3 translation(0,0,0);
-		vec3 scale(1,1,1);
-		vec3 rotation(0,0,0);
+bool Scene::rayIntersect(Ray r, float& t, int& index) {
 	
-		string arg = argv[i];
+	float newT;
+	int renderableIndex=-1;
+	bool hasHit = false;
 	
-		ifstream inFile(arg.c_str(), ifstream::in);
-		char line[1024];
-	
-		if (!inFile) {
-			Error("Could not open file " + arg);
+	for (int i=0; i<renderables.size(); i++) {
+		vec3 color = vec3(0,0,0);
+		//cout << renderables[i]->tmat << endl << endl;
+		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
+			hasHit = true;			
+			index = i;
+			t = newT;
 		}
-	
-	
-		 while (inFile.good()) {
-			inFile.getLine(line, 1023);
-			if(!parseLine(string(line))) {
-				Error("Bad line in input file " + arg);
-			}
-		}
-		inFile.close();
 	}
+	return hasHit;
 }
