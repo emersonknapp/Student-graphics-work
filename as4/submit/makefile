@@ -52,7 +52,7 @@ as4: as4.o
 
 as4.o: as4.cpp
 	$(CC) $(SOURCES) -c $(CCOPTS)
-	
+
 imagewriter.o: imagewriter.cpp
 	$(CC) $(SOURCES) -c $(CCOPTS)
 

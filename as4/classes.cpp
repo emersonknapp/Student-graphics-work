@@ -251,7 +251,12 @@ float Triangle::ray_intersect ( Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
 	raydir.normalize();
-	float t;		
+	float t;
+	
+	if (normal() * raydir == 0) {
+		return -1;
+	}		
+	
 	
 	vec4 a = v2-v3;
 	vec4 b = v1-v3;
@@ -284,7 +289,7 @@ vec4 Triangle::normal(vec4 surface) {
 }
 
 vec4 Triangle::normal() {
-	vec4 n = tmat*vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);
+	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);	
 	n.normalize();
 	
 	return n;

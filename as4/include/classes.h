@@ -46,18 +46,22 @@ public:
 	int h;
 };
 
-class PLight {
+class Light {
+public:
+	vec3 intensity;
+	vec4 lightVector(vec4 pos);
+};
+
+class PLight: public Light {
 public:
 	PLight(vec4, vec3);
 	vec4 pos;
-	vec3 intensity;
 };
 
-class DLight {
+class DLight: public Light {
 public:
 	DLight(vec4 , vec3 );
 	vec4 dir;
-	vec3 intensity;	
 };
 
 class Material {
