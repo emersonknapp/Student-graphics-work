@@ -10,6 +10,7 @@ public:
 	void parseScene(string);
 	bool parseLine(string);
 	vec4 getVertex(int);
+	int extractVertex(string);
 	bool rayIntersect(Ray, float&, int&);
 	
 	vec3 rotation, translation, scale;

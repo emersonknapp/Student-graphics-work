@@ -9,7 +9,7 @@ Scene::Scene(string filename) {
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
 	lastVertex = 0;
-	camera = new Camera();
+	//camera = new Camera();
 }
 
 vec4 Scene::getVertex(int i) {
@@ -18,6 +18,18 @@ vec4 Scene::getVertex(int i) {
 	} else {
 		return vertices[lastVertex+i];
 	}
+}
+
+int Scene::extractVertex(string s) {
+	string result = "";
+	for (int i=0; i<s.length(); i++) {
+		if (s[i] == '/') {
+			break;
+		} else {
+			result += s[i];
+		}
+	}
+	return atoi(result.c_str());
 }
 
 bool Scene::parseLine(string line) {
@@ -43,12 +55,16 @@ bool Scene::parseLine(string line) {
 		vertices.push_back(vec4(x,y,z,1));
 	} 
 	else if (op.compare("f") == 0) {
-		int i, j, k;
+		string i, j, k;
 		ss >> i >> j >> k;
+		int l, m, n;
+		l = extractVertex(i);
+		m = extractVertex(j);
+		n = extractVertex(k);
 		vec4 a, b, c;
-		a = getVertex(i);
-		b = getVertex(j);
-		c = getVertex(k);
+		a = getVertex(l);
+		b = getVertex(m);
+		c = getVertex(n);
 		Triangle* tri = new Triangle(a, b, c);
 		tri->scale(scale);
 		tri->rotate(rotation);
@@ -114,7 +130,7 @@ bool Scene::parseLine(string line) {
 		if (DEBUG) cout << "Added triangle to scene." << endl;
 	} 
 	else if (op.compare("cam")==0) { //camera
-		//cout << "Creating camera " << translation << rotation << scale << endl;
+		//delete camera;
 		camera = new Camera();
 		camera->scale(scale);
 		camera->rotate(rotation);

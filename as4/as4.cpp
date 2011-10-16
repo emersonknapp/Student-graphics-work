@@ -85,7 +85,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	// If t=1, then we're good, so run Phong Shading to get the color of the pixel. Reflect this, with shade() recursive calls
 	// don't forget to increase recursionDepth!
 	
-	color += scene->ambience;
 	//Loop through lights
 	for (int i=0; i<scene->lights.size(); i++) {
 		Light* currentLight = scene->lights[i];
@@ -186,6 +185,7 @@ void myDisplay() {
 			//cout << camRay.dir << " " << camRay.pos << endl;		
 			//vec4 color = camRay.dir;
 			vec3 color = traceRay(camRay, 0);
+			color += scene->ambience;
 			setPixel(x,y,color[0], color[1], color[2]);
 		}	
 	}
