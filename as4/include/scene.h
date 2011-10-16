@@ -9,12 +9,12 @@ public:
 	Scene(string);
 	void parseScene(string);
 	bool parseLine(string);
-	vec3 getVertex(int);
+	vec4 getVertex(int);
 	bool rayIntersect(Ray, float&, int&);
 	
 	vec3 rotation, translation, scale;
 	Material parseMaterial;
-	vector<vec3> vertices;
+	vector<vec4> vertices;
 	map<string, Material*> materials;
 	vector<Renderable*> renderables;
 	vector<Light*> lights;

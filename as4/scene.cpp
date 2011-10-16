@@ -1,16 +1,20 @@
 #include "scene.h"
 
+using namespace std;
+
 Scene::Scene(string filename) {
 	parseScene(filename);
 	Material parseMaterial;
 	translation = vec3(0,0,0);
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
+	lastVertex = 0;
+	camera = new Camera();
 }
 
-vec3 Scene::getVertex(int i) {
+vec4 Scene::getVertex(int i) {
 	if (i >= 0) {
-		return vertices[i];
+		return vertices[i-1];
 	} else {
 		return vertices[lastVertex+i];
 	}
@@ -26,18 +30,32 @@ bool Scene::parseLine(string line) {
 	stringstream ss(stringstream::in | stringstream::out);
 	ss.str(line);
 	ss >> op;
-	if (op[0] == '#') {
+	if (op.compare("")==0) {
 		return true;
-	} 
+	}
+	else if (op[0] == '#') {
+		return true;
+	}
 	else if (op.compare("v") == 0) {
 		double x, y, z;
 		ss >> x >> y >> z;
-		vertices.push_back(vec3(x,y,z));
+		lastVertex++;
+		vertices.push_back(vec4(x,y,z,1));
 	} 
 	else if (op.compare("f") == 0) {
 		int i, j, k;
 		ss >> i >> j >> k;
-		//Do something with triangles
+		vec4 a, b, c;
+		a = getVertex(i);
+		b = getVertex(j);
+		c = getVertex(k);
+		Triangle* tri = new Triangle(a, b, c);
+		tri->scale(scale);
+		tri->rotate(rotation);
+		tri->translate(translation);
+		tri->material = parseMaterial;
+		renderables.push_back(tri);
+		if (DEBUG) cout << "Added triangle to scene. " << a << b << c << endl;
 	} 
 	else if (op.compare("ka") == 0) {
 		float r, g, b;
