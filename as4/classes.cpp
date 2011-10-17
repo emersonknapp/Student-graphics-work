@@ -200,60 +200,12 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 }
 	
 float Triangle::ray_intersect ( Ray r) {
-	/*
-	// res : Beta | gamma | t
-	vec4 raypos = imat*r.pos;
-	vec4 raydir = imat*r.dir;
-	raydir.normalize();
-	
-	vec4 u = v2-v3;
-	vec4 v = v1-v3;
-	vec4 n = normal();
-	float t, a, b;
-	vec4 w0 = raypos - v3;
-	vec4 hitPoint;
-	
-	if(n==vec4(0,0,0,0)) {
-		return -1;
-	}
-	
-	a = -(n*w0);
-	b = n*raydir;
-	if(fabs(b) < .001) {
-		return -1;
-	}
-	t = a/b;
-	if (t<0.0)
-		return -1;
-		
-	hitPoint = raypos + t*raydir;
-	
-	float uu, uv, vv, wu, wv, D;
-	uu = u*u;
-	uv = u*v;
-	vv = v*v;
-	vec4 w = hitPoint - v3;
-	wu = w*u;
-	wv = w*v;
-	D = uv*uv - uu*vv;
-	
-	float s, q;
-	s = (uv*wv - vv*wu)/ D;
-	if (s<0.0 || s>1.0)
-		return -1;
-	q = (uv * wu - uu*wv) / D;
-	if (q < 0.0 || q+s > 1.0)
-		return -1;
-		
-	return t;
-	*/
-	
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
 	raydir.normalize();
 	float t;
 	
-	if (fabs(normal() * raydir) <= WIGGLE) {
+	if (fabs(normal() * raydir) == 0) {
 		return -1;
 	}		
 	
@@ -279,16 +231,11 @@ float Triangle::ray_intersect ( Ray r) {
 		return -1;
 	}
 	
-	
-	
+
 }
 
 vec4 Triangle::normal(vec4 surface) {
-	
-	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);	
-	n.normalize();
-	
-	return n;
+	return normal();
 }
 
 vec4 Triangle::normal() {

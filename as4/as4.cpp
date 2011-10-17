@@ -41,36 +41,6 @@ void quitProgram() {
 	exit(0);
 }
 
-void ImageWriter::printScreen() {
-	
-	const char* name = fileName.c_str();
-	//bitmap holds FreeImage Pixels
-
-	
-	if (glOn) {
-		RGBQUAD color;
-
-		//pRGB holds openGL pixel output
-		unsigned char *pRGB = new unsigned char [3* (width+1) * (height+1) + 3];
-		glReadBuffer(GL_BACK);
-		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pRGB);
-
-		for (int i=0; i<width*height; i++) {
-			int index = i*3;
-
-			int x = i%width;
-			int y = (i - i%width)/width;
-			color.rgbRed = pRGB[index];
-			color.rgbGreen = pRGB[index+1];
-			color.rgbBlue = pRGB[index+2];
-			FreeImage_SetPixelColor(bitmap, x, y, &color);
-		}
-	}
-
-	FreeImage_Save(FIF_PNG, bitmap, name, 0);
-	cout << "Image successfully saved to " << name << endl;
-}
-
 //***************************************************
 // does phong shading on a point
 //***************************************************
@@ -264,6 +234,12 @@ void processArgs(int argc, char* argv[]) {
 			imageWriter.init(viewport.w, viewport.h);
 			imageWriter.glOn = false;
 			imageWriter.fileName = argv[++i];
+		} else if (arg.compare("-px")==0) {
+			int width = atoi(argv[++i]);
+			int height = atoi(argv[++i]);
+			viewport.w = width;
+			viewport.h = height;
+			imageWriter.setSize(width, height);
 		}
 	}
 
