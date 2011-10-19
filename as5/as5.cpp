@@ -32,8 +32,8 @@ static struct timeval lastTime;
 #endif
 
 #define PI 3.14159265
-#define SCREEN_WIDTH 10
-#define SCREEN_HEIGHT 10
+#define SCREEN_WIDTH 500
+#define SCREEN_HEIGHT 500
 #define FRAMERATE 10
 #define EPSILON 0.15
 #define DEBUG false
@@ -285,14 +285,6 @@ void processNormalKeys(unsigned char key, int x, int y) {
 	//escape, q quit
 	if (key == 27 || key == 'q' || key==32) {
 		quitProgram();
-	} else if (key == 't') {
-		bool ts = !material.bToonShade;
-		material.bToonShade = ts;
-		glClearColor(ts, ts, ts, 0);
-	} else if (key == 'y') {
-		material.toonResolution = min(material.toonResolution+4, 255);
-	} else if (key == 'r') {
-		material.toonResolution = max(material.toonResolution-4, 1);
 	} else if (key >= '0' && key <= '9') {
 		char name[9];
 		strcpy(name, "pic");
@@ -312,70 +304,13 @@ void processNormalKeyups(unsigned char key, int x, int y) {
 // sets the window up
 //****************************************************
 void initScene(){
-	if (material.bToonShade) {
-		glClearColor(1, 1, 1, 1);
-	} else {
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
-	}
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
 	myReshape(viewport.w,viewport.h);
-	if (DEBUG)
-		cout << "Scene initialized" << endl;
 }
 
 
 void processArgs(int argc, char* argv[]) {
-	for (int i=1; i<argc; i++) {
-		string arg = argv[i];
-		if (arg=="-ka") {
-			float r = atof(argv[++i]);
-			float g = atof(argv[++i]);
-			float b = atof(argv[++i]);
-			material.ka = vec3(r, g, b);
-		} else if (arg=="-kd") {
-			float r = atof(argv[++i]);
-			float g = atof(argv[++i]);
-			float b = atof(argv[++i]);
-			material.kd = vec3(r,g,b);
-		} else if (arg=="-ks") {
-			float r = atof(argv[++i]);
-			float g = atof(argv[++i]);
-			float b = atof(argv[++i]);
-			material.ks = vec3(r,g,b);
-		} else if (arg=="-sp") {
-			int sp = atoi(argv[++i]);
-			material.sp = sp;
-		} else if (arg=="-pl") {
-			if (plights.size() < 5) {
-				float x = atof(argv[++i]);
-				float y = atof(argv[++i]);
-				float z = atof(argv[++i]);
-				float r = atof(argv[++i]);
-				float g = atof(argv[++i]);
-				float b = atof(argv[++i]);
-				plights.push_back(PLight(vec3(x,y,z), vec3(r,g,b)));
-			} else {
-				i +=  6;
-			}
-		} else if (arg=="-dl") {
-			if (dlights.size() < 5) {
-				float x = atof(argv[++i]);
-				float y = atof(argv[++i]);
-				float z = atof(argv[++i]);
-				float r = atof(argv[++i]);
-				float g = atof(argv[++i]);
-				float b = atof(argv[++i]);
-				dlights.push_back(DLight(vec3(x,y,z), vec3(r,g,b)));
-			} else {
-				i+=6;
-			}
-		} else if (arg=="-ts") {
-			material.bToonShade = true;
-			material.toonResolution = atoi(argv[++i]);
-		} else if (arg=="-pr") {
-			fileWriter.drawing = true;
-			fileWriter.fileName = argv[++i];
-		}
-	}
+
 }
 //****************************************************
 // the usual stuff, nothing exciting here
@@ -383,13 +318,7 @@ void processArgs(int argc, char* argv[]) {
 int main(int argc, char *argv[]) {
 	srand((unsigned)time(NULL));
 	
-	//Initialize FreeImage library
-	FreeImage_Initialise();
-	cout << "FreeImage " << FreeImage_GetVersion() << endl;
-	cout << FreeImage_GetCopyrightMessage() << endl;
-	
   	//This initializes glut
-	material = Material();
 	processArgs(argc, argv);
   	glutInit(&argc, argv);
 	
@@ -401,7 +330,7 @@ int main(int argc, char *argv[]) {
   	//The size and position of the window
   	glutInitWindowSize(viewport.w, viewport.h);
   	glutInitWindowPosition(-1, -1);
-  	glutCreateWindow("Phong Illumination Model");
+  	glutCreateWindow("Bezier, bitches.");
 	
   	initScene();							// quick function to set up scene
 	glutIgnoreKeyRepeat(1);

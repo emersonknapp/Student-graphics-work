@@ -9,18 +9,18 @@ cc          = gcc
 #Optimization ----------------------------
 OPTMAC = -fast
 
-TARGETS = as3
+TARGETS = as5
 
-OBJECTS = as3.o
+OBJECTS = as5.o
 
-SOURCES = as3.cpp
+SOURCES = as5.cpp
 
 #-----------------------------------------
 # Mac specific stuff
 FRAMEWORK = -framework GLUT
 FRAMEWORK += -framework OpenGL
 MACLIBS = -lGL -lGLU -lm -lstdc++ -lfreeimage
-MACINCS = -L"/System/Library/Frameworks/OpenGL.framework/Libraries" -L./fiosx -I./fiosx
+MACINCS = -L"/System/Library/Frameworks/OpenGL.framework/Libraries" -L./lib -L./lib/fiosx -I./lib/fiosx -I./include
 
 #-----------------------------------------
 CCOPTSMAC = $(OPTMAC) $(MACINCS) -DOSX
@@ -37,9 +37,9 @@ clean:
 #-----------------------------------------
 #-----------------------------------------
 
-as3: as3.o
+as5: as5.o
 	$(CC) $(OBJECTS) $(FRAMEWORK) $(LDOPTSMAC) -o $(TARGETS)
 
-as3.o: as3.cpp
+as5.o: as5.cpp
 	$(CC) $(SOURCES) -c $(CCOPTSMAC)
 

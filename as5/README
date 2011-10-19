@@ -4,20 +4,4 @@ Gabe Fierro
 makefile makes for solaris, and was tested on star
 makefile.osx makes for osx
 
-files are in cs184-ae/as3
-
-Extra Features:
-
-Toon Shading
--ts interval
-	where interval is the clamped intervals for each of r g b. (255/interval)^3 is the number of colors.
-	While the program is running, you can press "t" to toggle toon shading, "y" to increase interval, and "r" to decrease it.
-Example
-	./as3 -ka 0.2 0.2 0.2 -kd 0.0 1.0 0.0 -ks 1 1 0 -sp 200 -pl 2 3 4 0.6 0.6 0 -ts 16
-
-Print to file
--pr filename
-	outputs PNG format image file to filename and closes the program.
-	While the program is running, press any number key to output to "pic" + number + ".png"
-Example
-	./as3 -kd 1 1 1 -ks .3 .3 .3 -sp 100 -ka .15 .15 .15 -pl 2 2 3 .2 .5 .7 -pr test.png
+Bezier subdivision

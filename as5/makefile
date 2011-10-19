@@ -22,9 +22,9 @@ GL_LIB  =   -lglut -lGLU -lGL -lX11 -lfreeimage
 
 #-----------------------------------------
 
-TARGETS = as3
+TARGETS = as5
 
-OBJECTS = as3.o
+OBJECTS = as5.o
 
 #-----------------------------------------
 
@@ -45,11 +45,11 @@ clean:
 #-----------------------------------------
 #-----------------------------------------
 
-as3: as3.o
-	$(CC) as3.o $(LDOPTS) -o as3 
+as5: as5.o
+	$(CC) as5.o $(LDOPTS) -o as5 
 
-as3.o: as3.cpp
-	$(CC) as3.cpp -c $(CCOPTS)
+as5.o: as5.cpp
+	$(CC) as5.cpp -c $(CCOPTS)
 
 
 #export LD_LIBRARY_PATH="/usr/sww/pkg/Mesa/lib:/usr/lib:/usr/sww/lib"

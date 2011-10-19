@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>kdtree.cpp</string>
+	<string>test/poly2.t</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -34,7 +34,7 @@
 			<key>filename</key>
 			<string>imagewriter.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-17T00:47:11Z</date>
+			<date>2011-10-19T19:41:42Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -45,6 +45,12 @@
 			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
 			<key>sourceDirectory</key>
 			<string>include</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>kdtree.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-10-19T19:41:36Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -77,6 +83,8 @@
 			<string>t</string>
 		</dict>
 		<dict>
+			<key>expanded</key>
+			<true/>
 			<key>name</key>
 			<string>test</string>
 			<key>regexFolderFilter</key>
@@ -84,19 +92,25 @@
 			<key>sourceDirectory</key>
 			<string>test</string>
 		</dict>
-		<dict>
-			<key>filename</key>
-			<string>kdtree.cpp</string>
-			<key>lastUsed</key>
-			<date>2011-10-17T01:09:10Z</date>
-			<key>selected</key>
-			<true/>
-		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
+		<key>imagewriter.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>1</integer>
+				<key>line</key>
+				<integer>59</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>19</integer>
+		</dict>
 		<key>include/algebra3.h</key>
 		<dict>
 			<key>caret</key>
@@ -267,6 +281,20 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>test/poly2.t</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>3</integer>
+				<key>line</key>
+				<integer>9</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>24</integer>
+		</dict>
 		<key>test/ss.t</key>
 		<dict>
 			<key>caret</key>
@@ -285,6 +313,8 @@
 	<key>openDocuments</key>
 	<array>
 		<string>kdtree.cpp</string>
+		<string>imagewriter.cpp</string>
+		<string>test/poly2.t</string>
 		<string>scene.cpp</string>
 		<string>include/scene.h</string>
 	</array>
@@ -295,6 +325,13 @@
 	<key>treeState</key>
 	<dict>
 		<key>include</key>
+		<dict>
+			<key>isExpanded</key>
+			<true/>
+			<key>subItems</key>
+			<dict/>
+		</dict>
+		<key>test</key>
 		<dict>
 			<key>isExpanded</key>
 			<true/>
