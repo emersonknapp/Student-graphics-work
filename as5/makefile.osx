@@ -1,0 +1,45 @@
+#!gmake 
+
+#-----------------------------------------
+#Basic Stuff -----------------------------
+CC          = g++ 
+cc          = gcc
+
+#-----------------------------------------
+#Optimization ----------------------------
+OPTMAC = -fast
+
+TARGETS = as3
+
+OBJECTS = as3.o
+
+SOURCES = as3.cpp
+
+#-----------------------------------------
+# Mac specific stuff
+FRAMEWORK = -framework GLUT
+FRAMEWORK += -framework OpenGL
+MACLIBS = -lGL -lGLU -lm -lstdc++ -lfreeimage
+MACINCS = -L"/System/Library/Frameworks/OpenGL.framework/Libraries" -L./fiosx -I./fiosx
+
+#-----------------------------------------
+CCOPTSMAC = $(OPTMAC) $(MACINCS) -DOSX
+LDOPTSMAC = $(OPTMAC) $(MACINCS) $(MACLIBS) -DOSX
+
+#-----------------------------------------
+#-----------------------------------------
+
+default: $(TARGETS)
+
+clean:
+	/bin/rm -f *.o $(TARGETS)
+
+#-----------------------------------------
+#-----------------------------------------
+
+as3: as3.o
+	$(CC) $(OBJECTS) $(FRAMEWORK) $(LDOPTSMAC) -o $(TARGETS)
+
+as3.o: as3.cpp
+	$(CC) $(SOURCES) -c $(CCOPTSMAC)
+
