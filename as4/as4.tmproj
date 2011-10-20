@@ -3,14 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>test/poly2.t</string>
+	<string>as4.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>as4.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-17T01:04:43Z</date>
+			<date>2011-10-19T19:53:13Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -97,6 +99,20 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
+		<key>as4.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>36</integer>
+				<key>line</key>
+				<integer>241</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>214</integer>
+		</dict>
 		<key>imagewriter.cpp</key>
 		<dict>
 			<key>caret</key>
@@ -315,6 +331,7 @@
 		<string>kdtree.cpp</string>
 		<string>imagewriter.cpp</string>
 		<string>test/poly2.t</string>
+		<string>as4.cpp</string>
 		<string>scene.cpp</string>
 		<string>include/scene.h</string>
 	</array>

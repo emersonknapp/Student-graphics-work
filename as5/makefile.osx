@@ -39,13 +39,13 @@ clean:
 
 as5: as5.o
 	$(CC) $(OBJECTS) $(FRAMEWORK) $(LDOPTSMAC) -o $(TARGETS)
-	
+
 imagewriter.o: imagewriter.cpp
 	$(CC) $(SOURCES) -c $(CCOPTSMAC)
 
 classes.o: classes.cpp
 	$(CC) $(SOURCES) -c $(CCOPTSMAC)
-	
+
 scene.o: scene.cpp
 	$(CC) $(SOURCES) -c $(CCOPTSMAC)
 

@@ -45,14 +45,14 @@ static struct timeval lastTime;
 #define FRAMERATE 10
 #define EPSILON 0.001
 #define DEBUG false
-#define T_MAX 400
 
-#define MAXRECURSION 4
 #define MAXLINE 255
 
 //Simple function to display a message and exit the program with status 1
 void Error(string);
 
 enum {POINT, DIR};
+enum {R, G, B};
+enum {X, Y, Z};
 
 #endif

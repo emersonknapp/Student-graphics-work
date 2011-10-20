@@ -27,8 +27,6 @@
 #include "algebra3.h"
 #include "FreeImage.h"
 
-#define WIGGLE .005
-
 
 
 //
