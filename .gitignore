@@ -6,3 +6,7 @@ as4/as4
 as4/*.o
 as4/*.png
 as4/out
+
+as5/as5
+as5/*.o
+as5/*.png

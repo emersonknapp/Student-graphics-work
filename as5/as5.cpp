@@ -66,10 +66,10 @@ void myReshape(int w, int h) {
 	viewport.h = h;
 	
 	glViewport(0,0, w, h);
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
-	gluOrtho2D(0, viewport.w, 0, viewport.h); //TODO: how does Ortho3D work?
+	gluPerspective(45, w/h, 0.1f, 1000.0f); //TODO: how does Ortho3D work?
 
 }
 
@@ -149,11 +149,6 @@ void processArgs(int argc, char* argv[]) {
 int main(int argc, char *argv[]) {
 	
 	srand((unsigned)time(NULL));
-	
-	//Initialize FreeImage library
-	
-	//cout << "FreeImage " << FreeImage_GetVersion() << endl;
-	//cout << FreeImage_GetCopyrightMessage() << endl;
 	
 	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
 	processArgs(argc, argv);
