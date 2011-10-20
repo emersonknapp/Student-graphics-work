@@ -8,10 +8,10 @@ class Scene {
 public:
 	Scene(string);
 	void parseScene(string);
+	void parseBez(string);
 	bool parseLine(string);
 	vec4 getVertex(int);
 	int extractVertex(string);
-	bool rayIntersect(Ray, float&, int&);
 	
 	vec3 rotation, translation, scale;
 	Material parseMaterial;
@@ -22,6 +22,8 @@ public:
 	Camera * camera;
 	int lastVertex;
 	vec3 ambience;
+	bool adaptiveSub;
+	float param;
 
 };
 

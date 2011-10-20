@@ -3,12 +3,13 @@
 using namespace std;
 
 Scene::Scene(string filename) {
-	parseScene(filename);
+	parseBez(filename);
 	Material parseMaterial;
 	translation = vec3(0,0,0);
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
 	lastVertex = 0;
+	adaptiveSub = false;
 	//camera = new Camera();
 }
 
@@ -197,20 +198,6 @@ void Scene::parseScene(string filename) {
 	inFile.close();
 }
 
-bool Scene::rayIntersect(Ray r, float& t, int& index) {
+void Scene::parseBez(string filename) {
 	
-	float newT;
-	int renderableIndex=-1;
-	bool hasHit = false;
-	
-	for (int i=0; i<renderables.size(); i++) {
-		vec3 color = vec3(0,0,0);
-		//cout << renderables[i]->tmat << endl << endl;
-		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
-			hasHit = true;			
-			index = i;
-			t = newT;
-		}
-	}
-	return hasHit;
 }

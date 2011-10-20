@@ -44,7 +44,7 @@ static struct timeval lastTime;
 #define SCREEN_HEIGHT 800
 #define FRAMERATE 10
 #define EPSILON 0.001
-#define DEBUG false
+#define DEBUG true
 
 #define MAXLINE 255
 

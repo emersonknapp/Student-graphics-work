@@ -27,16 +27,31 @@ void setPixel(float x, float y, GLfloat r, GLfloat g, GLfloat b) {
 	}
 }
 
-void Error(string msg) {
-	cout << msg << endl;
-	exit(1);
-}
-
 void quitProgram() {
 	//Make sure to delete stuff that was created using new.
 	delete scene;
 	FreeImage_DeInitialise();
 	exit(0);
+}
+
+void quitProgram(int code) {
+	delete scene;
+	FreeImage_DeInitialise();
+	exit(code);
+}
+
+void Error(string msg) {
+	cout << msg << endl;
+	quitProgram(1);
+}
+
+void Usage() {
+	cout << "Bezier Subdivider: " << endl;
+	cout << "./as5 filename param [-a]" << endl;
+	cout << "	filename: a bezier patch file" << endl;
+	cout << "	param: for uniform subdivision, the level of division. for adaptive, the acceptable error." << endl;
+	cout << "	-a: specifies adaptive subdivision" << endl;
+	quitProgram(1);
 }
 
 //***************************************************
@@ -47,7 +62,15 @@ void myDisplay() {
 		glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	}
 	
-	//DRAW!
+	glBegin(GL_QUADS);
+	
+	glColor3f(1, 1, 1);
+	glVertex3f(-1, 1, -10);
+	glVertex3f(1, 1, -10);
+	glVertex3f(1, -1, -10);
+	glVertex3f(-1, -1, -10);
+	
+	glEnd();
 	
 	
 	if(!imageWriter.drawing) {
@@ -116,26 +139,35 @@ void initScene(){
 
 
 void processArgs(int argc, char* argv[]) {
+	if (argc < 3) {
+		Usage();
+	}
+	int i=1;
+	string arg = argv[i++];
+	scene = new Scene(arg);
+	if (DEBUG) cout << "Parsing scene " << arg << endl;
+	arg = argv[i++];
+	scene->param = atof(arg.c_str());
+	if (DEBUG) cout << "Parameter " << atof(arg.c_str()) << endl;
 	
-	for (int i=1; i<argc; i++) {
-		vec3 translation(0,0,0);
-		vec3 scale(1,1,1);
-		vec3 rotation(0,0,0);
+	if (argc >= 4) {
+		for ( ; i<argc; i++) {
+			string arg = argv[i];
 		
-		string arg = argv[i];
-		
-		if (arg.compare("-s") == 0) {
-			scene = new Scene(argv[++i]);
-		} else if (arg.compare("-pr")==0) {
-			imageWriter.init(viewport.w, viewport.h);
-			imageWriter.glOn = false;
-			imageWriter.fileName = argv[++i];
-		} else if (arg.compare("-px")==0) {
-			int width = atoi(argv[++i]);
-			int height = atoi(argv[++i]);
-			viewport.w = width;
-			viewport.h = height;
-			imageWriter.setSize(width, height);
+			if (arg.compare("-a") == 0) {
+				scene->adaptiveSub = true;
+				if (DEBUG) cout << "Using adaptive subdivision." << endl;
+			} else if (arg.compare("-pr")==0) {
+				imageWriter.init(viewport.w, viewport.h);
+				imageWriter.glOn = false;
+				imageWriter.fileName = argv[++i];
+			} else if (arg.compare("-px")==0) {
+				int width = atoi(argv[++i]);
+				int height = atoi(argv[++i]);
+				viewport.w = width;
+				viewport.h = height;
+				imageWriter.setSize(width, height);
+			}
 		}
 	}
 
