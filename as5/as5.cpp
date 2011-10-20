@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
 	  	//The size and position of the window
 	  	glutInitWindowSize(viewport.w, viewport.h);
 	  	glutInitWindowPosition(-1, -1);
-	  	glutCreateWindow("Bezier, bitches.");
+	  	glutCreateWindow("Bezier Subdivision");
 	
 	  	initScene();							// quick function to set up scene
 
