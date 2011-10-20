@@ -96,9 +96,22 @@ void processNormalKeyups(unsigned char key, int x, int y) {
 // sets the window up
 //****************************************************
 void initScene(){
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
+	//Get all the OpenGL stuff up and running. 
+	//We'll need to have some nice definitions for lights values
+	//Possible just modify existing light classes
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_COLOR_MATERIAL);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearDepth(1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	//glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+	//glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+	//glEnable(GL_LIGHT1);
 	myReshape(viewport.w,viewport.h);
-	if (DEBUG) cout << "Scene initialized" << endl;
 }
 
 
@@ -129,6 +142,7 @@ void processArgs(int argc, char* argv[]) {
 	
 }
 
+
 //****************************************************
 // the usual stuff, nothing exciting here
 //****************************************************
@@ -154,7 +168,7 @@ int main(int argc, char *argv[]) {
 	  	//The size and position of the window
 	  	glutInitWindowSize(viewport.w, viewport.h);
 	  	glutInitWindowPosition(-1, -1);
-	  	glutCreateWindow("Ray Tracer");
+	  	glutCreateWindow("Bezier, bitches.");
 	
 	  	initScene();							// quick function to set up scene
 
