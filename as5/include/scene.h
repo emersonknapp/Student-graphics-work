@@ -24,6 +24,7 @@ public:
 	vec3 ambience;
 	bool adaptiveSub;
 	float param;
+	bool smoothShading, wireframe;
 
 };
 

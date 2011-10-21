@@ -148,10 +148,10 @@ public:
 };
 
 class Quad : public Renderable {
-	GLfloat[] v1;
-	GLfloat[] v2;
-	GLfloat[] v3;
-	GLfloat[] v4;
+	//GLfloat[] v1;
+	//GLfloat[] v2;
+	//GLfloat[] v3;
+	//GLfloat[] v4;
 	Quad();
 };
 

@@ -107,6 +107,15 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		name += ".png";
 		imageWriter.fileName = name;
 		imageWriter.init(viewport.w, viewport.h);
+	} else if (key=='s') {
+		if(scene->smoothShading) {
+			glShadeModel(GL_FLAT);
+		} else {
+			glShadeModel(GL_SMOOTH);
+		}
+		scene->smoothShading = !scene->smoothShading;
+	} else if (key=='w') {
+		scene->wireframe = !scene->wireframe;
 	}
 }
 
