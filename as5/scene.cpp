@@ -33,6 +33,7 @@ int Scene::extractVertex(string s) {
 	return atoi(result.c_str());
 }
 
+/*
 bool Scene::parseLine(string line) {
 	
 
@@ -130,31 +131,8 @@ bool Scene::parseLine(string line) {
 		renderables.push_back(tri);
 		if (DEBUG) cout << "Added triangle to scene." << endl;
 	} 
-	else if (op.compare("cam")==0) { //camera
-		//delete camera;
-		camera = new Camera();
-		camera->scale(scale);
-		camera->rotate(rotation);
-		camera->translate(translation);
-	} 
-	else if (op.compare("translate")==0) { //translate x y z
-		if (DEBUG) cout << "Translating." << endl;
-		float x,y,z;
-		ss >> x >> y >> z;
-		translation[0] = x;
-		translation[1] = y;
-		translation[2] = z;	
-	}
-	else if (op.compare("rotate")==0) { //rotate theta vec
-		float x,y,z;
-		ss >> x >> y >> z;
-		rotation = vec3(x,y,z);
-	} 
-	else if (op.compare("scale")==0) { //scale x y z
-		float x,y,z;
-		ss>>x>>y>>z;
-		scale = vec3(x,y,z);
-	} 
+
+
 	else if (op.compare("pl")==0) { //pointlight x y z r g b
 		float x,y,z,r,g,b;
 		ss >> x >> y >> z >> r >> g >> b;
@@ -167,11 +145,6 @@ bool Scene::parseLine(string line) {
 		DLight* d = new DLight(vec4(x,y,z,0), vec3(r,g,b));
 		lights.push_back(d);
 	} 
-	else if (op.compare("ct")==0) { //clear transformations
-		translation = vec3(0,0,0);
-		scale = vec3(1,1,1);
-		rotation= vec3(0,0,0);
-	} 
 	else{
 		cout << "Warning: unrecognized command " << op << endl;
 	}
@@ -179,6 +152,7 @@ bool Scene::parseLine(string line) {
 		return false;
 	return true;
 }
+*/
 
 void Scene::parseScene(string filename) {
 	ifstream inFile(filename.c_str(), ifstream::in);
@@ -191,9 +165,9 @@ void Scene::parseScene(string filename) {
 
 	 while (inFile.good()) {
 		inFile.getline(line, 1023);
-		if(!parseLine(string(line))) {
-			Error("Bad line in input file.");
-		}
+		//if(!parseLine(string(line))) {
+		//	Error("Bad line in input file.");
+		//}
 	}
 	inFile.close();
 }

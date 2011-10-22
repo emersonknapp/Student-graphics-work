@@ -27,6 +27,8 @@
 #include "algebra3.h"
 #include "FreeImage.h"
 
+enum {TRIS, QUADS};
+
 
 
 //
@@ -68,91 +70,20 @@ public:
 class Material {
 public:
 	Material();
-	Material(vec3 a, vec3 d, vec3 s, vec3 r, int p);
-	vec3 ka; //ambient
+	Material(vec3 d, vec3 s, vec3 r, int p);
+
 	vec3 kd; //diffuse
 	vec3 ks; //specular
 	vec3 kr; //reflection coefficient
 	int sp; //specular power
 };
 
-class Ray {
-public:
-	vec4 pos;
-	vec4 dir;
-	float t_min, t_max;
-	Ray();
-	Ray(vec4 a, vec4 b);	
-};
-
-class Renderable {
-public:
-	mat4 tmat;
-	mat4 imat;
-	mat4 rotmat;
-	mat4 transmat;
-	mat4 scalemat;
-	Material material;
-	// constructors
-	Renderable () ;
-	// methods
-	void translate(vec3 t);
-	void translate(float x, float y, float z) ;
-	void rotate(float, float, float);
-	void rotate(vec3);
-	void scale(float xScale, float yScale, float zScale);
-	void scale(vec3 s);
-	virtual vec4 normal(vec4)=0;
-	
-	mat3 dehomogenize(mat4 t);
-	
-	virtual float ray_intersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
-
-};
-
-class Camera : public Renderable {
-	// needs to keep track of its position (starts at 0,0,-1) by default.
-	// we ask the camera to generate a ray based on an input between (1,1) (1,-1) (-1,-1) (-1,1)
-	// we then scale this point to the size of the viewport, then run the regular camera transformations on it then generate the ray.
-	
+class Camera {	
 public:
 	vec4 pos;
 	vec4 UL, UR, LL, LR;
 	Camera();	
-	//Ray generate_ray();
-	float ray_intersect (Ray);
-	Ray generate_ray(float x, float y);
-	vec4 normal(vec4);
-	
 };
 
-class Sphere : public Renderable {
-// inherits tmat from Renderable
-public:
-	
-	Sphere ();	
-	float ray_intersect ( Ray);
-	vec4 normal(vec4);
-};
-
-class Triangle : public Renderable {
-public:
-	//vertices
-	vec4 v1, v2, v3;
-	vec3 norm;
-	Triangle (vec4 a, vec4 b, vec4 c);
-	
-	float ray_intersect ( Ray);
-	vec4 normal(vec4);
-	vec4 normal();
-};
-
-class Quad : public Renderable {
-	//GLfloat[] v1;
-	//GLfloat[] v2;
-	//GLfloat[] v3;
-	//GLfloat[] v4;
-	Quad();
-};
 
 #endif
