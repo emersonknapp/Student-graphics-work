@@ -45,8 +45,7 @@ LocalGeo bezpatchinterp(Surface patch, float u, float v) {
        }
        
        for (int j=0; j<4; j++) {
-       		vcurve[j] = bezcurveinterp(cc[j], u).point;
-       		
+       		vcurve[j] = bezcurveinterp(cc[j], u).point;	
        }
       
        
@@ -56,7 +55,6 @@ LocalGeo bezpatchinterp(Surface patch, float u, float v) {
                        cc[i][j] = patch.points[i*4+j].point;
                }
        }
-       
        for (int j=0; j<4; j++) {
        		ucurve[j] = bezcurveinterp(cc[j], v).point;
        } 

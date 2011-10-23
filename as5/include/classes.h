@@ -55,6 +55,12 @@ public:
 	virtual vec4 lightVector(vec4) = 0;
 };
 
+class LocalGeo {
+public:
+	vec3 pos;
+	vec3 dir;
+};
+
 class PLight: public Light {
 public:
 	PLight(vec4, vec3);

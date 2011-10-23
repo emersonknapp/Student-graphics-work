@@ -4,7 +4,6 @@ using namespace std;
 
 Scene::Scene(string filename) {
 	parseBez(filename);
-	Material parseMaterial;
 	translation = vec3(0,0,0);
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
@@ -173,5 +172,80 @@ void Scene::parseScene(string filename) {
 }
 
 void Scene::parseBez(string filename) {
+	meshes.push_back(new QuadMesh());
+	ifstream inFile(filename.c_str(), ifstream::in);
+	char l[1024];
+	string line;
+	int patches = 0;
+
+	if (!inFile) {
+		Error("Could not open file " + filename);
+	}
+	stringstream ss(stringstream::in | stringstream::out);
+	
+	if (inFile.good()) {
+		inFile.getline(l, 1023);
+		string num;
+		line = string(l);
+		if (!line.empty()) {
+			ss.str(line);
+			ss >> num;
+			patches = atoi(num.c_str());
+		}	
+	}
+	string coord;
+	while (inFile.good()) {
+		inFile.getline(l, 1023);
+		if(!parseBezLine(string(l))) {
+			Error("Bad line in input file.");
+		}
+	}
+	inFile.close();
+}
+
+bool Scene::parseBezLine(string line) {
+
+	string a,b,c;
+	if (line.empty())
+		return true;
+		
+	stringstream ss(stringstream::in | stringstream::out);
+	ss.str(line);
+	for (int i=0; i<4; i++) {
+		ss >> a >> b >> c;
+		vec3 v = vec3(atof(a.c_str()), atof(b.c_str()), atof(c.c_str()));
+		meshes[meshes.size()-1]->addVert(v);
+	}
+	return true;
+	
+}
+
+
+void Mesh::addVert(vec3 v) {
+	vertsVec.push_back(v);
+}
+
+void Mesh::addNorm(vec3 v) {
+	normsVec.push_back(v);
+}
+
+vec3 Mesh::getVert(int i) {
+	return vertsVec[i];
+}
+
+vec3 Mesh::getNorm(int i) {
+	return normsVec[i];
+}
+
+
+void QuadMesh::createArrays() {
+	
+}
+
+void QuadMesh::addQuad(vec4) {
+	
+}
+
+void QuadMesh::addQuad(int,int,int,int) {
 	
 }
