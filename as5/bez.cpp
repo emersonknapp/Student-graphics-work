@@ -2,7 +2,7 @@
 // Subdivision Code
 //************************//
 
-TriMesh getTriMesh(vector<vec4> q, vector<vec2> uv, int which) {
+TriMesh getTriMesh(vector<vec4> q, vector<vec2> uv, int &which) {
 	TriMesh t;
 	if (which == 0) {
 		t.vertsVec.push_back(q[0]);
@@ -12,6 +12,8 @@ TriMesh getTriMesh(vector<vec4> q, vector<vec2> uv, int which) {
 		t.uvValues.push_back(uv[0]);
 		t.uvValues.push_back(uv[1]);
 		t.uvValues.push_back(uv[2]);
+		
+		which = 1;
 	} else {
 		t.vertsVec.push_back(q[1]);
 		t.vertsVec.push_back(q[2]);
@@ -44,12 +46,13 @@ TriMesh adaptivesubdividepatch(QuadMesh patch, float error) {
 		}
 	}
 	//	loop through and create TriMeshes from each quadrilateral
+	int which = 1;
 	while (!quadrilaterals.empty()) {
-		if (quadrilaterals.size()%2 == 0) {
+		if (which == 0) {
 			quadrilaterals.pop_back();
 			uvForQuad.pop_back();
 		}
-		TriMesh t = getTriMesh(quadrilaterals[quadrilaterals.size()-1], uvForQuad[uvForQuad.size()-1], quadrilaterals.size()%2);
+		TriMesh t = getTriMesh(quadrilaterals[quadrilaterals.size()-1], uvForQuad[uvForQuad.size()-1], which);
 		// now we pass these TriMeshes into adaptivesubdividepatch
 	}
 }
