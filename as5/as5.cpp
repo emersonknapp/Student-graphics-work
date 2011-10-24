@@ -92,7 +92,7 @@ void myReshape(int w, int h) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	
-	gluPerspective(45, w/h, 0.1f, 1000.0f); //TODO: how does Ortho3D work?
+	gluPerspective(45, w/h, 0.1f, 1000.0f);
 
 }
 
@@ -152,16 +152,16 @@ void processArgs(int argc, char* argv[]) {
 		Usage();
 	}
 	int i=1;
-	string arg = argv[i++];
-	scene = new Scene(arg);
-	if (DEBUG) cout << "Parsing scene " << arg << endl;
-	arg = argv[i++];
-	scene->param = atof(arg.c_str());
-	if (DEBUG) cout << "Parameter " << atof(arg.c_str()) << endl;
+	string filename = argv[i++];
+	string p = argv[i++];
+	if (DEBUG) cout << "Parsing scene " << filename << endl;
+	if (DEBUG) cout << "Parameter: " << atof(p.c_str()) << endl;
+	scene = new Scene(filename, atof(p.c_str()));
 	
+	string arg;
 	if (argc >= 4) {
 		for ( ; i<argc; i++) {
-			string arg = argv[i];
+			arg = argv[i];
 		
 			if (arg.compare("-a") == 0) {
 				scene->adaptiveSub = true;

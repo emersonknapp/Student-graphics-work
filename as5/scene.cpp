@@ -2,10 +2,12 @@
 
 using namespace std;
 
-Scene::Scene(string filename) {
+Scene::Scene(string filename, float p) {
+	param = p;
 	parseBez(filename);
+	if (DEBUG) cout << "Num quadmesh " << quadmeshes.size() << endl;
 	for (int i=0; i<quadmeshes.size(); i++) {
-		
+		quadmeshes[i]->uniformsubdividepatch(param);
 	}
 	translation = vec3(0,0,0);
 	scale = vec3(1,1,1);
@@ -193,13 +195,16 @@ void Scene::parseBez(string filename) {
 			ss.str(line);
 			ss >> num;
 			patches = atoi(num.c_str());
+			if (DEBUG) cout << "Number of patches: " << patches << endl;
 		}	
 	}
 	string coord;
-	while (inFile.good()) {
+	for (int q=0; q<patches; q++) {
 		quadmeshes.push_back(new QuadMesh());
 		for (int i=0; i<4; i++) {
 			inFile.getline(l, 1023);
+			line = string(l);
+			if (line.empty()) i--;
 			if(!parseBezLine(string(l))) {
 				Error("Bad line in input file.");
 			}	
@@ -209,7 +214,6 @@ void Scene::parseBez(string filename) {
 }
 
 bool Scene::parseBezLine(string line) {
-
 	string a,b,c;
 	if (line.empty())
 		return true;
@@ -255,31 +259,36 @@ void QuadMesh::addQuad(int,int,int,int) {
 }
 
 
-//given an initially created 16-point control patch, perform uniform subdivision
-//Has undefined behavior for actual meshes.
-QuadMesh QuadMesh::uniformsubdividepatch(QuadMesh patch, float step) {
-	   //compute how many subdivisions there are for this step size
-	   float numdiv = int(1.0/step);
-	   
-	   float stepsize = 1/numdiv;
-	   
-	   float u,v;
-	   QuadMesh newsurface;
-	   //for each parametric value of u
-	   for (int iu = 0; iu <= numdiv; iu++) {
-			   u = iu*stepsize;
-			   //for each parametric value of v
-			   for (int iv = 0; iv<=numdiv;iv++) {
-					v = iv*stepsize;
-					//evaluate surface
-					//printf("Calculating point (%f, %f)\n", u, v);
-					LocalGeo g = bezpatchinterp(&patch,u,v);
-					//printf("=(%f, %f, %f)\n", g.point[0], g.point[1], g.point[2]);
-					newsurface.addVert(g.pos);
-					newsurface.addNorm(g.dir);
-			   }
-	   }
-	   return newsurface;
+//Subdivide a control patch in place. If already subdivided, does nothing.
+void QuadMesh::uniformsubdividepatch(float step) {
+	//compute how many subdivisions there are for this step size
+	if (vertsVec.size() > 16) {
+		return;
+	}
+	float numdiv = int(1.0/step);
+	cout << "numdiv " << numdiv << endl;
+
+	float stepsize = 1/numdiv;
+	cout << "stepsize " << stepsize << endl;
+	cout << "step " << step << endl;
+
+	float u,v;
+	vector<LocalGeo> newInfo;
+	//for each parametric value of u
+	for (int iu = 0; iu <= numdiv; iu++) {
+		u = iu*stepsize;
+		//for each parametric value of v
+		for (int iv = 0; iv<=numdiv;iv++) {
+			v = iv*stepsize;
+			//evaluate surface
+			printf("Calculating point (%f, %f)\n", u, v);
+			LocalGeo g = bezpatchinterp(this,u,v);
+			printf("=(%f, %f, %f)\n", g.pos[0], g.pos[1], g.pos[2]);
+			newInfo.push_back(g);
+			//addVert(g.pos);
+			//addNorm(g.dir);
+		}
+	}
 }
 
 //given a control patch and (u,v) values, find the surface point and normal

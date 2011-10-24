@@ -59,13 +59,13 @@ public:
 	void addQuad(vec4);
 	void addQuad(int,int,int,int);
 	
-	QuadMesh uniformsubdividepatch(QuadMesh, float);
+	void uniformsubdividepatch(float);
 	TriMesh toTriMesh();
 };
 
 class Scene {
 public:
-	Scene(string);
+	Scene(string, float);
 	void parseScene(string);
 	void parseBez(string);
 	bool parseBezLine(string);
