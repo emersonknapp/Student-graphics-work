@@ -287,7 +287,7 @@ void QuadMesh::createArrays() {
 	
 	if (DEBUG) {
 		cout << "QUADS" << endl;
-		for (int j=0; j<numquads; j++) {
+		for (int j=0; j<n_poly; j++) {
 			for (int k=0; k<4; k++) 
 				cout << indices[j*4+k] << " ";
 			cout << endl;

@@ -59,14 +59,34 @@ void Usage() {
 //***************************************************
 void myDisplay() {
 	if (!imageWriter.drawing) {
-		glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	}
 	
+	glLoadIdentity();
+	
+	glTranslatef(0,0,100);
 	for (int i=0; i<scene->quadmeshes.size(); i++) {
 		QuadMesh* mesh = scene->quadmeshes[i];
 		
+		glBegin(GL_QUADS);
+		glColor3f(1,1,1);
+		for (int j=0; j<mesh->n_poly; j++) {
+			vec4 q;
+			vec3 n;
+			for (int k=0; k<4; k++) {
+				
+				int q = mesh->indices[j*4+k];
+				vec3 n = vec3(mesh->norms[q*4], mesh->norms[q*4+1], mesh->norms[q*4+2]);
+				vec3 v = vec3(mesh->verts[q*4], mesh->verts[q*4+1], mesh->verts[q*4+2]);
+				glNormal3f(n[0], n[1], n[2]);
+				glVertex3f(v[0], v[1], v[2]);	
+			}
+		}
+		glEnd();
+		
+		glColor3f(1,1,1);
 		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
-		glNormalPointer(GL_FLOAT, 0, mesh->norms);
+		//glNormalPointer(GL_FLOAT, 0, mesh->norms);
 		glDrawElements(GL_QUADS, 4*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
 		
 	}
