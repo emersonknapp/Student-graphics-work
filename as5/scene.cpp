@@ -356,7 +356,7 @@ void QuadMesh::uniformsubdividepatch(float step) {
 		addNorm(newInfo[a].dir);
 	}
 }
-
+/*
 TriMesh TriMesh::getTriMesh(vector<vec4> q, vector<vec2> uv, int &which) {
 	TriMesh t;
 	if (which == 0) {
@@ -444,7 +444,7 @@ TriMesh TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
 	// more stuff coming soon
 }
 
-
+*/
 //given a control patch and (u,v) values, find the surface point and normal
 LocalGeo Mesh::bezpatchinterp(Mesh* patch, float u, float v) {
 	vec3 vcurve[4];

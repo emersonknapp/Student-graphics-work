@@ -58,13 +58,12 @@ void Usage() {
 // Function what actually draws to screen
 //***************************************************
 void myDisplay() {
-	if (!imageWriter.drawing) {
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);				// clear the color buffer (sets everything to black)
-	}
 	
-	glLoadIdentity();
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
-	glTranslatef(0,0,100);
+	//glLoadIdentity();
+	
+	//glTranslatef(0,0,-1);
 	for (int i=0; i<scene->quadmeshes.size(); i++) {
 		QuadMesh* mesh = scene->quadmeshes[i];
 		
@@ -91,12 +90,9 @@ void myDisplay() {
 		
 	}
 	
-	
-	
-	if(!imageWriter.drawing) {
-		glFlush();
-		glutSwapBuffers();					// swap buffers (we earlier set double buffer)
-	}
+	glFlush();
+	glutSwapBuffers();					// swap buffers (we earlier set double buffer)
+
 	if (imageWriter.drawing) {
 		imageWriter.printScreen();
 		quitProgram();	
@@ -113,6 +109,8 @@ void myReshape(int w, int h) {
 	glLoadIdentity();
 	
 	gluPerspective(45, w/h, 0.1f, 1000.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 }
 
@@ -221,7 +219,7 @@ int main(int argc, char *argv[]) {
 	} else {
 	  	glutInit(&argc, argv);
 	
-	  	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	  	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 
 	  	//The size and position of the window
 	  	glutInitWindowSize(viewport.w, viewport.h);
