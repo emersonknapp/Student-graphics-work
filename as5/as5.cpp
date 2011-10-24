@@ -190,7 +190,6 @@ void processArgs(int argc, char* argv[]) {
 int main(int argc, char *argv[]) {
 	
 	srand((unsigned)time(NULL));
-	
 	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
 	processArgs(argc, argv);
 	

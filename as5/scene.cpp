@@ -237,16 +237,6 @@ vec3 Mesh::getNorm(int i) {
 	return normsVec[i];
 }
 
-TriMesh::TriMesh() {
-	vector<vec3> vertsVec;
-	vector<vec3> normsVec;
-	float* verts;
-	float* norms;
-	int* indices;
-	int n_poly;
-	string material;
-}
-
 void QuadMesh::createArrays() {
 	
 }
