@@ -2,16 +2,24 @@
 // Subdivision Code
 //************************//
 
-TriMesh getTriMesh(vector<vec4> q, int which) {
+TriMesh getTriMesh(vector<vec4> q, vector<vec2> uv, int which) {
 	TriMesh t;
 	if (which == 0) {
 		t.vertsVec.push_back(q[0]);
 		t.vertsVec.push_back(q[1]);
 		t.vertsVec.push_back(q[2]);
+		
+		t.uvValues.push_back(uv[0]);
+		t.uvValues.push_back(uv[1]);
+		t.uvValues.push_back(uv[2]);
 	} else {
 		t.vertsVec.push_back(q[1]);
 		t.vertsVec.push_back(q[2]);
 		t.vertsVec.push_back(q[3]);
+		
+		t.uvValues.push_back(uv[1]);
+		t.uvValues.push_back(uv[2]);
+		t.uvValues.push_back(uv[3]);
 	}
 }
 
@@ -19,20 +27,29 @@ TriMesh adaptivesubdividepatch(QuadMesh patch, float error) {
 	//	assumes 16-point QuadMesh
 	//	creates the 9 quadrilaterals 
 	vector<vec4> quadrilaterals;
+	vector<vec2> uvForQuad;
 	vector<int> quad;
+	vector<vec2> uvs;
 	for (int i = 0; i < 4; i += 1) {
 		for (int j = 0; j < 4; j += 1) {
 			if (quad.size() == 4) {
 				quadrilaterals.push_back(vec4(quad[0],quad[1],quad[2],quad[3]));
-				if (quadrilaterals.size()%2 == 0) quadrilaterals.pop_back();
+				uvForQuad.push_back(vec2(uvs[0],uvs[1]));
 				quad.empty();
+				uvs.empty();
 			}
+			//TODO: when we push_back a quad, push_back the u,v values as well
 			quad.push_back(patch.getVert(i+4*j));
+			uvs.push_back(vec2(i/4.0f,j/4.0f)); // u,v as canonical values
 		}
 	}
 	//	loop through and create TriMeshes from each quadrilateral
 	while (!quadrilaterals.empty()) {
-		TriMesh t = getTriMesh(quadrilaterals[quadrilaterals.size()-1], quadrilaterals.size()%2);
+		if (quadrilaterals.size()%2 == 0) {
+			quadrilaterals.pop_back();
+			uvForQuad.pop_back();
+		}
+		TriMesh t = getTriMesh(quadrilaterals[quadrilaterals.size()-1], uvForQuad[uvForQuad.size()-1], quadrilaterals.size()%2);
 		// now we pass these TriMeshes into adaptivesubdividepatch
 	}
 }
@@ -51,6 +68,7 @@ TriMesh adaptivesubdividepatch(TriMesh patch, float error) {
 	//	p1,p2 is edge 1
 	// 	p2,p0 is edge 2
 	
+	//TODO: get curve from TriMesh patch
 	//TODO: want to iterate through some u,v for TriMesh
 	//TODO: generate bezierPoint for each side of the Triangle
 	
@@ -59,7 +77,7 @@ TriMesh adaptivesubdividepatch(TriMesh patch, float error) {
 	trianglePoint[2] = 0.5f * (curve[2]+curve[0]);
 	
 	for (int i = 0; i < 3; i++) {
-		if (error > (bezierPoint - trianglePoint).length2()) {
+		if (error > (bezierPoint - trianglePoint[i]).length2()) {
 			splitEdges[i] = NULL;
 		} else {
 			splitEdges[i] = bezierPoint;

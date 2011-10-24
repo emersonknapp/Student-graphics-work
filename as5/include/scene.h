@@ -34,9 +34,9 @@ public:
 	
 };
 
-//TODO: make a QuadMesh -> TriMesh method
 class TriMesh : public Mesh {
 	tri* tris;
+	vector<vec2> uvValues;
 	void createArrays();
 //	void addVert(vec3);
 //	void addNorm(vec3);
