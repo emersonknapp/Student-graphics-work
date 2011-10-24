@@ -59,6 +59,7 @@ class LocalGeo {
 public:
 	vec3 pos;
 	vec3 dir;
+	float u,v;
 };
 
 class PLight: public Light {

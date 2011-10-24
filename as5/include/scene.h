@@ -22,12 +22,16 @@ public:
 	float* norms;
 	int* indices;
 	int n_poly;
+	
 	string material;
 	virtual void createArrays() = 0;
 	void addVert(vec3);
 	void addNorm(vec3);
 	vec3 getVert(int);
 	vec3 getNorm(int);
+	LocalGeo bezpatchinterp(Mesh*, float, float);
+	LocalGeo bezcurveinterp(vec3 curve[], float u);
+	
 };
 
 //TODO: make a QuadMesh -> TriMesh method
@@ -54,6 +58,8 @@ public:
 	//vec3 getNorm(int);
 	void addQuad(vec4);
 	void addQuad(int,int,int,int);
+	
+	QuadMesh uniformsubdividepatch(QuadMesh, float);
 	TriMesh toTriMesh();
 };
 
@@ -68,7 +74,7 @@ public:
 	int extractVertex(string);
 	
 	vector<vec3> vertices;
-	vector<Mesh*> meshes;
+	vector<QuadMesh*> quadmeshes;
 	
 	vec3 rotation, translation, scale;
 	vec3 ambience;
