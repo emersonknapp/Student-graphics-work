@@ -55,4 +55,3 @@ vec4 PLight::lightVector(vec4 origin) {
 vec4 DLight::lightVector(vec4 origin) {
 	return -v;
 }
-
