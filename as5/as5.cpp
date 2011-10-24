@@ -61,13 +61,13 @@ void myDisplay() {
 	
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
-	//glLoadIdentity();
+	glLoadIdentity();
 	
-	//glTranslatef(0,0,-1);
+	glTranslatef(0,0,0);
 	for (int i=0; i<scene->quadmeshes.size(); i++) {
 		QuadMesh* mesh = scene->quadmeshes[i];
 		
-		glBegin(GL_QUADS);
+		glBegin(GL_POINTS);
 		glColor3f(1,1,1);
 		for (int j=0; j<mesh->n_poly; j++) {
 			vec4 q;
@@ -75,18 +75,23 @@ void myDisplay() {
 			for (int k=0; k<4; k++) {
 				
 				int q = mesh->indices[j*4+k];
-				vec3 n = vec3(mesh->norms[q*4], mesh->norms[q*4+1], mesh->norms[q*4+2]);
-				vec3 v = vec3(mesh->verts[q*4], mesh->verts[q*4+1], mesh->verts[q*4+2]);
+				//vec3 n = vec3(mesh->norms[q*4], mesh->norms[q*4+1], mesh->norms[q*4+2]);
+				//vec3 v = vec3(mesh->verts[q*4], mesh->verts[q*4+1], mesh->verts[q*4+2]);
+				vec3 n = mesh->normsVec[q];
+				vec3 v = mesh->vertsVec[q];
+				//cout << n << v << endl;
 				glNormal3f(n[0], n[1], n[2]);
 				glVertex3f(v[0], v[1], v[2]);	
 			}
+			//cout << endl << endl;
 		}
+		//cout << "**********************************" << endl;
 		glEnd();
 		
-		glColor3f(1,1,1);
-		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
+		//glColor3f(1,1,1);
+		//glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
 		//glNormalPointer(GL_FLOAT, 0, mesh->norms);
-		glDrawElements(GL_QUADS, 4*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
+		//glDrawElements(GL_QUADS, 4*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
 		
 	}
 	

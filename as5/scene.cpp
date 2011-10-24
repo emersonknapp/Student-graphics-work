@@ -252,8 +252,8 @@ void QuadMesh::createArrays() {
 		Error("Improperly formed QuadMesh.");
 	}
 	int size = vertsVec.size()*3;
-	verts = new float[size];
-	norms = new float[size];
+	verts = new GLfloat[size];
+	norms = new GLfloat[size];
 	cout << "Number of entries in arrays " << size << endl;
 	for (int b=0; b<vertsVec.size(); b++) {
 		int i = b*3;
@@ -275,8 +275,9 @@ void QuadMesh::createArrays() {
 	indices = new unsigned int[numquads*4];
 	
 	for (int i=0; i<numquads; i++) {
-		unsigned int x = i%linelength;
-		unsigned int y = floor(1.0*i/linelength);
+		unsigned int x = i%(linelength-1);
+		unsigned int y = floor(1.0*i/(linelength-1));
+		
 		unsigned int start = x + y*linelength;
 		int q = i*4;
 		indices[q] = start;
@@ -297,7 +298,9 @@ void QuadMesh::createArrays() {
 		for (int j=0; j<vertsVec.size(); j++) {
 			for (int k=0; k<3; k++) {
 				cout << verts[j*3+k] << " ";
-			} cout << endl;
+			}
+			cout << endl;
+			
 		}
 		cout << endl;
 		cout << "NORMS" << endl;
