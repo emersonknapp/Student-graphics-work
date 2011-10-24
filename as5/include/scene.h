@@ -30,18 +30,18 @@ public:
 	vec3 getNorm(int);
 };
 
-/*
+
 class TriMesh : public Mesh {
 	tri* tris;
 	void createArrays();
-	void addVert(vec3);
-	void addNorm(vec3);
-	vec3 getVert(int);
-	vec3 getNorm(int);
+//	void addVert(vec3);
+//	void addNorm(vec3);
+//	vec3 getVert(int);
+//	vec3 getNorm(int);
 	void addTri(vec3);
 	void addTri(int, int, int);
 };
-*/
+
 
 class QuadMesh : public Mesh {
 public:
