@@ -20,7 +20,7 @@ public:
 	vector<vec3> normsVec;
 	float* verts;
 	float* norms;
-	int* indices;
+	unsigned int* indices;
 	int n_poly;
 	
 	string material;

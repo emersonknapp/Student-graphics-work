@@ -8,6 +8,7 @@ Scene::Scene(string filename, float p) {
 	if (DEBUG) cout << "Num quadmesh " << quadmeshes.size() << endl;
 	for (int i=0; i<quadmeshes.size(); i++) {
 		quadmeshes[i]->uniformsubdividepatch(param);
+		quadmeshes[i]->createArrays();
 	}
 	translation = vec3(0,0,0);
 	scale = vec3(1,1,1);
@@ -247,7 +248,66 @@ vec3 Mesh::getNorm(int i) {
 }
 
 void QuadMesh::createArrays() {
+	if (vertsVec.size() != normsVec.size()) {
+		Error("Improperly formed QuadMesh.");
+	}
+	int size = vertsVec.size()*3;
+	verts = new float[size];
+	norms = new float[size];
+	cout << "Number of entries in arrays " << size << endl;
+	for (int b=0; b<vertsVec.size(); b++) {
+		int i = b*3;
+		verts[i] = vertsVec[b][0];
+		verts[i+1] = vertsVec[b][1];
+		verts[i+2] = vertsVec[b][2];
+		norms[i] = normsVec[b][0];
+		norms[i+1] = normsVec[b][1];
+		norms[i+2] = normsVec[b][2];
+	}
 	
+	int linelength = int(sqrt(vertsVec.size()));
+	if (DEBUG) cout << "linelength " << linelength << endl;
+	
+	
+	int numquads = (linelength-1)*(linelength-1);
+	n_poly = numquads;
+	if (DEBUG) cout << "numquads " << numquads << endl;
+	indices = new unsigned int[numquads*4];
+	
+	for (int i=0; i<numquads; i++) {
+		unsigned int x = i%linelength;
+		unsigned int y = floor(1.0*i/linelength);
+		unsigned int start = x + y*linelength;
+		int q = i*4;
+		indices[q] = start;
+		indices[q+1] = start+1;
+		indices[q+2] = start+linelength+1;
+		indices[q+3] = start+linelength;
+	}
+	
+	if (DEBUG) {
+		cout << "QUADS" << endl;
+		for (int j=0; j<numquads; j++) {
+			for (int k=0; k<4; k++) 
+				cout << indices[j*4+k] << " ";
+			cout << endl;
+		}
+		cout << endl;
+		cout << "VERTS" << endl;
+		for (int j=0; j<vertsVec.size(); j++) {
+			for (int k=0; k<3; k++) {
+				cout << verts[j*3+k] << " ";
+			} cout << endl;
+		}
+		cout << endl;
+		cout << "NORMS" << endl;
+		for (int j=0; j<vertsVec.size(); j++) {
+			for (int k=0; k<3; k++) {
+				cout << norms[j*3+k] << " ";
+			} cout << endl;
+		}
+		cout << endl;
+	}
 }
 
 void QuadMesh::addQuad(vec4) {
@@ -281,13 +341,19 @@ void QuadMesh::uniformsubdividepatch(float step) {
 		for (int iv = 0; iv<=numdiv;iv++) {
 			v = iv*stepsize;
 			//evaluate surface
-			printf("Calculating point (%f, %f)\n", u, v);
+			//printf("Calculating point (%f, %f)\n", u, v);
 			LocalGeo g = bezpatchinterp(this,u,v);
-			printf("=(%f, %f, %f)\n", g.pos[0], g.pos[1], g.pos[2]);
+			//printf("=(%f, %f, %f)\n", g.pos[0], g.pos[1], g.pos[2]);
 			newInfo.push_back(g);
 			//addVert(g.pos);
 			//addNorm(g.dir);
 		}
+	}
+	vertsVec = vector<vec3>();
+	normsVec = vector<vec3>();
+	for (int a=0; a<newInfo.size(); a++) {
+		addVert(newInfo[a].pos);
+		addNorm(newInfo[a].dir);
 	}
 }
 

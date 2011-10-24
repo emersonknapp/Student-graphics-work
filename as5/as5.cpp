@@ -62,15 +62,15 @@ void myDisplay() {
 		glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	}
 	
-	glBegin(GL_QUADS);
+	for (int i=0; i<scene->quadmeshes.size(); i++) {
+		QuadMesh* mesh = scene->quadmeshes[i];
+		
+		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
+		glNormalPointer(GL_FLOAT, 0, mesh->norms);
+		glDrawElements(GL_QUADS, 4*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
+		
+	}
 	
-	glColor3f(1, 1, 1);
-	glVertex3f(-1, 1, -10);
-	glVertex3f(1, 1, -10);
-	glVertex3f(1, -1, -10);
-	glVertex3f(-1, -1, -10);
-	
-	glEnd();
 	
 	
 	if(!imageWriter.drawing) {
@@ -139,10 +139,13 @@ void initScene(){
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	//glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
-	//glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
-	//glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
-	//glEnable(GL_LIGHT1);
+	GLfloat LightAmbient[]= {1, 1, 1, 1};
+	GLfloat LightDiffuse[]= {1, 1, 1, 1};				
+	GLfloat LightPosition[]= { 0, 0, 0, 1};
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+	glEnable(GL_LIGHT1);
 	myReshape(viewport.w,viewport.h);
 }
 
