@@ -34,7 +34,7 @@ public:
 	
 };
 
-
+//TODO: make a QuadMesh -> TriMesh method
 class TriMesh : public Mesh {
 	tri* tris;
 	void createArrays();
@@ -58,7 +58,9 @@ public:
 	//vec3 getNorm(int);
 	void addQuad(vec4);
 	void addQuad(int,int,int,int);
+	
 	QuadMesh uniformsubdividepatch(QuadMesh, float);
+	TriMesh toTriMesh();
 };
 
 class Scene {
