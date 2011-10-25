@@ -74,10 +74,13 @@ public:
 	vec4 getVertex(int);
 	int extractVertex(string);
 	
+	void update(float);
+	
 	vector<vec3> vertices;
 	vector<QuadMesh*> quadmeshes;
 	
 	vec3 rotation, translation, scale;
+	vec3 rotating, translating;
 	vec3 ambience;
 	
 	map<string, Material*> materials;

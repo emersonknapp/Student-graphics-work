@@ -5,17 +5,24 @@ using namespace std;
 Scene::Scene(string filename, float p) {
 	param = p;
 	parseBez(filename);
-	if (DEBUG) cout << "Num quadmesh " << quadmeshes.size() << endl;
 	for (int i=0; i<quadmeshes.size(); i++) {
 		quadmeshes[i]->uniformsubdividepatch(param);
 		quadmeshes[i]->createArrays();
 	}
-	translation = vec3(0,0,0);
+	translation = vec3(0,0,-10);
+	translating = vec3(0,0,0);
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
+	rotating = vec3(0,0,0);
 	lastVertex = 0;
 	adaptiveSub = false;
+	smoothShading = true;
 	//camera = new Camera();
+}
+
+void Scene::update(float dt) {
+	translation = translation + (translating*dt);
+	rotation = rotation + (rotating*dt);
 }
 
 vec4 Scene::getVertex(int i) {
@@ -37,127 +44,6 @@ int Scene::extractVertex(string s) {
 	}
 	return atoi(result.c_str());
 }
-
-/*
-bool Scene::parseLine(string line) {
-	
-
-	string op;
-	
-	if (line.empty())
-		return true;
-	stringstream ss(stringstream::in | stringstream::out);
-	ss.str(line);
-	ss >> op;
-	if (op.compare("")==0) {
-		return true;
-	}
-	else if (op[0] == '#') {
-		return true;
-	}
-	else if (op.compare("v") == 0) {
-		double x, y, z;
-		ss >> x >> y >> z;
-		lastVertex++;
-		vertices.push_back(vec4(x,y,z,1));
-	} 
-	else if (op.compare("f") == 0) {
-		string i, j, k;
-		ss >> i >> j >> k;
-		int l, m, n;
-		l = extractVertex(i);
-		m = extractVertex(j);
-		n = extractVertex(k);
-		vec4 a, b, c;
-		a = getVertex(l);
-		b = getVertex(m);
-		c = getVertex(n);
-		Triangle* tri = new Triangle(a, b, c);
-		tri->scale(scale);
-		tri->rotate(rotation);
-		tri->translate(translation);
-		tri->material = parseMaterial;
-		renderables.push_back(tri);
-		if (DEBUG) cout << "Added triangle to scene. " << a << b << c << endl;
-	} 
-	else if (op.compare("ka") == 0) {
-		float r, g, b;
-		ss >> r >> g >> b;
-		ambience = vec3(r, g, b);
-		if (DEBUG) cout << "added ka = " << ambience << endl;
-	}
-	else if (op.compare("kd") == 0) {
-		float r, g, b;
-		ss >> r >> g >> b;
-		parseMaterial.kd = vec3(r, g, b);
-		if (DEBUG) cout << "added kd = " << parseMaterial.kd << endl;				
-	} 	
-	else if (op.compare("ks") == 0) {
-		float r, g, b;
-		ss >> r >> g >> b;
-		parseMaterial.ks = vec3(r, g, b);
-		if (DEBUG) cout << "added ks = " << parseMaterial.ks << endl;
-	} 
-	else if (op.compare("kr") == 0) {
-		float r,g,b;
-		ss >> r >> g >> b;
-		parseMaterial.kr = vec3(r, g, b);
-	}
-	else if (op.compare("sp")==0) {
-		int sp;
-		ss >> sp;
-		parseMaterial.sp = sp;
-		if (DEBUG) cout << "added sp = " << parseMaterial.sp << endl;
-	}	
-	else if (op.compare("s")==0) { //Parse a sphere
-		float r;
-		ss >> r;
-		Sphere* sph = new Sphere();
-		sph->scale(r*scale);
-		sph->rotate(rotation);
-		sph->translate(translation);
-		sph->material = parseMaterial;
-		renderables.push_back(sph);
-		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
-		//cout << translation << rotation << scale << endl;
-	} 
-	else if (op.compare("t")==0) { //triangle i j k
-		int i, j, k;
-		ss >> i >> j >> k;
-		vec4 a, b, c;
-		a = vec4(getVertex(i), 1);
-		b = vec4(getVertex(j), 1);
-		c = vec4(getVertex(k), 1);
-		Triangle* tri = new Triangle(a, b, c);
-		tri->scale(scale);
-		tri->rotate(rotation);
-		tri->translate(translation);
-		tri->material = parseMaterial;
-		renderables.push_back(tri);
-		if (DEBUG) cout << "Added triangle to scene." << endl;
-	} 
-
-
-	else if (op.compare("pl")==0) { //pointlight x y z r g b
-		float x,y,z,r,g,b;
-		ss >> x >> y >> z >> r >> g >> b;
-		PLight* p = new PLight(vec4(x,y,z,1), vec3(r,g,b));
-		lights.push_back(p);
-	} 
-	else if (op.compare("dl")==0) { //directionalight x y z r g 
-		float x,y,z,r,g,b;
-		ss >> x >> y >> z >> r >> g >> b;
-		DLight* d = new DLight(vec4(x,y,z,0), vec3(r,g,b));
-		lights.push_back(d);
-	} 
-	else{
-		cout << "Warning: unrecognized command " << op << endl;
-	}
-	if (ss.fail())
-		return false;
-	return true;
-}
-*/
 
 void Scene::parseScene(string filename) {
 	ifstream inFile(filename.c_str(), ifstream::in);
@@ -254,7 +140,6 @@ void QuadMesh::createArrays() {
 	int size = vertsVec.size()*3;
 	verts = new GLfloat[size];
 	norms = new GLfloat[size];
-	cout << "Number of entries in arrays " << size << endl;
 	for (int b=0; b<vertsVec.size(); b++) {
 		int i = b*3;
 		verts[i] = vertsVec[b][0];
@@ -266,12 +151,10 @@ void QuadMesh::createArrays() {
 	}
 	
 	int linelength = int(sqrt(vertsVec.size()));
-	if (DEBUG) cout << "linelength " << linelength << endl;
 	
 	
 	int numquads = (linelength-1)*(linelength-1);
 	n_poly = numquads;
-	if (DEBUG) cout << "numquads " << numquads << endl;
 	indices = new unsigned int[numquads*4];
 	
 	for (int i=0; i<numquads; i++) {
@@ -286,41 +169,7 @@ void QuadMesh::createArrays() {
 		indices[q+3] = start+linelength;
 	}
 	
-	if (DEBUG) {
-		cout << "QUADS" << endl;
-		for (int j=0; j<n_poly; j++) {
-			for (int k=0; k<4; k++) 
-				cout << indices[j*4+k] << " ";
-			cout << endl;
-		}
-		cout << endl;
-		cout << "VERTS" << endl;
-		for (int j=0; j<vertsVec.size(); j++) {
-			for (int k=0; k<3; k++) {
-				cout << verts[j*3+k] << " ";
-			}
-			cout << endl;
-			
-		}
-		cout << endl;
-		cout << "NORMS" << endl;
-		for (int j=0; j<vertsVec.size(); j++) {
-			for (int k=0; k<3; k++) {
-				cout << norms[j*3+k] << " ";
-			} cout << endl;
-		}
-		cout << endl;
-	}
 }
-
-void QuadMesh::addQuad(vec4) {
-	
-}
-
-void QuadMesh::addQuad(int,int,int,int) {
-	
-}
-
 
 //Subdivide a control patch in place. If already subdivided, does nothing.
 void QuadMesh::uniformsubdividepatch(float step) {
@@ -329,11 +178,8 @@ void QuadMesh::uniformsubdividepatch(float step) {
 		return;
 	}
 	float numdiv = int(1.0/step);
-	cout << "numdiv " << numdiv << endl;
-
+	
 	float stepsize = 1/numdiv;
-	cout << "stepsize " << stepsize << endl;
-	cout << "step " << step << endl;
 
 	float u,v;
 	vector<LocalGeo> newInfo;
@@ -384,6 +230,7 @@ TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
 		t.uvValues.push_back(uv[2]);
 		t.uvValues.push_back(uv[3]);
 	}
+	return t;
 }
 
 TriMesh TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {

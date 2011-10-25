@@ -62,16 +62,31 @@ void myDisplay() {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
 	glLoadIdentity();
+	vec3 t = scene->translation;
+	glTranslatef(t[0] ,t[1], t[2]);
+	vec3 r = scene->rotation;
+	glRotatef(r[0],1,0,0);
+	glRotatef(r[1],0,1,0);
+	glRotatef(r[2],0,0,1);
 	
-	glTranslatef(0,0,-10);
 	for (int i=0; i<scene->quadmeshes.size(); i++) {
 		QuadMesh* mesh = scene->quadmeshes[i];
 
 		glColor3f(.2,.2,.2);
 		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
 		glNormalPointer(GL_FLOAT, 0, mesh->norms);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDrawElements(GL_QUADS, 4*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
+		
+		if (scene->wireframe) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		} else {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+		
+		if (scene->adaptiveSub) {
+			glDrawElements(GL_TRIANGLES, 3*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
+		} else {
+			glDrawElements(GL_QUADS, 4*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
+		}
 	}
 	
 	glFlush();
@@ -98,32 +113,93 @@ void myReshape(int w, int h) {
 
 }
 
+void myIdleFunc() {
+	float dt;
+	// Compute the time elapsed since the last time the scence is redrawn
+#ifdef _WIN32
+	DWORD currentTime = GetTickCount();
+	dt = (float)(currentTime - lastTime)*0.001f; 
+#else
+	timeval currentTime;
+	gettimeofday(&currentTime, NULL);
+	dt = (float)((currentTime.tv_sec - lastTime.tv_sec) + 1e-6*(currentTime.tv_usec - lastTime.tv_usec));
+#endif
+	scene->update(dt);
+
+	// Store the time
+	lastTime = currentTime;
+	
+	glutPostRedisplay();
+}
+
 //Deals with normal keydowns
 void processNormalKeys(unsigned char key, int x, int y) {
-	//escape, q quit
-	if (key == 27 || key == 'q' || key==32) {
-		quitProgram();
-	} else if (key >= '0' && key <= '9') {	
-		string name = "pic";
-		name += key;
-		name += ".png";
-		imageWriter.fileName = name;
-		imageWriter.init(viewport.w, viewport.h);
-	} else if (key=='s') {
-		if(scene->smoothShading) {
-			glShadeModel(GL_FLAT);
-		} else {
-			glShadeModel(GL_SMOOTH);
-		}
-		scene->smoothShading = !scene->smoothShading;
-	} else if (key=='w') {
-		scene->wireframe = !scene->wireframe;
+	//escape, q, spacebar quit
+	string name;
+	switch(key) {
+		case 27:
+		case 'q':
+		case 32:
+			quitProgram();
+			break;
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+			name = "pic";
+			name += key;
+			name += ".png";
+			imageWriter.fileName = name;
+			imageWriter.init(viewport.w, viewport.h);
+			break;
+		case 's':
+			if(scene->smoothShading) {
+				glShadeModel(GL_FLAT);
+			} else {
+				glShadeModel(GL_SMOOTH);
+			}
+			scene->smoothShading = !scene->smoothShading;
+			break;
+		case 'w':
+			scene->wireframe = !scene->wireframe;
+			break;
 	}
 }
 
 //Deals with normal keyups
 void processNormalKeyups(unsigned char key, int x, int y) {
 
+}
+
+void processSpecialKeys(int key, int x, int y) {
+	switch(key) {
+		//Up, down are around x axis
+		//Left, right around z
+		case GLUT_KEY_UP:
+			scene->rotating[0] = 15;
+			break;
+		case GLUT_KEY_DOWN:
+			scene->rotating[0] = -15;
+			break;
+		case GLUT_KEY_LEFT:
+			scene->rotating[2] = 15;
+			break;
+		case GLUT_KEY_RIGHT:
+			scene->rotating[2] = -15;
+			break;
+	}
+}
+
+void processSpecialKeyups(int key, int x, int y) {
+	switch(key) {
+		case GLUT_KEY_UP:
+		case GLUT_KEY_DOWN:
+			scene->rotating[0] = 0;
+			break;
+		case GLUT_KEY_LEFT:
+		case GLUT_KEY_RIGHT:
+			scene->rotating[2] = 0;
+			break;
+	}
+	
 }
 
 //****************************************************
@@ -186,9 +262,7 @@ void processArgs(int argc, char* argv[]) {
 				imageWriter.setSize(width, height);
 			}
 		}
-	}
-
-	
+	}	
 }
 
 
@@ -218,7 +292,9 @@ int main(int argc, char *argv[]) {
 		glutIgnoreKeyRepeat(1);
 		glutKeyboardFunc(processNormalKeys);
 		glutKeyboardUpFunc(processNormalKeyups);
-		glutIdleFunc(glutPostRedisplay);
+		glutSpecialFunc(processSpecialKeys);
+		glutSpecialUpFunc(processSpecialKeyups);
+		glutIdleFunc(myIdleFunc);
 	  	glutDisplayFunc(myDisplay);				// function to run when its time to draw something
 	  	glutReshapeFunc(myReshape);				// function to run when the window gets resized
 	
