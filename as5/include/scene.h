@@ -18,8 +18,8 @@ class Mesh {
 public:
 	vector<vec3> vertsVec;
 	vector<vec3> normsVec;
-	float* verts;
-	float* norms;
+	GLfloat* verts;
+	GLfloat* norms;
 	unsigned int* indices;
 	int n_poly;
 	
