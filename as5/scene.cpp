@@ -356,8 +356,10 @@ void QuadMesh::uniformsubdividepatch(float step) {
 		addNorm(newInfo[a].dir);
 	}
 }
-/*
-TriMesh TriMesh::getTriMesh(vector<vec4> q, vector<vec2> uv, int &which) {
+
+void TriMesh::createArrays() {}
+
+TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
 	TriMesh t;
 	if (which == 0) {
 		t.vertsVec.push_back(q[0]);
@@ -383,20 +385,18 @@ TriMesh TriMesh::getTriMesh(vector<vec4> q, vector<vec2> uv, int &which) {
 TriMesh TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 	//	assumes 16-point QuadMesh
 	//	creates the 9 quadrilaterals 
-	vector<vec4> quadrilaterals;
-	vector<vec2> uvForQuad;
-	vector<int> quad;
-	vector<vec2> uvs;
+	vector<vec3*> quadrilaterals;
+	vector<vec2*> uvForQuad;
+	vec3 quad[4];
+	vec2 uvs[4];
 	for (int i = 0; i < 4; i += 1) {
 		for (int j = 0; j < 4; j += 1) {
-			if (quad.size() == 4) {
-				quadrilaterals.push_back(vec4(quad[0],quad[1],quad[2],quad[3]));
-				uvForQuad.push_back(vec2(uvs[0],uvs[1]));
-				quad.empty();
-				uvs.empty();
+			quad[j]=patch.getVert(i+4*j);
+			uvs[j]=vec2(i/4.0,j/4.0); // u,v as canonical values
+			if (j == 3) {
+				quadrilaterals.push_back(quad);
+				uvForQuad.push_back(uvs);
 			}
-			quad.push_back(patch.getVert(i+4*j));
-			uvs.push_back(vec2(i/4.0f,j/4.0f)); // u,v as canonical values
 		}
 	}
 	//	loop through and create TriMeshes from each quadrilateral
@@ -430,9 +430,9 @@ TriMesh TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
 	trianglePoint[1] = 0.5f * (patch.vertsVec[1]+patch.vertsVec[2]);
 	trianglePoint[2] = 0.5f * (patch.vertsVec[2]+patch.vertsVec[0]);
 	
-	bezierPoint[0] = bezpatchinterp(patch,patch.uvValues[0][0],patch.uvValues[0][1]);
-	bezierPoint[1] = bezpatchinterp(patch,patch.uvValues[1][0],patch.uvValues[1][1]);
-	bezierPoint[2] = bezpatchinterp(patch,patch.uvValues[2][0],patch.uvValues[2][1]);
+	bezierPoint[0] = bezpatchinterp(&patch,patch.uvValues[0][0],patch.uvValues[0][1]).pos;
+	bezierPoint[1] = bezpatchinterp(&patch,patch.uvValues[1][0],patch.uvValues[1][1]).pos;
+	bezierPoint[2] = bezpatchinterp(&patch,patch.uvValues[2][0],patch.uvValues[2][1]).pos;
 	
 	for (int i = 0; i < 3; i++) {
 		if (error > (bezierPoint[i] - trianglePoint[i]).length2()) {
@@ -444,7 +444,7 @@ TriMesh TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
 	// more stuff coming soon
 }
 
-*/
+
 //given a control patch and (u,v) values, find the surface point and normal
 LocalGeo Mesh::bezpatchinterp(Mesh* patch, float u, float v) {
 	vec3 vcurve[4];

@@ -34,19 +34,6 @@ public:
 	
 };
 
-class TriMesh : public Mesh {
-	tri* tris;
-	vector<vec2> uvValues;
-	void createArrays();
-//	void addVert(vec3);
-//	void addNorm(vec3);
-//	vec3 getVert(int);
-//	vec3 getNorm(int);
-	void addTri(vec3);
-	void addTri(int, int, int);
-};
-
-
 class QuadMesh : public Mesh {
 public:
 	vector<quad> quadsVec;
@@ -60,7 +47,21 @@ public:
 	void addQuad(int,int,int,int);
 	
 	void uniformsubdividepatch(float);
-	TriMesh toTriMesh();
+};
+
+class TriMesh : public Mesh {
+	tri* tris;
+	vector<vec2> uvValues;
+	void createArrays();
+//	void addVert(vec3);
+//	void addNorm(vec3);
+//	vec3 getVert(int);
+//	vec3 getNorm(int);
+	void addTri(vec3);
+	void addTri(int, int, int);
+	TriMesh getTriMesh(vec3*, vec2*, int&);
+	TriMesh adaptivesubdividepatch(QuadMesh, float);
+	TriMesh adaptivesubdividepatch(TriMesh, float);
 };
 
 class Scene {
