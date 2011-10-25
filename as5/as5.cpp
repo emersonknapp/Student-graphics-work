@@ -72,7 +72,7 @@ void myDisplay() {
 	for (int i=0; i<scene->quadmeshes.size(); i++) {
 		QuadMesh* mesh = scene->quadmeshes[i];
 
-		glColor3f(.2,.2,.2);
+		glColor3f(.1,.1,0);
 		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
 		glNormalPointer(GL_FLOAT, 0, mesh->norms);
 		
@@ -161,30 +161,65 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		case 'w':
 			scene->wireframe = !scene->wireframe;
 			break;
+		case '-':
+		case '_':
+			scene->translating[2] = -TRANSPEED;
+			break;
+		case '=':
+		case '+':
+			scene->translating[2] = TRANSPEED;
+			break;
 	}
 }
 
 //Deals with normal keyups
 void processNormalKeyups(unsigned char key, int x, int y) {
-
+	switch(key) {
+		case '-':
+		case '_':
+		case '=':
+		case '+':
+			scene->translating[2] = 0;
+			break;
+	}
 }
 
 void processSpecialKeys(int key, int x, int y) {
-	switch(key) {
-		//Up, down are around x axis
-		//Left, right around z
-		case GLUT_KEY_UP:
-			scene->rotating[0] = 15;
-			break;
-		case GLUT_KEY_DOWN:
-			scene->rotating[0] = -15;
-			break;
-		case GLUT_KEY_LEFT:
-			scene->rotating[2] = 15;
-			break;
-		case GLUT_KEY_RIGHT:
-			scene->rotating[2] = -15;
-			break;
+	if (glutGetModifiers() == GLUT_ACTIVE_SHIFT) {
+		switch(key) {
+			//Up, down are around x axis
+			//Left, right around z
+			case GLUT_KEY_UP:
+				scene->translating[1] = TRANSPEED;
+				break;
+			case GLUT_KEY_DOWN:
+				scene->translating[1] = -TRANSPEED;
+				break;
+			case GLUT_KEY_LEFT:
+				scene->translating[0] = -TRANSPEED;
+				break;
+			case GLUT_KEY_RIGHT:
+				scene->translating[0] = TRANSPEED;
+				break;
+		}
+	}
+	else {
+		switch(key) {
+			//Up, down are around x axis
+			//Left, right around z
+			case GLUT_KEY_UP:
+				scene->rotating[0] = -ROTSPEED;
+				break;
+			case GLUT_KEY_DOWN:
+				scene->rotating[0] = ROTSPEED;
+				break;
+			case GLUT_KEY_LEFT:
+				scene->rotating[2] = ROTSPEED;
+				break;
+			case GLUT_KEY_RIGHT:
+				scene->rotating[2] = -ROTSPEED;
+				break;
+		}
 	}
 }
 
@@ -192,10 +227,12 @@ void processSpecialKeyups(int key, int x, int y) {
 	switch(key) {
 		case GLUT_KEY_UP:
 		case GLUT_KEY_DOWN:
+			scene->translating[1] = 0;
 			scene->rotating[0] = 0;
 			break;
 		case GLUT_KEY_LEFT:
 		case GLUT_KEY_RIGHT:
+			scene->translating[0] = 0;
 			scene->rotating[2] = 0;
 			break;
 	}
@@ -219,13 +256,19 @@ void initScene(){
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glDepthFunc(GL_LEQUAL);
+	
+	glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+   	glEnable(GL_COLOR_MATERIAL);
+
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	GLfloat LightAmbient[]= {1, 1, 1, 1};
-	GLfloat LightDiffuse[]= {1, 1, 1, 1};				
-	GLfloat LightPosition[]= { 0, 0, 0, 1};
+	GLfloat LightAmbient[]= {0, 0, 0, 1};
+	GLfloat LightDiffuse[]= {.4, .4, .4, 1};				
+	GLfloat LightPosition[]= { 2, 5, 0, 1};
+	GLfloat LightSpecular[]={.1,.1,.1,1};
 	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
 	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, LightSpecular);
 	glEnable(GL_LIGHT1);
 	myReshape(viewport.w,viewport.h);
 }
