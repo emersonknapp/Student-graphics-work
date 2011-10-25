@@ -206,15 +206,16 @@ void QuadMesh::uniformsubdividepatch(float step) {
 	}
 }
 
+//TODO: TriMesh::createArrays() --- similar to the QuadMesh one
 void TriMesh::createArrays() {}
 
 TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
 	//the 'which' variable ensures that we get both triangles from the input quadrilateral
 	TriMesh t;
 	if (which == 0) {
-		t.vertsVec.push_back(q[0]);
-		t.vertsVec.push_back(q[1]);
-		t.vertsVec.push_back(q[2]);
+		t.addVert(q[0]);
+		t.addVert(q[1]);
+		t.addVert(q[2]);
 		
 		t.uvValues.push_back(uv[0]);
 		t.uvValues.push_back(uv[1]);
@@ -233,7 +234,7 @@ TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
 	return t;
 }
 
-TriMesh TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
+void TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 	//	assumes 16-point QuadMesh
 	//	creates the 9 quadrilaterals 
 	vector<vec3*> quadrilaterals;
@@ -264,10 +265,10 @@ TriMesh TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 }
 
 //given a patch, perform adaptive subdivision with triangles
-TriMesh TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
-	vec3 splitEdges[3];
-	vec3 trianglePoint[3];
-	vec3 bezierPoint[3];
+void TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
+	LocalGeo splitEdges[3];
+	LocalGeo trianglePoint[3];
+	LocalGeo bezierPoint[3];
 	// need to do the following for all 3 sides of the triangle
 	// if the bezierPoint is some error away from the triangle midpoint
 	//	then we create a new vertex, and split the triangle around that one
@@ -276,23 +277,77 @@ TriMesh TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
 	//	p1,p2 is edge 1
 	// 	p2,p0 is edge 2
 	
-	trianglePoint[0] = 0.5f * (patch.vertsVec[0]+patch.vertsVec[1]);
-	trianglePoint[1] = 0.5f * (patch.vertsVec[1]+patch.vertsVec[2]);
-	trianglePoint[2] = 0.5f * (patch.vertsVec[2]+patch.vertsVec[0]);
+	LocalGeo tmp;
+	tmp.dir = (patch.getVert(0) - patch.getVert(1)) ^ (patch.getVert(0) - patch.getVert(2));
+	//triangle P0
+	tmp.pos = 0.5f * (patch.vertsVec[0]+patch.vertsVec[1]);
+	trianglePoint[0] = tmp;
+	//triangle P1
+	tmp.pos = 0.5f * (patch.vertsVec[1]+patch.vertsVec[2]);
+	trianglePoint[1] = tmp;
+	//triangle P2
+	tmp.pos = 0.5f * (patch.vertsVec[2]+patch.vertsVec[0]);
+	trianglePoint[2] = tmp;
 	
-	bezierPoint[0] = bezpatchinterp(&patch,patch.uvValues[0][0],patch.uvValues[0][1]).pos;
-	bezierPoint[1] = bezpatchinterp(&patch,patch.uvValues[1][0],patch.uvValues[1][1]).pos;
-	bezierPoint[2] = bezpatchinterp(&patch,patch.uvValues[2][0],patch.uvValues[2][1]).pos;
+	bezierPoint[0] = bezpatchinterp(&patch,patch.uvValues[0][0],patch.uvValues[0][1]);
+	bezierPoint[1] = bezpatchinterp(&patch,patch.uvValues[1][0],patch.uvValues[1][1]);
+	bezierPoint[2] = bezpatchinterp(&patch,patch.uvValues[2][0],patch.uvValues[2][1]);
+	
+	bool all = true;
 	
 	for (int i = 0; i < 3; i++) {
-		if (error > (bezierPoint[i] - trianglePoint[i]).length2()) {
-			splitEdges[i] = NULL;
+		if (error > (bezierPoint[i].pos - trianglePoint[i].pos).length2()) {
+			addVert(trianglePoint[i].pos);
+			addNorm(trianglePoint[i].dir);
+			splitEdges[i] = LocalGeo();
+			all = false;
 		} else {
 			splitEdges[i] = bezierPoint[i];
+			
 		}
+	}
+	if (all) {
+		//special case divide to 4 triangles
+		TriMesh t1, t2, t3, t4;
+		t1.addVert(trianglePoint[0].pos);
+		t1.addNorm(trianglePoint[0].dir);
+		t1.addVert(splitEdges[0].pos);
+		t1.addNorm(splitEdges[0].dir);		
+		t1.addVert(splitEdges[2].pos);
+		t1.addNorm(splitEdges[2].dir);
+		
+		t2.addVert(splitEdges[0].pos);
+		t2.addNorm(splitEdges[0].dir);
+		t2.addVert(trianglePoint[1].pos);
+		t2.addNorm(trianglePoint[1].dir);
+		t2.addVert(splitEdges[1].pos);
+		t2.addNorm(splitEdges[1].dir);		
+		
+		t3.addVert(splitEdges[1].pos);
+		t3.addNorm(splitEdges[1].dir);
+		t3.addVert(trianglePoint[2].pos);
+		t3.addNorm(trianglePoint[2].dir);
+		t3.addVert(splitEdges[2].pos);
+		t3.addNorm(splitEdges[2].dir);
+		
+		t4.addVert(splitEdges[0].pos);
+		t4.addNorm(splitEdges[0].dir);
+		t4.addVert(splitEdges[1].pos);
+		t4.addNorm(splitEdges[1].dir);
+		t4.addVert(splitEdges[2].pos);
+		t4.addNorm(splitEdges[2].dir);
+		
+		adaptivesubdividepatch(t1,error);
+		adaptivesubdividepatch(t2,error);
+		adaptivesubdividepatch(t3,error);
+		adaptivesubdividepatch(t4,error);
+		
+	} else { //only spliting 1 or 2 sides
+		//modular arithmetic code
 	}
 	
 	// loop through the splitEdges and create new triangles based on that
+	//eventually, addVert, addNorm on the respective parts of localGeo
 }
 
 
