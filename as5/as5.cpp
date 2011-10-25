@@ -70,6 +70,7 @@ void myDisplay() {
 		glColor3f(.2,.2,.2);
 		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
 		glNormalPointer(GL_FLOAT, 0, mesh->norms);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawElements(GL_QUADS, 4*mesh->n_poly, GL_UNSIGNED_INT, mesh->indices);
 	}
 	
