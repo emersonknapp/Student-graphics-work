@@ -363,6 +363,7 @@ void QuadMesh::uniformsubdividepatch(float step) {
 void TriMesh::createArrays() {}
 
 TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
+	//the 'which' variable ensures that we get both triangles from the input quadrilateral
 	TriMesh t;
 	if (which == 0) {
 		t.vertsVec.push_back(q[0]);
@@ -397,8 +398,8 @@ TriMesh TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 			quad[j]=patch.getVert(i+4*j);
 			uvs[j]=vec2(i/4.0,j/4.0); // u,v as canonical values
 			if (j == 3) {
-				quadrilaterals.push_back(quad);
-				uvForQuad.push_back(uvs);
+				quadrilaterals.push_back(quad); //if we have 4 values, push this quadrilateral 
+				uvForQuad.push_back(uvs); // store a pair of u,v values for each vertex in the quadrilateral
 			}
 		}
 	}
@@ -411,13 +412,12 @@ TriMesh TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 		}
 		TriMesh t = getTriMesh(quadrilaterals[quadrilaterals.size()-1], uvForQuad[uvForQuad.size()-1], which);
 		// now we pass these TriMeshes into adaptivesubdividepatch
+		adaptivesubdividepatch(t,error);
 	}
 }
 
 //given a patch, perform adaptive subdivision with triangles
 TriMesh TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
-//	vec3 curve[3]; // use patch.vertsVec
-//	vec2 uvs[3]; // use patch.uvValues
 	vec3 splitEdges[3];
 	vec3 trianglePoint[3];
 	vec3 bezierPoint[3];
@@ -444,7 +444,8 @@ TriMesh TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
 			splitEdges[i] = bezierPoint[i];
 		}
 	}
-	// more stuff coming soon
+	
+	// loop through the splitEdges and create new triangles based on that
 }
 
 
