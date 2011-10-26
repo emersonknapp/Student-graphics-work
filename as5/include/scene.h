@@ -59,9 +59,7 @@ class TriMesh : public Mesh {
 //	vec3 getNorm(int);
 	void addTri(vec3);
 	void addTri(int, int, int);
-	TriMesh getTriMesh(vec3*, vec2*, int&);
 	void adaptivesubdividepatch(QuadMesh, float);
-	void adaptivesubdividepatch(TriMesh, float);
 };
 
 class Scene {

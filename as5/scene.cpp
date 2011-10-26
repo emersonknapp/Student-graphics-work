@@ -207,150 +207,66 @@ void QuadMesh::uniformsubdividepatch(float step) {
 }
 
 //TODO: TriMesh::createArrays() --- similar to the QuadMesh one
-void TriMesh::createArrays() {}
-
-TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
-	//the 'which' variable ensures that we get both triangles from the input quadrilateral
-	TriMesh t;
-	if (which == 0) {
-		t.addVert(q[0]);
-		t.addVert(q[1]);
-		t.addVert(q[2]);
-		
-		t.uvValues.push_back(uv[0]);
-		t.uvValues.push_back(uv[1]);
-		t.uvValues.push_back(uv[2]);
-		
-		which = 1;
-	} else {
-		t.vertsVec.push_back(q[1]);
-		t.vertsVec.push_back(q[2]);
-		t.vertsVec.push_back(q[3]);
-		
-		t.uvValues.push_back(uv[1]);
-		t.uvValues.push_back(uv[2]);
-		t.uvValues.push_back(uv[3]);
+void TriMesh::createArrays() {
+	if (vertsVec.size() != normsVec.size()) {
+		Error("Improperly formed TriMesh.");
 	}
-	return t;
+	int size = vertsVec.size()*3;
+	verts = new GLfloat[size];
+	norms = new GLfloat[size];
+	for (int b=0; b<vertsVec.size(); b++) {
+		int i = b*3;
+		verts[i] = vertsVec[b][0];
+		verts[i+1] = vertsVec[b][1];
+		verts[i+2] = vertsVec[b][2];
+		norms[i] = normsVec[b][0];
+		norms[i+1] = normsVec[b][1];
+		norms[i+2] = normsVec[b][2];
+	}
+	
+	int linelength = int(sqrt(vertsVec.size()));
+	
+	
+	int numtris = (linelength-1)*(linelength-1);
+	n_poly = numtris;
+	indices = new unsigned int[numtris*3];
+	
+	for (int i=0; i<numtris; i++) {
+		unsigned int x = i%(linelength-1);
+		unsigned int y = floor(1.0*i/(linelength-1));
+		
+		unsigned int start = x + y*linelength;
+		int q = i*4;
+		indices[q] = start;
+		indices[q+1] = start+1;
+		indices[q+2] = start+linelength+1;
+		indices[q+3] = start+linelength;
+	}
 }
 
 void TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 	//	assumes 16-point QuadMesh
-	//	creates the 9 quadrilaterals 
-	vector<vec3*> quadrilaterals;
-	vector<vec2*> uvForQuad;
-	vec3 quad[4];
-	vec2 uvs[4];
-	for (int i = 0; i < 4; i += 1) {
-		for (int j = 0; j < 4; j += 1) {
-			quad[j]=patch.getVert(i+4*j);
-			uvs[j]=vec2(i/4.0,j/4.0); // u,v as canonical values
-			if (j == 3) {
-				quadrilaterals.push_back(quad); //if we have 4 values, push this quadrilateral 
-				uvForQuad.push_back(uvs); // store a pair of u,v values for each vertex in the quadrilateral
-			}
-		}
-	}
-	//	loop through and create TriMeshes from each quadrilateral
-	int which = 1;
-	while (!quadrilaterals.empty()) {
-		if (which == 0) {
-			quadrilaterals.pop_back();
-			uvForQuad.pop_back();
-		}
-		TriMesh t = getTriMesh(quadrilaterals[quadrilaterals.size()-1], uvForQuad[uvForQuad.size()-1], which);
-		// now we pass these TriMeshes into adaptivesubdividepatch
-		adaptivesubdividepatch(t,error);
-	}
-}
-
-//given a patch, perform adaptive subdivision with triangles
-void TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
-	LocalGeo splitEdges[3];
-	LocalGeo trianglePoint[3];
-	LocalGeo bezierPoint[3];
-	// need to do the following for all 3 sides of the triangle
-	// if the bezierPoint is some error away from the triangle midpoint
-	//	then we create a new vertex, and split the triangle around that one
-	// appropriately
-	//	p0,p1 is edge 0
-	//	p1,p2 is edge 1
-	// 	p2,p0 is edge 2
-	
-	LocalGeo tmp;
-	tmp.dir = (patch.getVert(0) - patch.getVert(1)) ^ (patch.getVert(0) - patch.getVert(2));
-	//triangle P0
-	tmp.pos = 0.5f * (patch.vertsVec[0]+patch.vertsVec[1]);
-	trianglePoint[0] = tmp;
-	//triangle P1
-	tmp.pos = 0.5f * (patch.vertsVec[1]+patch.vertsVec[2]);
-	trianglePoint[1] = tmp;
-	//triangle P2
-	tmp.pos = 0.5f * (patch.vertsVec[2]+patch.vertsVec[0]);
-	trianglePoint[2] = tmp;
-	
-	bezierPoint[0] = bezpatchinterp(&patch,patch.uvValues[0][0],patch.uvValues[0][1]);
-	bezierPoint[1] = bezpatchinterp(&patch,patch.uvValues[1][0],patch.uvValues[1][1]);
-	bezierPoint[2] = bezpatchinterp(&patch,patch.uvValues[2][0],patch.uvValues[2][1]);
-	
-	bool all = true;
-	
-	for (int i = 0; i < 3; i++) {
-		if (error > (bezierPoint[i].pos - trianglePoint[i].pos).length2()) {
-			addVert(trianglePoint[i].pos);
-			addNorm(trianglePoint[i].dir);
-			splitEdges[i] = LocalGeo();
-			all = false;
+	vector<tri> triangles;
+	tri t;
+	for (int i = 0; i < 12; i += 1) {		//loop through the patch control points, pushing tris onto the Triangle vector
+		if (i%2 == 0) {
+			t->a = i;
+			t->b = i+4;
+			t->c = i+1;
 		} else {
-			splitEdges[i] = bezierPoint[i];
-			
+			t->a = i;
+			t->b = i+3;
+			t->c = i+4;
 		}
+		triangles.push_back(t);
 	}
-		TriMesh t1, t2, t3, t4;	
-	if (all) {
-		//special case divide to 4 triangles
-		t1.addVert(trianglePoint[0].pos);
-		t1.addNorm(trianglePoint[0].dir);
-		t1.addVert(splitEdges[0].pos);
-		t1.addNorm(splitEdges[0].dir);		
-		t1.addVert(splitEdges[2].pos);
-		t1.addNorm(splitEdges[2].dir);
+	for (int i = 0 ; i<triangles.size() ; i++) {
+	// for each of the triangles, for each of the 3 sides, check the error
+	// if the error is fine, then we push the vertices onto the patch
+	// if error too big, then we subdivide and push the new triangles onto the vector
+		t = triangles[i];
 		
-		t2.addVert(splitEdges[0].pos);
-		t2.addNorm(splitEdges[0].dir);
-		t2.addVert(trianglePoint[1].pos);
-		t2.addNorm(trianglePoint[1].dir);
-		t2.addVert(splitEdges[1].pos);
-		t2.addNorm(splitEdges[1].dir);		
-		
-		t3.addVert(splitEdges[1].pos);
-		t3.addNorm(splitEdges[1].dir);
-		t3.addVert(trianglePoint[2].pos);
-		t3.addNorm(trianglePoint[2].dir);
-		t3.addVert(splitEdges[2].pos);
-		t3.addNorm(splitEdges[2].dir);
-		
-		t4.addVert(splitEdges[0].pos);
-		t4.addNorm(splitEdges[0].dir);
-		t4.addVert(splitEdges[1].pos);
-		t4.addNorm(splitEdges[1].dir);
-		t4.addVert(splitEdges[2].pos);
-		t4.addNorm(splitEdges[2].dir);
-		
-		adaptivesubdividepatch(t1,error);
-		adaptivesubdividepatch(t2,error);
-		adaptivesubdividepatch(t3,error);
-		adaptivesubdividepatch(t4,error);
-		
-	} else { //only spliting 1 or 2 sides
-		//split 1 side
-
-		
-		//modular arithmetic code
 	}
-	
-	// loop through the splitEdges and create new triangles based on that
-	//eventually, addVert, addNorm on the respective parts of localGeo
 }
 
 
