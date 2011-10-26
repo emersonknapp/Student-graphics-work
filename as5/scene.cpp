@@ -5,10 +5,12 @@ using namespace std;
 Scene::Scene(string filename, float p) {
 	param = p;
 	parseBez(filename);
+	
 	for (int i=0; i<meshes.size(); i++) {
 		meshes[i]->uniformsubdividepatch(param);
 		meshes[i]->createArrays();
 	}
+	
 	translation = vec3(0,0,-10);
 	translating = vec3(0,0,0);
 	scale = vec3(1,1,1);
