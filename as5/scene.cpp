@@ -5,9 +5,9 @@ using namespace std;
 Scene::Scene(string filename, float p) {
 	param = p;
 	parseBez(filename);
-	for (int i=0; i<quadmeshes.size(); i++) {
-		quadmeshes[i]->uniformsubdividepatch(param);
-		quadmeshes[i]->createArrays();
+	for (int i=0; i<meshes.size(); i++) {
+		meshes[i]->uniformsubdividepatch(param);
+		meshes[i]->createArrays();
 	}
 	translation = vec3(0,0,-10);
 	translating = vec3(0,0,0);
@@ -87,7 +87,7 @@ void Scene::parseBez(string filename) {
 	}
 	string coord;
 	for (int q=0; q<patches; q++) {
-		quadmeshes.push_back(new QuadMesh());
+		meshes.push_back(new QuadMesh());
 		for (int i=0; i<4; i++) {
 			inFile.getline(l, 1023);
 			line = string(l);
@@ -110,7 +110,7 @@ bool Scene::parseBezLine(string line) {
 	for (int i=0; i<4; i++) {
 		ss >> a >> b >> c;
 		vec3 v = vec3(atof(a.c_str()), atof(b.c_str()), atof(c.c_str()));
-		quadmeshes.back()->addVert(v);
+		meshes.back()->addVert(v);
 	}
 	return true;
 	
@@ -172,7 +172,7 @@ void QuadMesh::createArrays() {
 }
 
 //Subdivide a control patch in place. If already subdivided, does nothing.
-void QuadMesh::uniformsubdividepatch(float step) {
+void Mesh::uniformsubdividepatch(float step) {
 	//compute how many subdivisions there are for this step size
 	if (vertsVec.size() > 16) {
 		return;
@@ -209,6 +209,7 @@ void QuadMesh::uniformsubdividepatch(float step) {
 //TODO: TriMesh::createArrays() --- similar to the QuadMesh one
 void TriMesh::createArrays() {}
 
+
 TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
 	//the 'which' variable ensures that we get both triangles from the input quadrilateral
 	TriMesh t;
@@ -233,6 +234,7 @@ TriMesh TriMesh::getTriMesh(vec3* q, vec2* uv, int &which) {
 	}
 	return t;
 }
+
 
 void TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 	//	assumes 16-point QuadMesh
