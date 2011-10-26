@@ -170,6 +170,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		case '+':
 			scene->translating[2] = TRANSPEED;
 			break;
+		case 'a':
+			patch = (patch + 1) % scene->meshes.size();
+			break;
 	}
 }
 
