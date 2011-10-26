@@ -32,6 +32,9 @@ public:
 	LocalGeo bezpatchinterp(Mesh*, float, float);
 	LocalGeo bezcurveinterp(vec3 curve[], float u);
 	
+	void uniformsubdividepatch(float);
+	
+	
 };
 
 class QuadMesh : public Mesh {
@@ -39,14 +42,6 @@ public:
 	vector<quad> quadsVec;
 	quad* quads;
 	void createArrays();
-	//void addVert(vec3);
-	//void addNorm(vec3);
-	//vec3 getVert(int);
-	//vec3 getNorm(int);
-	void addQuad(vec4);
-	void addQuad(int,int,int,int);
-	
-	void uniformsubdividepatch(float);
 };
 
 class TriMesh : public Mesh {
@@ -75,7 +70,7 @@ public:
 	void update(float);
 	
 	vector<vec3> vertices;
-	vector<QuadMesh*> quadmeshes;
+	vector<Mesh*> meshes;
 	
 	vec3 rotation, translation, scale;
 	vec3 rotating, translating;

@@ -8,6 +8,7 @@ using namespace std;
 Viewport			viewport;
 Scene*				scene;
 ImageWriter			imageWriter;
+int					patch;
 
 
 //****************************************************
@@ -69,8 +70,8 @@ void myDisplay() {
 	glRotatef(r[1],0,1,0);
 	glRotatef(r[2],0,0,1);
 	
-	for (int i=0; i<scene->quadmeshes.size(); i++) {
-		QuadMesh* mesh = scene->quadmeshes[i];
+	for (int i=0; i<scene->meshes.size(); i++) {
+		Mesh* mesh = scene->meshes[i];
 
 		glColor3f(.1,.1,0);
 		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
@@ -243,6 +244,7 @@ void processSpecialKeyups(int key, int x, int y) {
 // sets the window up
 //****************************************************
 void initScene(){
+	patch = 0;
 	//Get all the OpenGL stuff up and running. 
 	//We'll need to have some nice definitions for lights values
 	//Possible just modify existing light classes

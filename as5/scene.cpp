@@ -266,6 +266,10 @@ void TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
 	// if error too big, then we subdivide and push the new triangles onto the vector
 		t = triangles[i];
 		
+		//edges[0] = (getVert(t->a) + getVert(t->b)) * .5
+		//edges[1] = '' (t->b,t->c)
+		//edges[2] = '' (t->c,t->b)
+		//check error > (edges[0] - bezpatchinterp(patch,u,v)) - where do we get u,v? from t->a,b
 	}
 }
 
