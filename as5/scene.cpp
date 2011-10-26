@@ -5,9 +5,13 @@ using namespace std;
 Scene::Scene(string filename, float p) {
 	param = p;
 	parseBez(filename);
-	for (int i=0; i<quadmeshes.size(); i++) {
-		quadmeshes[i]->uniformsubdividepatch(param);
-		quadmeshes[i]->createArrays();
+	for (int i=0; i<meshes.size(); i++) {
+		if (adaptiveSub) {
+			meshes[i]->adaptivesubdividepatch(param);
+		} else {
+			meshes[i]->uniformsubdividepatch(param);
+		}
+		meshes[i]->createArrays();
 	}
 	translation = vec3(0,0,-10);
 	translating = vec3(0,0,0);
@@ -17,7 +21,17 @@ Scene::Scene(string filename, float p) {
 	lastVertex = 0;
 	adaptiveSub = false;
 	smoothShading = true;
-	//camera = new Camera();
+}
+
+void Scene::build() {
+	for (int i=0; i<meshes.size(); i++) {
+		if (adaptiveSub) {
+			meshes[i]->adaptivesubdividepatch(param);
+		} else {
+			meshes[i]->uniformsubdividepatch(param);
+		}
+		meshes[i]->createArrays();
+	}
 }
 
 void Scene::update(float dt) {
@@ -87,7 +101,7 @@ void Scene::parseBez(string filename) {
 	}
 	string coord;
 	for (int q=0; q<patches; q++) {
-		quadmeshes.push_back(new QuadMesh());
+		meshes.push_back(new QuadMesh());
 		for (int i=0; i<4; i++) {
 			inFile.getline(l, 1023);
 			line = string(l);
@@ -110,7 +124,7 @@ bool Scene::parseBezLine(string line) {
 	for (int i=0; i<4; i++) {
 		ss >> a >> b >> c;
 		vec3 v = vec3(atof(a.c_str()), atof(b.c_str()), atof(c.c_str()));
-		quadmeshes.back()->addVert(v);
+		meshes.back()->addVert(v);
 	}
 	return true;
 	
@@ -172,7 +186,7 @@ void QuadMesh::createArrays() {
 }
 
 //Subdivide a control patch in place. If already subdivided, does nothing.
-void QuadMesh::uniformsubdividepatch(float step) {
+void Mesh::uniformsubdividepatch(float step) {
 	//compute how many subdivisions there are for this step size
 	if (vertsVec.size() > 16) {
 		return;
@@ -206,7 +220,7 @@ void QuadMesh::uniformsubdividepatch(float step) {
 	}
 }
 
-//TODO: TriMesh::createArrays() --- similar to the QuadMesh one
+
 void TriMesh::createArrays() {
 	if (vertsVec.size() != normsVec.size()) {
 		Error("Improperly formed TriMesh.");
@@ -230,13 +244,14 @@ void TriMesh::createArrays() {
 	int numtris = (linelength-1)*(linelength-1);
 	n_poly = numtris;
 	indices = new unsigned int[numtris*3];
-	
+	//TODO - fix the indices (after adaptive is done)
 	for (int i=0; i<numtris; i++) {
 		unsigned int x = i%(linelength-1);
 		unsigned int y = floor(1.0*i/(linelength-1));
 		
 		unsigned int start = x + y*linelength;
 		int q = i*4;
+
 		indices[q] = start;
 		indices[q+1] = start+1;
 		indices[q+2] = start+linelength+1;
@@ -244,32 +259,51 @@ void TriMesh::createArrays() {
 	}
 }
 
-void TriMesh::adaptivesubdividepatch(QuadMesh patch, float error) {
+void Mesh::adaptivesubdividepatch(float error) {
 	//	assumes 16-point QuadMesh
 	vector<tri> triangles;
+	vector<vec2> uvValues;
+	vec3		edges[3];
 	tri t;
-	for (int i = 0; i < 12; i += 1) {		//loop through the patch control points, pushing tris onto the Triangle vector
+	//initialize uvValues for patch
+	for (int i = 0; i < 16;  i++ ) {
+		uvValues.push_back(vec2(i)); //vec2(u,v)
+		cout << vec2(i) << endl;
+	}
+	for (int i = 0; i < 12; i ++) {		//loop through the patch control points, pushing tris onto the Triangle vector
 		if (i%2 == 0) {
-			t->a = i;
-			t->b = i+4;
-			t->c = i+1;
+			t.a = i;
+			t.b = i+4;
+			t.c = i+1;
 		} else {
-			t->a = i;
-			t->b = i+3;
-			t->c = i+4;
+			t.a = i;
+			t.b = i+3;
+			t.c = i+4;
 		}
 		triangles.push_back(t);
+//		uvValues.push_back();
 	}
 	for (int i = 0 ; i<triangles.size() ; i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
 	// if error too big, then we subdivide and push the new triangles onto the vector
 		t = triangles[i];
+		float u,v;
+		//TODO: calcualte/get u and v
 		
-		//edges[0] = (getVert(t->a) + getVert(t->b)) * .5
-		//edges[1] = '' (t->b,t->c)
-		//edges[2] = '' (t->c,t->b)
-		//check error > (edges[0] - bezpatchinterp(patch,u,v)) - where do we get u,v? from t->a,b
+		edges[0] = (getVert(t.a) + getVert(t.b)) * .5;
+		edges[1] = (getVert(t.b) + getVert(t.c)) * .5;
+		edges[2] = (getVert(t.c) + getVert(t.a)) * .5;
+		for (int j = 0 ; j < 3 ; j++) {
+			LocalGeo g = bezpatchinterp(this,u,v);
+			if (error > (edges[j] - g.pos).length()) {
+				addVert(g.pos);
+				addNorm(g.dir);
+			} else {
+				edges[j] = g.pos;
+				// divide up triangles, push new ones onto vector
+			}
+		}
 	}
 }
 

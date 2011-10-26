@@ -33,7 +33,7 @@ public:
 	LocalGeo bezcurveinterp(vec3 curve[], float u);
 	
 	void uniformsubdividepatch(float);
-	
+	void adaptivesubdividepatch(float);	
 	
 };
 
@@ -54,7 +54,7 @@ class TriMesh : public Mesh {
 //	vec3 getNorm(int);
 	void addTri(vec3);
 	void addTri(int, int, int);
-	void adaptivesubdividepatch(QuadMesh, float);
+
 };
 
 class Scene {
@@ -63,6 +63,7 @@ public:
 	void parseScene(string);
 	void parseBez(string);
 	bool parseBezLine(string);
+	void build();
 	//bool parseLine(string);
 	vec4 getVertex(int);
 	int extractVertex(string);

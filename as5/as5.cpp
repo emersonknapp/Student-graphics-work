@@ -297,6 +297,7 @@ void processArgs(int argc, char* argv[]) {
 		
 			if (arg.compare("-a") == 0) {
 				scene->adaptiveSub = true;
+				scene->build();
 				if (DEBUG) cout << "Using adaptive subdivision." << endl;
 			} else if (arg.compare("-pr")==0) {
 				imageWriter.init(viewport.w, viewport.h);
