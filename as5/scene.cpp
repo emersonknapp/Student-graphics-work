@@ -306,9 +306,9 @@ void TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
 			
 		}
 	}
+		TriMesh t1, t2, t3, t4;	
 	if (all) {
 		//special case divide to 4 triangles
-		TriMesh t1, t2, t3, t4;
 		t1.addVert(trianglePoint[0].pos);
 		t1.addNorm(trianglePoint[0].dir);
 		t1.addVert(splitEdges[0].pos);
@@ -343,6 +343,9 @@ void TriMesh::adaptivesubdividepatch(TriMesh patch, float error) {
 		adaptivesubdividepatch(t4,error);
 		
 	} else { //only spliting 1 or 2 sides
+		//split 1 side
+
+		
 		//modular arithmetic code
 	}
 	
@@ -356,31 +359,32 @@ LocalGeo Mesh::bezpatchinterp(Mesh* patch, float u, float v) {
 	vec3 vcurve[4];
 	vec3 ucurve[4];
 	vec3 cc[4][4]; //takes the points from patch and groups them appropriately for bezcurveinterp
+	vec3 tmpvcurve[4];
 	LocalGeo gv, gu;
 	LocalGeo greturn;
 
 	//build control point for a Bezier curve in v
+
 	for (int i =0; i<4; i++) {
 	  for (int j=0; j<4; j++) {
 		   cc[i][j] = patch->getVert(i+j*4);
+//		cout << "i=" << i << " j= " << j << " is " << cc[i][j] << endl;		
 	  }
 	}
-
 	for (int j=0; j<4; j++) {
-	vcurve[j] = bezcurveinterp(cc[j], u).pos; 
+		vcurve[j] = bezcurveinterp(cc[j], u).pos; 
 	}
-
 
 	//build control points for a Bezier curve in u
 	for (int i=0; i<4; i++) {
 	  for (int j=0; j<4; j++) {
 		   cc[i][j] = patch->getVert(i*4+j);
+
 	  }
 	}
 	for (int j=0; j<4; j++) {
 		ucurve[j] = bezcurveinterp(cc[j], v).pos;
 	} 
-
 
 	//evaluate surface and derivative for u and v
 	gv = bezcurveinterp(vcurve, v);
@@ -389,8 +393,15 @@ LocalGeo Mesh::bezpatchinterp(Mesh* patch, float u, float v) {
 	//printf("	 point on u(%f): (%f, %f, %f)\n", u, gu.point[0], gu.point[1], gu.point[2]);
 
 	//take cross product of partials to find normal
+	
 	vec3 n = gv.dir ^ gu.dir;
-	n = n.normalize();
+	if (vcurve[0] == vcurve[1] == vcurve[2] == vcurve[3]) {	
+		n = (cc[1][1]-cc[1][3]) ^ (cc[3][1] - cc[3][3]);
+	}
+	if (n == vec3(0,0,0)) {
+		n = (cc[1][3]-cc[1][1]) ^ (cc[3][3] - cc[3][1]);
+	}
+	n = n.normalize();	
 	greturn.pos = gu.pos;
 	greturn.dir = n;
 	greturn.u = u;
