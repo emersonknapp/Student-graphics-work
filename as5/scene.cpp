@@ -466,8 +466,9 @@ void Mesh::adaptivesubdividepatch(float error) {
 			t4.b = -1;
 			t4.c = -1;
 		}
-		//loop through triangles t1,t4. If the triangle vertices are -1 , then we push onto the TriMesh triangle vector? 
-		//TODO: update uvValues for these triangles
+		//loop through triangles t1,t4. If the triangle vertices aren't -1 (meaning we used that triangle) , then we push onto the TriMesh triangle vector
+		//TODO: update uvValues for these triangles. I'm thinking that we push_back 3 vec2s of (u,v) values for each triangle
+		// that way, triangles.size() * 3 = uvValues.size()
 		if (t1.a != -1) {
 			triangles.push_back(t1);
 		}
