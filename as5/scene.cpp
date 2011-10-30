@@ -2,8 +2,9 @@
 
 using namespace std;
 
-Scene::Scene(string filename, float p) {
+Scene::Scene(string filename, float p, bool adapt) {
 	param = p;
+	adaptiveSub = adapt;
 	parseBez(filename);
 	for (int i=0; i<meshes.size(); i++) {
 		if (adaptiveSub) {
@@ -21,19 +22,6 @@ Scene::Scene(string filename, float p) {
 	lastVertex = 0;
 	adaptiveSub = false;
 	smoothShading = true;
-}
-
-void Scene::build(string filename, float p) {
-	param = p;
-	parseBez(filename);
-	for (int i=0; i<meshes.size(); i++) {
-		if (adaptiveSub) {
-			meshes[i]->adaptivesubdividepatch(param);
-		} else {
-			meshes[i]->uniformsubdividepatch(param);
-		}
-		meshes[i]->createArrays();
-	}
 }
 
 void Scene::update(float dt) {
@@ -112,7 +100,7 @@ void Scene::parseBez(string filename) {
 			inFile.getline(l, 1023);
 			line = string(l);
 			if (line.empty()) i--;
-			if(!parseBezLine(string(l))) {
+			if(!parseBezLine(string(l), i)) {
 				Error("Bad line in input file.");
 			}	
 		}
@@ -120,7 +108,7 @@ void Scene::parseBez(string filename) {
 	inFile.close();
 }
 
-bool Scene::parseBezLine(string line) {
+bool Scene::parseBezLine(string line, int lineNum) {
 	string a,b,c;
 	if (line.empty())
 		return true;
@@ -130,7 +118,10 @@ bool Scene::parseBezLine(string line) {
 	for (int i=0; i<4; i++) {
 		ss >> a >> b >> c;
 		vec3 v = vec3(atof(a.c_str()), atof(b.c_str()), atof(c.c_str()));
+		vec2 uv = vec2(i/3.0, lineNum/3.0);
 		meshes.back()->addVert(v);
+		meshes.back()->addUV(uv);
+		cout << uv << endl;
 	}
 	return true;
 	
@@ -145,12 +136,19 @@ void Mesh::addNorm(vec3 v) {
 	normsVec.push_back(v);
 }
 
+void Mesh::addUV(vec2 v) {
+	uvVec.push_back(v);
+}
 vec3 Mesh::getVert(int i) {
 	return vertsVec[i];
 }
 
 vec3 Mesh::getNorm(int i) {
 	return normsVec[i];
+}
+
+vec2 Mesh::getUV(int i) {
+	return uvVec[i];
 }
 
 void QuadMesh::createArrays() {
@@ -260,69 +258,28 @@ void TriMesh::createArrays() {
 void Mesh::adaptivesubdividepatch(float error) {
 	//	assumes 16-point QuadMesh
 	vector<tri> triangles;
-	vector<vec2> uvValues;
+	vector<vec2> uvVec;
 	vec3		edges[3];
 	vec3		edgeNorms[3];
-	tri t;
-	//initialize uvValues for patch
-	for (int i = 0; i < 16;  i++ ) {
-		double vintpart,ufrac,vfrac;
-		ufrac = floor(i/4.0)/4.0;
-		vfrac = modf(i/4.0,&vintpart);
-		uvValues.push_back(vec2(ufrac,vfrac)); //vec2(u,v)
-	}
-	triangles.clear();
-	//using 18 triangles creates an anchor point that loops unless we do additional interpolation
+	tri 		t;
+	
 	//so I'm going to use the 2 triangle method
 	t.a = 0;
 	t.b = 3;
 	t.c = 12;
 	triangles.push_back(t);
-	uvValues.push_back(vec2(0.0,0.0));
-	uvValues.push_back(vec2(1.0,0.0));
-	uvValues.push_back(vec2(0.0,1.0));
+	uvVec.push_back(vec2(0.0,0.0));
+	uvVec.push_back(vec2(1.0,0.0));
+	uvVec.push_back(vec2(0.0,1.0));
 	
 	t.a = 3;
 	t.b = 15;
 	t.c = 12;
 	triangles.push_back(t);
-	uvValues.push_back(vec2(1.0,0.0));
-	uvValues.push_back(vec2(1.0,1.0));
-	uvValues.push_back(vec2(0.0,1.0));
-/*	for (int i = 0; i < 12; i ++) {		//loop through the patch control points, pushing tris onto the Triangle vector
-		if (i%4 == 0) {					// and push the uv values for the triangles onto the uvValue vector
-			t.a = i;
-			t.b = i+4;
-			t.c = i+1;
-			triangles.push_back(t);		
-			uvValues.push_back(vec2(uvValues[t.a]));
-			uvValues.push_back(vec2(uvValues[t.b]));
-			uvValues.push_back(vec2(uvValues[t.c]));	
-		} else if (i%4 == 1 || i%4 == 2) {
-			t.a = i;
-			t.b = i+4;
-			t.c = i+1;
-			triangles.push_back(t);
-			uvValues.push_back(vec2(uvValues[t.a]));
-			uvValues.push_back(vec2(uvValues[t.b]));
-			uvValues.push_back(vec2(uvValues[t.c]));
-			t.a = i;
-			t.b = i+3;
-			t.c = i+4;
-			triangles.push_back(t);	
-			uvValues.push_back(vec2(uvValues[t.a]));
-			uvValues.push_back(vec2(uvValues[t.b]));
-			uvValues.push_back(vec2(uvValues[t.c]));		
-		} else if (i%4 == 3) {
-			t.a = i;
-			t.b = i+3;
-			t.c = i+4;
-			triangles.push_back(t);
-			uvValues.push_back(vec2(uvValues[t.a]));
-			uvValues.push_back(vec2(uvValues[t.b]));
-			uvValues.push_back(vec2(uvValues[t.c]));
-		}
-	}*/
+	uvVec.push_back(vec2(1.0,0.0));
+	uvVec.push_back(vec2(1.0,1.0));
+	uvVec.push_back(vec2(0.0,1.0));
+
 	for (int i = 0 ; i<triangles.size() ; i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
@@ -336,7 +293,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 		edges[1] = (getVert(t.b) + getVert(t.c)) * .5;
 		edges[2] = (getVert(t.c) + getVert(t.a)) * .5;
 		for (int j = 0 ; j < 3 ; j++) {
-			LocalGeo g = bezpatchinterp(this,uvValues[j][0],uvValues[j][1]);
+			LocalGeo g = bezpatchinterp(this,uvVec[j][0],uvVec[j][1]);
 			if (error > (edges[j] - g.pos).length()) {
 				//TODO reconsider the below two lines? We might have already done this belowc
 			   // addVert(g.pos); 
@@ -467,8 +424,8 @@ void Mesh::adaptivesubdividepatch(float error) {
 			t4.c = -1;
 		}
 		//loop through triangles t1,t4. If the triangle vertices aren't -1 (meaning we used that triangle) , then we push onto the TriMesh triangle vector
-		//TODO: update uvValues for these triangles. I'm thinking that we push_back 3 vec2s of (u,v) values for each triangle
-		// that way, triangles.size() * 3 = uvValues.size()
+		//TODO: update uvVec for these triangles. I'm thinking that we push_back 3 vec2s of (u,v) values for each triangle
+		// that way, triangles.size() * 3 = uvVec.size()
 		if (t1.a != -1) {
 			triangles.push_back(t1);
 		}
@@ -483,6 +440,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 		}
 	}
 	//when we're all done subdividing this patch, push all triangles onto meshTriangles
+	
 	for (int i = 0; i < triangles.size(); i++ ) {
 		meshTriangles.push_back(triangles[i]);
 	}

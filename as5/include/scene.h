@@ -18,6 +18,11 @@ class Mesh {
 public:
 	vector<vec3> vertsVec;
 	vector<vec3> normsVec;
+	vector<vec2> uvVec;
+	vector<tri> meshTriangles;
+		
+	//vector<vec3> controlPatch;
+	
 	GLfloat* verts;
 	GLfloat* norms;
 	unsigned int* indices;
@@ -25,43 +30,39 @@ public:
 	
 	string material;
 	virtual void createArrays() = 0;
+	
 	void addVert(vec3);
 	void addNorm(vec3);
+	void addUV(vec2);
 	vec3 getVert(int);
 	vec3 getNorm(int);
+	vec2 getUV(int);
+	
 	LocalGeo bezpatchinterp(Mesh*, float, float);
 	LocalGeo bezcurveinterp(vec3 curve[], float u);
 	
 	void uniformsubdividepatch(float);
 	void adaptivesubdividepatch(float);	
-	vector<tri> meshTriangles;	
+	
 	
 };
 
 class QuadMesh : public Mesh {
 public:
-	vector<quad> quadsVec;
-	quad* quads;
 	void createArrays();
 };
 
 class TriMesh : public Mesh {
-	tri* tris;
-	vector<vec2> uvValues;
-
+public:
 	void createArrays();
-	void addTri(vec3);
-	void addTri(int, int, int);
-
 };
 
 class Scene {
 public:
-	Scene(string, float);
+	Scene(string, float, bool);
 	void parseScene(string);
 	void parseBez(string);
-	bool parseBezLine(string);
-	void build(string, float);
+	bool parseBezLine(string, int);
 	//bool parseLine(string);
 	vec4 getVertex(int);
 	int extractVertex(string);

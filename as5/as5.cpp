@@ -288,7 +288,8 @@ void processArgs(int argc, char* argv[]) {
 	string p = argv[i++];
 	if (DEBUG) cout << "Parsing scene " << filename << endl;
 	if (DEBUG) cout << "Parameter: " << atof(p.c_str()) << endl;
-	scene = new Scene(filename, atof(p.c_str()));
+	
+	bool adaptive = false;
 	
 	string arg;
 	if (argc >= 4) {
@@ -296,8 +297,8 @@ void processArgs(int argc, char* argv[]) {
 			arg = argv[i];
 		
 			if (arg.compare("-a") == 0) {
-				scene->adaptiveSub = true;
-				scene->build(filename, atof(p.c_str()));
+				adaptive = true;
+				//scene->build(filename, atof(p.c_str()));
 				if (DEBUG) cout << "Using adaptive subdivision." << endl;
 			} else if (arg.compare("-pr")==0) {
 				imageWriter.init(viewport.w, viewport.h);
@@ -311,7 +312,10 @@ void processArgs(int argc, char* argv[]) {
 				imageWriter.setSize(width, height);
 			}
 		}
-	}	
+	}
+	
+	scene = new Scene(filename, atof(p.c_str()), adaptive);
+		
 }
 
 

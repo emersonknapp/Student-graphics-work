@@ -3,16 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>as4.cpp</string>
+	<string>scene.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>as4.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-19T19:53:13Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-10-27T17:47:06Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -39,8 +37,6 @@
 			<date>2011-10-19T19:41:42Z</date>
 		</dict>
 		<dict>
-			<key>expanded</key>
-			<true/>
 			<key>name</key>
 			<string>include</string>
 			<key>regexFolderFilter</key>
@@ -78,15 +74,15 @@
 			<key>filename</key>
 			<string>scene.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-17T01:09:00Z</date>
+			<date>2011-10-27T17:47:06Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>t</string>
 		</dict>
 		<dict>
-			<key>expanded</key>
-			<true/>
 			<key>name</key>
 			<string>test</string>
 			<key>regexFolderFilter</key>
@@ -111,7 +107,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>214</integer>
+			<integer>217</integer>
 		</dict>
 		<key>imagewriter.cpp</key>
 		<dict>
@@ -174,14 +170,30 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>3</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>11</integer>
+				<integer>34</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>1</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>1</integer>
+				<key>line</key>
+				<integer>197</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>34</integer>
+			</dict>
 		</dict>
 		<key>test/4.t</key>
 		<dict>
@@ -340,23 +352,8 @@
 	<key>showFileHierarchyPanel</key>
 	<true/>
 	<key>treeState</key>
-	<dict>
-		<key>include</key>
-		<dict>
-			<key>isExpanded</key>
-			<true/>
-			<key>subItems</key>
-			<dict/>
-		</dict>
-		<key>test</key>
-		<dict>
-			<key>isExpanded</key>
-			<true/>
-			<key>subItems</key>
-			<dict/>
-		</dict>
-	</dict>
+	<dict/>
 	<key>windowFrame</key>
-	<string>{{0, 0}, {675, 778}}</string>
+	<string>{{355, 0}, {675, 778}}</string>
 </dict>
 </plist>

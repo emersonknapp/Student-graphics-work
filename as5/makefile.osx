@@ -15,6 +15,8 @@ OBJECTS = classes.o as5.o imagewriter.o scene.o
 
 SOURCES = as5.cpp classes.cpp imagewriter.cpp scene.cpp
 
+OBJFILES := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
+
 #-----------------------------------------
 # Mac specific stuff
 FRAMEWORK = -framework GLUT
@@ -37,19 +39,25 @@ clean:
 #-----------------------------------------
 #-----------------------------------------
 
-as5: as5.o
-	$(CC) $(OBJECTS) $(FRAMEWORK) $(LDOPTSMAC) -o $(TARGETS)
+as5: $(OBJFILES)
+	$(CC) $(FRAMEWORK) $(LDOPTSMAC) -o as5 $(OBJFILES)
 
-imagewriter.o: imagewriter.cpp
-	$(CC) $(SOURCES) -c $(CCOPTSMAC)
+%.o: %.cpp
+	$(CC) -c $< $(CCOPTSMAC)
 
-classes.o: classes.cpp
-	$(CC) $(SOURCES) -c $(CCOPTSMAC)
-
-scene.o: scene.cpp
-	$(CC) $(SOURCES) -c $(CCOPTSMAC)
-
-as5.o: as5.cpp
-	$(CC) $(SOURCES) -c $(CCOPTSMAC)
+#as5: as5.o
+#	$(CC) $(OBJECTS) $(FRAMEWORK) $(LDOPTSMAC) -o $(TARGETS)
+#
+#imagewriter.o: imagewriter.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTSMAC)
+#
+#classes.o: classes.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTSMAC)
+#
+#scene.o: scene.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTSMAC)
+#
+#as5.o: as5.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTSMAC)
 
 
