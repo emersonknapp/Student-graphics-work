@@ -34,6 +34,7 @@ public:
 	
 	void uniformsubdividepatch(float);
 	void adaptivesubdividepatch(float);	
+	vector<tri> meshTriangles;	
 	
 };
 
@@ -47,11 +48,8 @@ public:
 class TriMesh : public Mesh {
 	tri* tris;
 	vector<vec2> uvValues;
+
 	void createArrays();
-//	void addVert(vec3);
-//	void addNorm(vec3);
-//	vec3 getVert(int);
-//	vec3 getNorm(int);
 	void addTri(vec3);
 	void addTri(int, int, int);
 
@@ -63,7 +61,7 @@ public:
 	void parseScene(string);
 	void parseBez(string);
 	bool parseBezLine(string);
-	void build();
+	void build(string, float);
 	//bool parseLine(string);
 	vec4 getVertex(int);
 	int extractVertex(string);

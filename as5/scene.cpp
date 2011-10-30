@@ -23,7 +23,9 @@ Scene::Scene(string filename, float p) {
 	smoothShading = true;
 }
 
-void Scene::build() {
+void Scene::build(string filename, float p) {
+	param = p;
+	parseBez(filename);
 	for (int i=0; i<meshes.size(); i++) {
 		if (adaptiveSub) {
 			meshes[i]->adaptivesubdividepatch(param);
@@ -101,7 +103,11 @@ void Scene::parseBez(string filename) {
 	}
 	string coord;
 	for (int q=0; q<patches; q++) {
-		meshes.push_back(new QuadMesh());
+		if (adaptiveSub) {
+			meshes.push_back(new TriMesh());
+		} else {
+			meshes.push_back(new QuadMesh());
+		}
 		for (int i=0; i<4; i++) {
 			inFile.getline(l, 1023);
 			line = string(l);
@@ -244,18 +250,10 @@ void TriMesh::createArrays() {
 	int numtris = (linelength-1)*(linelength-1);
 	n_poly = numtris;
 	indices = new unsigned int[numtris*3];
+	cout << numtris << endl;
 	//TODO - fix the indices (after adaptive is done)
 	for (int i=0; i<numtris; i++) {
-		unsigned int x = i%(linelength-1);
-		unsigned int y = floor(1.0*i/(linelength-1));
-		
-		unsigned int start = x + y*linelength;
-		int q = i*4;
-
-		indices[q] = start;
-		indices[q+1] = start+1;
-		indices[q+2] = start+linelength+1;
-		indices[q+3] = start+linelength;
+		//TODO: maybe for the indices, loop through the vector of tri structs?
 	}
 }
 
@@ -264,47 +262,231 @@ void Mesh::adaptivesubdividepatch(float error) {
 	vector<tri> triangles;
 	vector<vec2> uvValues;
 	vec3		edges[3];
+	vec3		edgeNorms[3];
 	tri t;
 	//initialize uvValues for patch
 	for (int i = 0; i < 16;  i++ ) {
-		uvValues.push_back(vec2(i)); //vec2(u,v)
-		cout << vec2(i) << endl;
+		double vintpart,ufrac,vfrac;
+		ufrac = floor(i/4.0)/4.0;
+		vfrac = modf(i/4.0,&vintpart);
+		uvValues.push_back(vec2(ufrac,vfrac)); //vec2(u,v)
 	}
-	for (int i = 0; i < 12; i ++) {		//loop through the patch control points, pushing tris onto the Triangle vector
-		if (i%2 == 0) {
+	triangles.clear();
+	//using 18 triangles creates an anchor point that loops unless we do additional interpolation
+	//so I'm going to use the 2 triangle method
+	t.a = 0;
+	t.b = 3;
+	t.c = 12;
+	triangles.push_back(t);
+	uvValues.push_back(vec2(0.0,0.0));
+	uvValues.push_back(vec2(1.0,0.0));
+	uvValues.push_back(vec2(0.0,1.0));
+	
+	t.a = 3;
+	t.b = 15;
+	t.c = 12;
+	triangles.push_back(t);
+	uvValues.push_back(vec2(1.0,0.0));
+	uvValues.push_back(vec2(1.0,1.0));
+	uvValues.push_back(vec2(0.0,1.0));
+/*	for (int i = 0; i < 12; i ++) {		//loop through the patch control points, pushing tris onto the Triangle vector
+		if (i%4 == 0) {					// and push the uv values for the triangles onto the uvValue vector
 			t.a = i;
 			t.b = i+4;
 			t.c = i+1;
-		} else {
+			triangles.push_back(t);		
+			uvValues.push_back(vec2(uvValues[t.a]));
+			uvValues.push_back(vec2(uvValues[t.b]));
+			uvValues.push_back(vec2(uvValues[t.c]));	
+		} else if (i%4 == 1 || i%4 == 2) {
+			t.a = i;
+			t.b = i+4;
+			t.c = i+1;
+			triangles.push_back(t);
+			uvValues.push_back(vec2(uvValues[t.a]));
+			uvValues.push_back(vec2(uvValues[t.b]));
+			uvValues.push_back(vec2(uvValues[t.c]));
 			t.a = i;
 			t.b = i+3;
 			t.c = i+4;
+			triangles.push_back(t);	
+			uvValues.push_back(vec2(uvValues[t.a]));
+			uvValues.push_back(vec2(uvValues[t.b]));
+			uvValues.push_back(vec2(uvValues[t.c]));		
+		} else if (i%4 == 3) {
+			t.a = i;
+			t.b = i+3;
+			t.c = i+4;
+			triangles.push_back(t);
+			uvValues.push_back(vec2(uvValues[t.a]));
+			uvValues.push_back(vec2(uvValues[t.b]));
+			uvValues.push_back(vec2(uvValues[t.c]));
 		}
-		triangles.push_back(t);
-//		uvValues.push_back();
-	}
+	}*/
 	for (int i = 0 ; i<triangles.size() ; i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
-	// if error too big, then we subdivide and push the new triangles onto the vector
+	// if error too big, then we subdivide and push the new triangles onto the vector.
 		t = triangles[i];
-		float u,v;
-		//TODO: calcualte/get u and v
+		vec2 newUV;
+		tri t1, t2, t3, t4;
+		int numSplits = 0;
 		
 		edges[0] = (getVert(t.a) + getVert(t.b)) * .5;
 		edges[1] = (getVert(t.b) + getVert(t.c)) * .5;
 		edges[2] = (getVert(t.c) + getVert(t.a)) * .5;
 		for (int j = 0 ; j < 3 ; j++) {
-			LocalGeo g = bezpatchinterp(this,u,v);
+			LocalGeo g = bezpatchinterp(this,uvValues[j][0],uvValues[j][1]);
 			if (error > (edges[j] - g.pos).length()) {
-				addVert(g.pos);
-				addNorm(g.dir);
+				//TODO reconsider the below two lines? We might have already done this belowc
+			   // addVert(g.pos); 
+			   // addNorm(g.dir);
+				edges[j] = vec3(INT_MAX);
 			} else {
 				edges[j] = g.pos;
-				// divide up triangles, push new ones onto vector
+				edgeNorms[j] = g.dir;
+				numSplits += 1;
 			}
 		}
+		
+		// now divide the triangles
+		if (numSplits == 3) {
+			addVert(edges[0]);
+			addNorm(edgeNorms[0]);
+			addVert(edges[1]);
+			addNorm(edgeNorms[1]);
+			addVert(edges[2]);
+			addNorm(edgeNorms[2]);
+			t1.a = t.a;
+			t1.b = vertsVec.size()-numSplits;
+			t1.c = t1.b+2;
+			
+			t2.a = t1.b;
+			t2.b = t.b;
+			t2.c = t1.b+1;
+			
+			t3.a = t2.c;
+			t3.b = t.c;
+			t3.c = t1.c;
+			
+			t4.a = t1.b;
+			t4.b = t2.c;
+			t4.c = t1.c;
+		} else if (numSplits == 2) {
+			bool e0 = (edges[0] != INT_MAX);
+			bool e1 = (edges[1] != INT_MAX);
+			bool e2 = (edges[2] != INT_MAX);
+			
+			if (e1 && e2) {
+				addVert(edges[1]);
+				addNorm(edgeNorms[1]);
+				addVert(edges[2]);
+				addNorm(edgeNorms[2]);
+				t1.a = t.a;
+				t1.b = t.b;
+				t1.c = vertsVec.size()-numSplits+1;
+				
+				t2.a = t.a;
+				t2.b = t1.c;
+				t2.c = t1.c+1;
+				
+				t3.a = t2.c;
+				t3.b = t2.b;
+				t3.c = t.c;
+			} else if (e0 && e2) {
+				addVert(edges[0]);
+				addNorm(edgeNorms[0]);
+				addVert(edges[2]);
+				addNorm(edgeNorms[2]);
+				t1.a = t.a;
+				t1.b = vertsVec.size()-numSplits;
+				t1.c = t1.b+2;
+				
+				t2.a = t1.b;
+				t2.b = t.b;
+				t2.c = t1.c;
+				
+				t3.a = t1.c;
+				t3.b = t.b;
+				t3.c = t.c;
+				
+			} else if (e0 && e1) {
+				addVert(edges[0]);
+				addNorm(edgeNorms[0]);
+				addVert(edges[1]);
+				addNorm(edgeNorms[1]);
+				t1.a = t.a;
+				t1.b = vertsVec.size()-numSplits;
+				t1.c = t.c;
+				
+				t2.a = t1.b;
+				t2.b = t.b;
+				t2.c = t1.b+1;
+				
+				t3.a = t1.b;
+				t3.b = t1.b+1;
+				t3.c = t.c;
+			}
+			
+			t4.a = -1;
+			t4.b = -1;
+			t4.c = -1;
+			
+		} else if (numSplits == 1) {
+			for (int j = 0; j < 3 ; j++) {
+				if (edges[j] == edges[j]) { //checks that this edge needs to be split
+					addVert(edges[j]);
+					addNorm(edgeNorms[j]);
+					t1.a = t.a;
+					t1.b = vertsVec.size()-1; //split point is most recent vertex
+					t1.c = t.a + (j+2)%3;
+
+					t2.a = t.a + (j+1)%3;
+					t2.b = t1.b;
+					t2.c = t.c;
+				} 
+			}
+			t3.a = -1;
+			t3.b = -1;
+			t3.c = -1;
+			t4.a = -1;
+			t4.b = -1;
+			t4.c = -1;
+		} else {
+			t1.a = -1;
+			t1.b = -1;
+			t1.c = -1;
+			t2.a = -1;
+			t2.b = -1;
+			t2.c = -1;
+			t3.a = -1;
+			t3.b = -1;
+			t3.c = -1;
+			t4.a = -1;
+			t4.b = -1;
+			t4.c = -1;
+		}
+		//loop through triangles t1,t4. If the triangle vertices are -1 , then we push onto the TriMesh triangle vector? 
+		//TODO: update uvValues for these triangles
+		if (t1.a != -1) {
+			triangles.push_back(t1);
+		}
+		if (t2.a != -1) {
+			triangles.push_back(t2);
+		}
+		if (t3.a != -1) {
+			triangles.push_back(t3);
+		}
+		if (t4.a != -1) {
+			triangles.push_back(t4);
+		}
 	}
+	//when we're all done subdividing this patch, push all triangles onto meshTriangles
+	for (int i = 0; i < triangles.size(); i++ ) {
+		meshTriangles.push_back(triangles[i]);
+	}
+	cout << "end subdivide" << endl;
+	
 }
 
 

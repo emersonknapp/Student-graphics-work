@@ -297,7 +297,7 @@ void processArgs(int argc, char* argv[]) {
 		
 			if (arg.compare("-a") == 0) {
 				scene->adaptiveSub = true;
-				scene->build();
+				scene->build(filename, atof(p.c_str()));
 				if (DEBUG) cout << "Using adaptive subdivision." << endl;
 			} else if (arg.compare("-pr")==0) {
 				imageWriter.init(viewport.w, viewport.h);
@@ -337,7 +337,6 @@ int main(int argc, char *argv[]) {
 	  	glutCreateWindow("Bezier Subdivision");
 	
 	  	initScene();							// quick function to set up scene
-
 		glutIgnoreKeyRepeat(1);
 		glutKeyboardFunc(processNormalKeys);
 		glutKeyboardUpFunc(processNormalKeyups);
