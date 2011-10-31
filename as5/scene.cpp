@@ -243,14 +243,14 @@ void TriMesh::createArrays() {
 		norms[i+1] = normsVec[b][1];
 		norms[i+2] = normsVec[b][2];
 	}
-	n_poly = trianglesxxx.size();
+	n_poly = triangles.size();
 	
 	indices = new unsigned int[n_poly*3];
 	for (int i=0; i<n_poly; i++) {
 		int b = i*3;
-		indices[b] = trianglesxxx[i].v[0];
-		indices[b+1] = trianglesxxx[i].v[1];
-		indices[b+2] = trianglesxxx[i].v[2];
+		indices[b] = triangles[i].v[0];
+		indices[b+1] = triangles[i].v[1];
+		indices[b+2] = triangles[i].v[2];
 	}
 	
 	//DEBUG PRINT
@@ -265,7 +265,6 @@ void TriMesh::createArrays() {
 
 void Mesh::adaptivesubdividepatch(float error) {
 	//assumes 16-point control mesh
-	vector<tri> triangles;
 	vec3		edges[3];
 	vec2		uvs[3];
 	LocalGeo 	actuals[3];
@@ -296,19 +295,19 @@ void Mesh::adaptivesubdividepatch(float error) {
 	addUV(vec2(1.0,1.0));
 	
 	tri t1 = {0, 1, 2};
-	trianglesxxx.push_back(t1);
+	triangles.push_back(t1);
 	
 	tri t2 = {1, 3, 2};
-	trianglesxxx.push_back(t2);
+	triangles.push_back(t2);
 	
-	int x = trianglesxxx.size();
-	for (int i = 0 ; i<x ; i++) {
+	int x = triangles.size();
+	for (int i = 0 ; i< x; i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
 	// if error too big, then we subdivide and push the new triangles onto the vector.
 		bool edgeOK[3];
 		
-		t = trianglesxxx[i];
+		t = triangles[i];
 		tri t1, t2, t3, t4;
 		int numSplits = 0;
 		
@@ -345,6 +344,9 @@ void Mesh::adaptivesubdividepatch(float error) {
 				addUV(uvs[k]);
 			}
 		}
+		
+		if (numSplits != 0) modTri.push_back(i);
+		
 		if (numSplits == 0) {
 			
 			triangles.push_back(t);
@@ -464,7 +466,10 @@ void Mesh::adaptivesubdividepatch(float error) {
 	*/
 	
 	cout << "end subdivide" << endl;
-	trianglesxxx = triangles;
+	for (int i = modTri.size()-1; i >= 0 ; i--) {
+		triangles.erase(triangles.begin()+modTri[i]);
+	}
+	modTri.clear();
 }
 
 

@@ -19,7 +19,8 @@ public:
 	vector<vec3> vertsVec;
 	vector<vec3> normsVec;
 	vector<vec2> uvVec;
-	vector<tri> trianglesxxx;
+	vector<tri> triangles;
+	vector<int> modTri;
 	Mesh* controlPatch;
 	
 		
