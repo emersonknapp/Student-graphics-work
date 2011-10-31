@@ -119,7 +119,7 @@ bool Scene::parseBezLine(string line, int lineNum) {
 		vec3 v = vec3(atof(a.c_str()), atof(b.c_str()), atof(c.c_str()));
 		vec2 uv = vec2(i/3.0, lineNum/3.0);
 		meshes.back()->addVert(v);
-		meshes.back()->addUV(uv);
+		//meshes.back()->addUV(uv);
 		//cout << uv << endl;
 	}
 	return true;
@@ -281,18 +281,18 @@ void Mesh::adaptivesubdividepatch(float error) {
 	LocalGeo p2 = bezpatchinterp(controlPatch, 0, 1);
 	LocalGeo p3 = bezpatchinterp(controlPatch, 1, 1);
 	
-	vertsVec.push_back(p0.pos);
-	vertsVec.push_back(p1.pos);
-	vertsVec.push_back(p2.pos);
-	vertsVec.push_back(p3.pos);
-	normsVec.push_back(p0.dir);
-	normsVec.push_back(p1.dir);
-	normsVec.push_back(p2.dir);
-	normsVec.push_back(p3.dir);
-	uvVec.push_back(vec2(0.0,0.0));
-	uvVec.push_back(vec2(1.0,0.0));
-	uvVec.push_back(vec2(0.0,1.0));
-	uvVec.push_back(vec2(1.0,1.0));
+	addVert(p0.pos);
+	addVert(p1.pos);
+	addVert(p2.pos);
+	addVert(p3.pos);
+	addNorm(p0.dir);
+	addNorm(p1.dir);
+	addNorm(p2.dir);
+	addNorm(p3.dir);
+	addUV(vec2(0.0,0.0));
+	addUV(vec2(1.0,0.0));
+	addUV(vec2(0.0,1.0));
+	addUV(vec2(1.0,1.0));
 	
 	tri t1 = {0, 1, 2};
 	triangles.push_back(t1);
@@ -308,20 +308,22 @@ void Mesh::adaptivesubdividepatch(float error) {
 		bool edgeOK[3];
 		
 		t = triangles[i];
-		vec2 newUV;
 		tri t1, t2, t3, t4;
 		int numSplits = 0;
 		
 		for (int q=0; q<3; q++) {
 			edges[q] = (getVert(t.v[q]) + getVert(t.v[(q+1)%3])) / 2.0;
+			//cout << "Edge uvs: " << getUV(t.v[q]) << getUV(t.v[(q+1)%3]) << endl;
+			//cout << "Edge: " << edges[q] << endl;
 			uvs[q] = (getUV(t.v[q]) + getUV(t.v[(q+1)%3])) / 2.0;
+			//cout << "UV: " << uvs[q] << endl;
 			actuals[q] = bezpatchinterp(controlPatch, uvs[q][0], uvs[q][1]);
+			//cout << "Actual: " << actuals[q].pos << endl;
+			//cout << endl;
 		}
 		
 		for (int j = 0 ; j < 3 ; j++) {
 			LocalGeo g = actuals[j];
-			cout << edges[j] << g.pos << endl;
-			cout << (edges[j] - g.pos).length() << endl;
 			if (error > (edges[j] - g.pos).length()) {
 				edgeOK[j] = true;
 			} else {
@@ -336,8 +338,8 @@ void Mesh::adaptivesubdividepatch(float error) {
 		// now divide the triangles
 		if (numSplits == 3) {
 			cout << "All three sides are bad." << endl;
-			cout << t.v[0] << " " << t.v[1] << " " << t.v[2] << endl;
-			/*
+			cout << t.v[0] << " " << t.v[1] << " " << t.v[2] << endl << endl;
+			
 			int bottom = vertsVec.size();
 			for (int k=0; k<3; k++) {
 				addVert(actuals[k].pos);
@@ -365,20 +367,12 @@ void Mesh::adaptivesubdividepatch(float error) {
 			triangles.push_back(t2);
 			triangles.push_back(t3);
 			triangles.push_back(t4);
-			triangles.erase(triangles.begin()+i);
-			*/
+			triangles.erase(triangles.begin()+i);	
 			
+		} else if (numSplits == 2) {
 			
-		} /*else if (numSplits == 2) {
-			bool e0 = (edges[0] != INT_MAX);
-			bool e1 = (edges[1] != INT_MAX);
-			bool e2 = (edges[2] != INT_MAX);
-			
-			if (e1 && e2) {
-				addVert(edges[1]);
-				addNorm(edgeNorms[1]);
-				addVert(edges[2]);
-				addNorm(edgeNorms[2]);
+			if (edgeOK[0]) {
+				
 				t1.a = t.a;
 				t1.b = t.b;
 				t1.c = vertsVec.size()-numSplits+1;
@@ -390,7 +384,13 @@ void Mesh::adaptivesubdividepatch(float error) {
 				t3.a = t2.c;
 				t3.b = t2.b;
 				t3.c = t.c;
-			} else if (e0 && e2) {
+				
+				triangles.push_back(t1);
+				triangles.push_back(t2);
+				triangles.push_back(t3);
+				triangles.erase(triangles.begin()+i);
+				
+			} else if (edgeOK[1]) {
 				addVert(edges[0]);
 				addNorm(edgeNorms[0]);
 				addVert(edges[2]);
@@ -407,7 +407,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 				t3.b = t.b;
 				t3.c = t.c;
 				
-			} else if (e0 && e1) {
+			} else if (edgeOK[2])) {
 				addVert(edges[0]);
 				addNorm(edgeNorms[0]);
 				addVert(edges[1]);
@@ -429,7 +429,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 			t4.b = -1;
 			t4.c = -1;
 			
-		} else if (numSplits == 1) {
+		} /*else if (numSplits == 1) {
 			for (int j = 0; j < 3 ; j++) {
 				if (edges[j] == edges[j]) { //checks that this edge needs to be split
 					addVert(edges[j]);
