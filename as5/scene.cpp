@@ -354,11 +354,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 		
 		if (numSplits != 0) modTri.push_back(i);
 		
-		if (numSplits == 0) {
-			
-			triangles.push_back(t);
-			
-		} else if (numSplits == 3) {
+		if (numSplits == 3) {
 
 			t1.v[0] = t.v[0];
 			t1.v[1] = bottom;
@@ -472,7 +468,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 	
 	cout << "end subdivide" << endl;
 	for (int i = modTri.size()-1; i >= 0 ; i--) {
-		//triangles.erase(triangles.begin()+modTri[i]);
+		triangles.erase(triangles.begin()+modTri[i]);
 	}
 	modTri.clear();
 }
