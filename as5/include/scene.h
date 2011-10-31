@@ -54,6 +54,7 @@ public:
 
 class TriMesh : public Mesh {
 public:
+	vector<vec3> triVerts;
 	void createArrays();
 };
 

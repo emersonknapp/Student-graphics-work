@@ -121,7 +121,7 @@ bool Scene::parseBezLine(string line, int lineNum) {
 		vec2 uv = vec2(i/3.0, lineNum/3.0);
 		meshes.back()->addVert(v);
 		meshes.back()->addUV(uv);
-		cout << uv << endl;
+		//cout << uv << endl;
 	}
 	return true;
 	
@@ -226,7 +226,7 @@ void Mesh::uniformsubdividepatch(float step) {
 
 
 void TriMesh::createArrays() {
-	if (vertsVec.size() != normsVec.size()) {
+	if (triVerts.size() != normsVec.size()) {
 		Error("Improperly formed TriMesh.");
 	}
 	int size = vertsVec.size()*3;
@@ -264,22 +264,17 @@ void Mesh::adaptivesubdividepatch(float error) {
 	tri 		t;
 	
 	//so I'm going to use the 2 triangle method
+	tri t1 = {0, 3, 12};
 	t.a = 0;
 	t.b = 3;
 	t.c = 12;
 	triangles.push_back(t);
-	uvVec.push_back(vec2(0.0,0.0));
-	uvVec.push_back(vec2(1.0,0.0));
-	uvVec.push_back(vec2(0.0,1.0));
 	
 	t.a = 3;
 	t.b = 15;
 	t.c = 12;
 	triangles.push_back(t);
-	uvVec.push_back(vec2(1.0,0.0));
-	uvVec.push_back(vec2(1.0,1.0));
-	uvVec.push_back(vec2(0.0,1.0));
-
+	/*
 	for (int i = 0 ; i<triangles.size() ; i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
@@ -444,6 +439,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 	for (int i = 0; i < triangles.size(); i++ ) {
 		meshTriangles.push_back(triangles[i]);
 	}
+	*/
 	cout << "end subdivide" << endl;
 	
 }
