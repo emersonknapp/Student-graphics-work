@@ -20,12 +20,8 @@ public:
 	vector<vec3> normsVec;
 	vector<vec2> uvVec;
 	vector<tri> triangles;
-	vector<int> modTri;
 	Mesh* controlPatch;
-	
 		
-	//vector<vec3> controlPatch;
-	
 	GLfloat* verts;
 	GLfloat* norms;
 	unsigned int* indices;

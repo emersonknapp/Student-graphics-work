@@ -277,6 +277,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 	LocalGeo 	actuals[3];
 	vec3		edgeNorms[3];
 	tri 		t;
+	vector<int> modTri;
 	
 	controlPatch = new QuadMesh();
 	controlPatch->vertsVec = vertsVec;
@@ -327,14 +328,11 @@ void Mesh::adaptivesubdividepatch(float error) {
 			actuals[q] = bezpatchinterp(controlPatch, uvs[q][0], uvs[q][1]);
 			//cout << "Actual: " << actuals[q].pos << endl;
 			//cout << endl;
-		}
-		
-		for (int j = 0 ; j < 3 ; j++) {
-			LocalGeo g = actuals[j];
-			if (error > (edges[j] - g.pos).length()) {
-				edgeOK[j] = true;
+			LocalGeo g = actuals[q];
+			if (error > (edges[q] - g.pos).length()) {
+				edgeOK[q] = true;
 			} else {
-				edgeOK[j] = false;
+				edgeOK[q] = false;
 				//edges[j] = g.pos;
 				//edgeNorms[j] = g.dir;
 				numSplits += 1;
@@ -422,49 +420,24 @@ void Mesh::adaptivesubdividepatch(float error) {
 			triangles.push_back(t2);
 			triangles.push_back(t3);
 			
-			t4.v[0] = -1;
-			t4.v[1] = -1;
-			t4.v[2] = -1;
-			
 		} else if (numSplits == 1) {
 			for (int j = 0; j < 3 ; j++) {
 				if (!edgeOK[j]) { //checks that this edge needs to be split
+					vec3 opposite = t.v[(j+2)%3];
+					
 					t1.v[0] = t.v[j];
 					t1.v[1] = bottom;
-					t1.v[2] = t.v[0]+(j+2)%3;
+					t1.v[2] = t.v[(j+2)%3];
 					
 					t2.v[0] = bottom;
-					t2.v[1] = t.v[0]+(j+1)%3;
-					t2.v[2] = t.v[0]+(j+2)%3;
+					t2.v[1] = t.v[(j+1)%3];
+					t2.v[2] = t.v[(j+2)%3];
 				} 
 			}
 			triangles.push_back(t1);
 			triangles.push_back(t2);
-		} /*
-		//loop through triangles t1,t4. If the triangle vertices aren't -1 (meaning we used that triangle) , then we push onto the TriMesh triangle vector
-		//TODO: update uvVec for these triangles. I'm thinking that we push_back 3 vec2s of (u,v) values for each triangle
-		// that way, triangles.size() * 3 = uvVec.size()
-		if (t1.a != -1) {
-			triangles.push_back(t1);
 		}
-		if (t2.a != -1) {
-			triangles.push_back(t2);
-		}
-		if (t3.a != -1) {
-			triangles.push_back(t3);
-		}
-		if (t4.a != -1) {
-			triangles.push_back(t4);
-		}
-		*/
 	}
-	
-	//when we're all done subdividing this patch, push all triangles onto triangles
-	/*
-	for (int i = 0; i < triangles.size(); i++ ) {
-		triangles.push_back(triangles[i]);
-	}
-	*/
 	
 	cout << "end subdivide" << endl;
 	for (int i = modTri.size()-1; i >= 0 ; i--) {
