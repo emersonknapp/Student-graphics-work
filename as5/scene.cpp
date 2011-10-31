@@ -261,6 +261,13 @@ void TriMesh::createArrays() {
 		}
 		cout << endl;
 	}
+	cout << "TRIS" << endl;
+	for (int i=0; i<triangles.size(); i++) {
+		for (int j=0; j<3; j++) {
+			cout << triangles[i].v[j] << " ";
+		}
+		cout << endl;
+	}
 }
 
 void Mesh::adaptivesubdividepatch(float error) {
@@ -347,13 +354,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 		
 		if (numSplits != 0) modTri.push_back(i);
 		
-		if (numSplits == 0) {
-			
-			triangles.push_back(t);
-			
-		} else if (numSplits == 3) {
-			cout << "All three sides are bad." << endl;
-			cout << t.v[0] << " " << t.v[1] << " " << t.v[2] << endl << endl;
+		if (numSplits == 3) {
 
 			t1.v[0] = t.v[0];
 			t1.v[1] = bottom;
