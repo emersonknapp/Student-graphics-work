@@ -313,19 +313,17 @@ void Mesh::adaptivesubdividepatch(float error) {
 		
 		for (int q=0; q<3; q++) {
 			edges[q] = (getVert(t.v[q]) + getVert(t.v[(q+1)%3])) / 2.0;
-			cout << "Edge uvs: " << getUV(t.v[q]) << getUV(t.v[(q+1)%3]) << endl;
-			cout << "Edge: " << edges[q] << endl;
+			//cout << "Edge uvs: " << getUV(t.v[q]) << getUV(t.v[(q+1)%3]) << endl;
+			//cout << "Edge: " << edges[q] << endl;
 			uvs[q] = (getUV(t.v[q]) + getUV(t.v[(q+1)%3])) / 2.0;
-			cout << "UV: " << uvs[q] << endl;
+			//cout << "UV: " << uvs[q] << endl;
 			actuals[q] = bezpatchinterp(controlPatch, uvs[q][0], uvs[q][1]);
-			cout << "Actual: " << actuals[q].pos << endl;
-			cout << endl;
+			//cout << "Actual: " << actuals[q].pos << endl;
+			//cout << endl;
 		}
 		
 		for (int j = 0 ; j < 3 ; j++) {
 			LocalGeo g = actuals[j];
-			cout << edges[j] << g.pos << uvs[j] << endl;
-			cout << (edges[j] - g.pos).length() << endl;
 			if (error > (edges[j] - g.pos).length()) {
 				edgeOK[j] = true;
 			} else {
@@ -369,20 +367,12 @@ void Mesh::adaptivesubdividepatch(float error) {
 			triangles.push_back(t2);
 			triangles.push_back(t3);
 			triangles.push_back(t4);
-			triangles.erase(triangles.begin()+i);
+			triangles.erase(triangles.begin()+i);	
 			
+		} else if (numSplits == 2) {
 			
-			
-		} /*else if (numSplits == 2) {
-			bool e0 = (edges[0] != INT_MAX);
-			bool e1 = (edges[1] != INT_MAX);
-			bool e2 = (edges[2] != INT_MAX);
-			
-			if (e1 && e2) {
-				addVert(edges[1]);
-				addNorm(edgeNorms[1]);
-				addVert(edges[2]);
-				addNorm(edgeNorms[2]);
+			if (edgeOK[0]) {
+				
 				t1.a = t.a;
 				t1.b = t.b;
 				t1.c = vertsVec.size()-numSplits+1;
@@ -394,7 +384,13 @@ void Mesh::adaptivesubdividepatch(float error) {
 				t3.a = t2.c;
 				t3.b = t2.b;
 				t3.c = t.c;
-			} else if (e0 && e2) {
+				
+				triangles.push_back(t1);
+				triangles.push_back(t2);
+				triangles.push_back(t3);
+				triangles.erase(triangles.begin()+i);
+				
+			} else if (edgeOK[1]) {
 				addVert(edges[0]);
 				addNorm(edgeNorms[0]);
 				addVert(edges[2]);
@@ -411,7 +407,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 				t3.b = t.b;
 				t3.c = t.c;
 				
-			} else if (e0 && e1) {
+			} else if (edgeOK[2])) {
 				addVert(edges[0]);
 				addNorm(edgeNorms[0]);
 				addVert(edges[1]);
@@ -433,7 +429,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 			t4.b = -1;
 			t4.c = -1;
 			
-		} else if (numSplits == 1) {
+		} /*else if (numSplits == 1) {
 			for (int j = 0; j < 3 ; j++) {
 				if (edges[j] == edges[j]) { //checks that this edge needs to be split
 					addVert(edges[j]);
