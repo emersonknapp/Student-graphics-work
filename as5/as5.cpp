@@ -72,6 +72,7 @@ void myDisplay() {
 	
 	for (int i=0; i<scene->meshes.size(); i++) {
 		Mesh* mesh = scene->meshes[i];
+		//Mesh* mesh = scene->meshes[patch];
 
 		glColor3f(.1,.1,0);
 		glVertexPointer(3, GL_FLOAT, 0, mesh->verts);
@@ -138,9 +139,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 	//escape, q, spacebar quit
 	string name;
 	switch(key) {
+		case 32:
 		case 27:
 		case 'q':
-		case 32:
 			quitProgram();
 			break;
 		case '0': case '1': case '2': case '3': case '4':
