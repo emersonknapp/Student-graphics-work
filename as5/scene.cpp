@@ -301,7 +301,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 	triangles.push_back(t2);
 	
 	int x = triangles.size();
-	for (int i = 0 ; i< x; i++) {
+	for (int i = 0 ; i< triangles.size(); i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
 	// if error too big, then we subdivide and push the new triangles onto the vector.
