@@ -428,13 +428,13 @@ void Mesh::adaptivesubdividepatch(float error) {
 		} else if (numSplits == 1) {
 			for (int j = 0; j < 3 ; j++) {
 				if (!edgeOK[j]) { //checks that this edge needs to be split
-					t1.v[0] = t.v[0];
+					t1.v[0] = t.v[j];
 					t1.v[1] = bottom;
 					t1.v[2] = t.v[0]+(j+2)%3;
 					
 					t2.v[0] = bottom;
 					t2.v[1] = t.v[0]+(j+1)%3;
-					t2.v[2] = t.v[2];
+					t2.v[2] = t.v[0]+(j+2)%3;
 				} 
 			}
 			triangles.push_back(t1);
