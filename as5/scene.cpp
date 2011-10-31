@@ -1,4 +1,4 @@
-x``#include "scene.h"
+#include "scene.h"
 
 using namespace std;
 
@@ -243,14 +243,14 @@ void TriMesh::createArrays() {
 		norms[i+1] = normsVec[b][1];
 		norms[i+2] = normsVec[b][2];
 	}
-	n_poly = triangles.size();
+	n_poly = trianglesxxx.size();
 	
 	indices = new unsigned int[n_poly*3];
 	for (int i=0; i<n_poly; i++) {
 		int b = i*3;
-		indices[b] = triangles[i].v[0];
-		indices[b+1] = triangles[i].v[1];
-		indices[b+2] = triangles[i].v[2];
+		indices[b] = trianglesxxx[i].v[0];
+		indices[b+1] = trianglesxxx[i].v[1];
+		indices[b+2] = trianglesxxx[i].v[2];
 	}
 	
 	//DEBUG PRINT
@@ -265,6 +265,7 @@ void TriMesh::createArrays() {
 
 void Mesh::adaptivesubdividepatch(float error) {
 	//assumes 16-point control mesh
+	vector<tri> triangles;
 	vec3		edges[3];
 	vec2		uvs[3];
 	LocalGeo 	actuals[3];
@@ -295,19 +296,19 @@ void Mesh::adaptivesubdividepatch(float error) {
 	addUV(vec2(1.0,1.0));
 	
 	tri t1 = {0, 1, 2};
-	triangles.push_back(t1);
+	trianglesxxx.push_back(t1);
 	
 	tri t2 = {1, 3, 2};
-	triangles.push_back(t2);
+	trianglesxxx.push_back(t2);
 	
-	
-	for (int i = 0 ; i<triangles.size() ; i++) {
+	int x = trianglesxxx.size();
+	for (int i = 0 ; i<x ; i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
 	// if error too big, then we subdivide and push the new triangles onto the vector.
 		bool edgeOK[3];
 		
-		t = triangles[i];
+		t = trianglesxxx[i];
 		tri t1, t2, t3, t4;
 		int numSplits = 0;
 		
@@ -336,16 +337,21 @@ void Mesh::adaptivesubdividepatch(float error) {
 		
 		
 		// now divide the triangles
-		if (numSplits == 3) {
-			cout << "All three sides are bad." << endl;
-			cout << t.v[0] << " " << t.v[1] << " " << t.v[2] << endl << endl;
-			
-			int bottom = vertsVec.size();
-			for (int k=0; k<3; k++) {
+		int bottom = vertsVec.size();
+		for (int k=0; k<3; k++) {
+			if (!edgeOK[k]) {
 				addVert(actuals[k].pos);
 				addNorm(actuals[k].dir);
 				addUV(uvs[k]);
 			}
+		}
+		if (numSplits == 0) {
+			
+			triangles.push_back(t);
+			
+		} else if (numSplits == 3) {
+			cout << "All three sides are bad." << endl;
+			cout << t.v[0] << " " << t.v[1] << " " << t.v[2] << endl << endl;
 
 			t1.v[0] = t.v[0];
 			t1.v[1] = bottom;
@@ -367,102 +373,71 @@ void Mesh::adaptivesubdividepatch(float error) {
 			triangles.push_back(t2);
 			triangles.push_back(t3);
 			triangles.push_back(t4);
-			triangles.erase(triangles.begin()+i);	
 			
 		} else if (numSplits == 2) {
 			
 			if (edgeOK[0]) {
+				t1.v[0] = t.v[0];
+				t1.v[1] = bottom;
+				t1.v[2] = bottom+1;
 				
-				t1.a = t.a;
-				t1.b = t.b;
-				t1.c = vertsVec.size()-numSplits+1;
+				t2.v[0] = t.v[0];
+				t2.v[1] = t.v[1];
+				t2.v[2] = bottom;
 				
-				t2.a = t.a;
-				t2.b = t1.c;
-				t2.c = t1.c+1;
-				
-				t3.a = t2.c;
-				t3.b = t2.b;
-				t3.c = t.c;
-				
-				triangles.push_back(t1);
-				triangles.push_back(t2);
-				triangles.push_back(t3);
-				triangles.erase(triangles.begin()+i);
-				
-			} else if (edgeOK[1]) {
-				addVert(edges[0]);
-				addNorm(edgeNorms[0]);
-				addVert(edges[2]);
-				addNorm(edgeNorms[2]);
-				t1.a = t.a;
-				t1.b = vertsVec.size()-numSplits;
-				t1.c = t1.b+2;
-				
-				t2.a = t1.b;
-				t2.b = t.b;
-				t2.c = t1.c;
-				
-				t3.a = t1.c;
-				t3.b = t.b;
-				t3.c = t.c;
-				
-			} else if (edgeOK[2])) {
-				addVert(edges[0]);
-				addNorm(edgeNorms[0]);
-				addVert(edges[1]);
-				addNorm(edgeNorms[1]);
-				t1.a = t.a;
-				t1.b = vertsVec.size()-numSplits;
-				t1.c = t.c;
-				
-				t2.a = t1.b;
-				t2.b = t.b;
-				t2.c = t1.b+1;
-				
-				t3.a = t1.b;
-				t3.b = t1.b+1;
-				t3.c = t.c;
-			}
-			
-			t4.a = -1;
-			t4.b = -1;
-			t4.c = -1;
-			
-		} /*else if (numSplits == 1) {
-			for (int j = 0; j < 3 ; j++) {
-				if (edges[j] == edges[j]) { //checks that this edge needs to be split
-					addVert(edges[j]);
-					addNorm(edgeNorms[j]);
-					t1.a = t.a;
-					t1.b = vertsVec.size()-1; //split point is most recent vertex
-					t1.c = t.a + (j+2)%3;
+				t3.v[0] = bottom+1;
+				t3.v[1] = bottom;
+				t3.v[2] = t.v[2];
 
-					t2.a = t.a + (j+1)%3;
-					t2.b = t1.b;
-					t2.c = t.c;
+			} else if (edgeOK[1]) {
+				t1.v[0] = t.v[0];
+				t1.v[1] = bottom;
+				t1.v[2] = bottom+1;
+				
+				t2.v[0] = bottom;
+				t2.v[1] = t.v[1];
+				t2.v[2] = t.v[2];
+				
+				t3.v[0] = bottom+1;
+				t3.v[1] = bottom;
+				t3.v[2] = t.v[2];
+				
+			} else if (edgeOK[2]) {
+				t1.v[0] = t.v[0];
+				t1.v[1] = bottom;
+				t1.v[2] = bottom+1;
+
+				t2.v[0] = bottom;
+				t2.v[1] = t.v[1];
+				t2.v[2] = bottom+1;
+
+				t3.v[0] = t.v[0];
+				t3.v[1] = bottom+1;
+				t3.v[2] = t.v[2];
+			}
+			triangles.push_back(t1);
+			triangles.push_back(t2);
+			triangles.push_back(t3);
+			
+			t4.v[0] = -1;
+			t4.v[1] = -1;
+			t4.v[2] = -1;
+			
+		} else if (numSplits == 1) {
+			for (int j = 0; j < 3 ; j++) {
+				if (!edgeOK[j]) { //checks that this edge needs to be split
+					t1.v[0] = t.v[0];
+					t1.v[1] = bottom;
+					t1.v[2] = t.v[0]+(j+2)%3;
+					
+					t2.v[0] = t.v[0]+(j+1)%3;
+					t2.v[1] = bottom;
+					t2.v[2] = t.v[2];
 				} 
 			}
-			t3.a = -1;
-			t3.b = -1;
-			t3.c = -1;
-			t4.a = -1;
-			t4.b = -1;
-			t4.c = -1;
-		} else {
-			t1.a = -1;
-			t1.b = -1;
-			t1.c = -1;
-			t2.a = -1;
-			t2.b = -1;
-			t2.c = -1;
-			t3.a = -1;
-			t3.b = -1;
-			t3.c = -1;
-			t4.a = -1;
-			t4.b = -1;
-			t4.c = -1;
-		}
+			triangles.push_back(t1);
+			triangles.push_back(t2);
+		} /*
 		//loop through triangles t1,t4. If the triangle vertices aren't -1 (meaning we used that triangle) , then we push onto the TriMesh triangle vector
 		//TODO: update uvVec for these triangles. I'm thinking that we push_back 3 vec2s of (u,v) values for each triangle
 		// that way, triangles.size() * 3 = uvVec.size()
@@ -489,7 +464,7 @@ void Mesh::adaptivesubdividepatch(float error) {
 	*/
 	
 	cout << "end subdivide" << endl;
-	
+	trianglesxxx = triangles;
 }
 
 
