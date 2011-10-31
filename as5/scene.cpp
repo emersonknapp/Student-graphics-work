@@ -20,7 +20,6 @@ Scene::Scene(string filename, float p, bool adapt) {
 	rotation = vec3(0,0,0);
 	rotating = vec3(0,0,0);
 	lastVertex = 0;
-	adaptiveSub = false;
 	smoothShading = true;
 }
 
@@ -226,12 +225,15 @@ void Mesh::uniformsubdividepatch(float step) {
 
 
 void TriMesh::createArrays() {
-	if (triVerts.size() != normsVec.size()) {
+		
+	if (vertsVec.size() != normsVec.size()) {
 		Error("Improperly formed TriMesh.");
 	}
+	
 	int size = vertsVec.size()*3;
 	verts = new GLfloat[size];
 	norms = new GLfloat[size];
+	
 	for (int b=0; b<vertsVec.size(); b++) {
 		int i = b*3;
 		verts[i] = vertsVec[b][0];
@@ -241,90 +243,133 @@ void TriMesh::createArrays() {
 		norms[i+1] = normsVec[b][1];
 		norms[i+2] = normsVec[b][2];
 	}
+	n_poly = triangles.size();
 	
-	int linelength = int(sqrt(vertsVec.size()));
+	indices = new unsigned int[n_poly*3];
+	for (int i=0; i<n_poly; i++) {
+		int b = i*3;
+		indices[b] = triangles[i].v[0];
+		indices[b+1] = triangles[i].v[1];
+		indices[b+2] = triangles[i].v[2];
+	}
 	
-	
-	int numtris = (linelength-1)*(linelength-1);
-	n_poly = numtris;
-	indices = new unsigned int[numtris*3];
-	cout << numtris << endl;
-	//TODO - fix the indices (after adaptive is done)
-	for (int i=0; i<numtris; i++) {
-		//TODO: maybe for the indices, loop through the vector of tri structs?
+	//DEBUG PRINT
+	cout << "VERTS" << endl;
+	for (int i=0; i<vertsVec.size(); i++) {
+		for (int j=0; j<3; j++) {
+			cout << verts[i*3+j] << " ";
+		}
+		cout << endl;
 	}
 }
 
 void Mesh::adaptivesubdividepatch(float error) {
-	//	assumes 16-point QuadMesh
-	vector<tri> triangles;
-	vector<vec2> uvVec;
+	//assumes 16-point control mesh
 	vec3		edges[3];
+	vec2		uvs[3];
+	LocalGeo 	actuals[3];
 	vec3		edgeNorms[3];
 	tri 		t;
 	
-	//so I'm going to use the 2 triangle method
-	tri t1 = {0, 3, 12};
-	t.a = 0;
-	t.b = 3;
-	t.c = 12;
-	triangles.push_back(t);
+	controlPatch = new QuadMesh();
+	controlPatch->vertsVec = vertsVec;
+	vertsVec.clear();
 	
-	t.a = 3;
-	t.b = 15;
-	t.c = 12;
-	triangles.push_back(t);
-	/*
+	//so I'm going to use the 2 triangle method
+	LocalGeo p0 = bezpatchinterp(controlPatch, 0, 0);
+	LocalGeo p1 = bezpatchinterp(controlPatch, 1, 0);
+	LocalGeo p2 = bezpatchinterp(controlPatch, 0, 1);
+	LocalGeo p3 = bezpatchinterp(controlPatch, 1, 1);
+	
+	vertsVec.push_back(p0.pos);
+	vertsVec.push_back(p1.pos);
+	vertsVec.push_back(p2.pos);
+	vertsVec.push_back(p3.pos);
+	normsVec.push_back(p0.dir);
+	normsVec.push_back(p1.dir);
+	normsVec.push_back(p2.dir);
+	normsVec.push_back(p3.dir);
+	uvVec.push_back(vec2(0.0,0.0));
+	uvVec.push_back(vec2(1.0,0.0));
+	uvVec.push_back(vec2(0.0,1.0));
+	uvVec.push_back(vec2(1.0,1.0));
+	
+	tri t1 = {0, 1, 2};
+	triangles.push_back(t1);
+	
+	tri t2 = {1, 3, 2};
+	triangles.push_back(t2);
+	
+	
 	for (int i = 0 ; i<triangles.size() ; i++) {
 	// for each of the triangles, for each of the 3 sides, check the error
 	// if the error is fine, then we push the vertices onto the patch
 	// if error too big, then we subdivide and push the new triangles onto the vector.
+		bool edgeOK[3];
+		
 		t = triangles[i];
 		vec2 newUV;
 		tri t1, t2, t3, t4;
 		int numSplits = 0;
 		
-		edges[0] = (getVert(t.a) + getVert(t.b)) * .5;
-		edges[1] = (getVert(t.b) + getVert(t.c)) * .5;
-		edges[2] = (getVert(t.c) + getVert(t.a)) * .5;
+		for (int q=0; q<3; q++) {
+			edges[q] = (getVert(t.v[q]) + getVert(t.v[(q+1)%3])) / 2.0;
+			uvs[q] = (getUV(t.v[q]) + getUV(t.v[(q+1)%3])) / 2.0;
+			actuals[q] = bezpatchinterp(controlPatch, uvs[q][0], uvs[q][1]);
+		}
+		
 		for (int j = 0 ; j < 3 ; j++) {
-			LocalGeo g = bezpatchinterp(this,uvVec[j][0],uvVec[j][1]);
+			LocalGeo g = actuals[j];
+			cout << edges[j] << g.pos << endl;
+			cout << (edges[j] - g.pos).length() << endl;
 			if (error > (edges[j] - g.pos).length()) {
-				//TODO reconsider the below two lines? We might have already done this belowc
-			   // addVert(g.pos); 
-			   // addNorm(g.dir);
-				edges[j] = vec3(INT_MAX);
+				edgeOK[j] = true;
 			} else {
-				edges[j] = g.pos;
-				edgeNorms[j] = g.dir;
+				edgeOK[j] = false;
+				//edges[j] = g.pos;
+				//edgeNorms[j] = g.dir;
 				numSplits += 1;
 			}
 		}
 		
+		
 		// now divide the triangles
 		if (numSplits == 3) {
-			addVert(edges[0]);
-			addNorm(edgeNorms[0]);
-			addVert(edges[1]);
-			addNorm(edgeNorms[1]);
-			addVert(edges[2]);
-			addNorm(edgeNorms[2]);
-			t1.a = t.a;
-			t1.b = vertsVec.size()-numSplits;
-			t1.c = t1.b+2;
+			cout << "All three sides are bad." << endl;
+			cout << t.v[0] << " " << t.v[1] << " " << t.v[2] << endl;
+			/*
+			int bottom = vertsVec.size();
+			for (int k=0; k<3; k++) {
+				addVert(actuals[k].pos);
+				addNorm(actuals[k].dir);
+				addUV(uvs[k]);
+			}
+
+			t1.v[0] = t.v[0];
+			t1.v[1] = bottom;
+			t1.v[2] = bottom+2;
 			
-			t2.a = t1.b;
-			t2.b = t.b;
-			t2.c = t1.b+1;
+			t2.v[0] = bottom;
+			t2.v[1] = t.v[1];
+			t2.v[2] = bottom+1;
 			
-			t3.a = t2.c;
-			t3.b = t.c;
-			t3.c = t1.c;
+			t3.v[0] = bottom;
+			t3.v[1] = bottom+1;
+			t3.v[2] = bottom+2;
 			
-			t4.a = t1.b;
-			t4.b = t2.c;
-			t4.c = t1.c;
-		} else if (numSplits == 2) {
+			t4.v[0] = bottom+2;
+			t4.v[1] = bottom+1;
+			t4.v[2] = t.v[2];
+			
+			triangles.push_back(t1);
+			triangles.push_back(t2);
+			triangles.push_back(t3);
+			triangles.push_back(t4);
+			triangles.erase(triangles.begin()+i);
+			*/
+			
+			
+		} /*else if (numSplits == 2) {
 			bool e0 = (edges[0] != INT_MAX);
 			bool e1 = (edges[1] != INT_MAX);
 			bool e2 = (edges[2] != INT_MAX);
@@ -433,13 +478,16 @@ void Mesh::adaptivesubdividepatch(float error) {
 		if (t4.a != -1) {
 			triangles.push_back(t4);
 		}
+		*/
 	}
-	//when we're all done subdividing this patch, push all triangles onto meshTriangles
 	
+	//when we're all done subdividing this patch, push all triangles onto triangles
+	/*
 	for (int i = 0; i < triangles.size(); i++ ) {
-		meshTriangles.push_back(triangles[i]);
+		triangles.push_back(triangles[i]);
 	}
 	*/
+	
 	cout << "end subdivide" << endl;
 	
 }

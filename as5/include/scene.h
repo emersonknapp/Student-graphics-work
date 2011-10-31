@@ -6,7 +6,7 @@
 
 
 struct tri {
-	int a,b,c;
+	int v[3];
 } ;
 
 struct quad {
@@ -19,7 +19,9 @@ public:
 	vector<vec3> vertsVec;
 	vector<vec3> normsVec;
 	vector<vec2> uvVec;
-	vector<tri> meshTriangles;
+	vector<tri> triangles;
+	Mesh* controlPatch;
+	
 		
 	//vector<vec3> controlPatch;
 	
@@ -54,7 +56,6 @@ public:
 
 class TriMesh : public Mesh {
 public:
-	vector<vec3> triVerts;
 	void createArrays();
 };
 
