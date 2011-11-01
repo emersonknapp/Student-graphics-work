@@ -4,4 +4,17 @@ Gabe Fierro
 makefile makes for solaris, and was tested on star
 makefile.osx makes for osx
 
-Bezier subdivision, aw yeah
+The code was written/tested on a Macbook running 10.7, and was also compiled/tested on the cory/star machines and the Hive machines. We used the FreeImage library and the algebra3.h library (though we edited the latter to facilitate calculations with homogenous vec4).
+
+All of the images are in the subdirectory "images," and they were generated from the scene files in the "tests" directory. To generate each image, run "./as5 tests/$file $1 $2" where $file is the name of the test file. $2 is optional ("-a" specifies adaptive subdivision). $1 is the parameter for uniform subdivision if adaptive is not set, and the acceptable error bound for adaptive subdivision if adaptive *is* set.
+
+Each of the image titles should be sufficiently descriptive of what we rendered.
+
+teacup-adaptive-flat.png   teapotadaptive-flat.png    test-adaptive-flat.png
+teacup-adaptive-smooth.png teapotadaptive-smooth.png  test-adaptive-smooth.png
+teacup-adaptive-wire.png   teapotadaptive-wire.png    test-adaptive-wire.png
+teacup-uniform-flat.png    teapotuniform-flat.png     test-uniform-flat.png
+teacup-uniform-smooth.png  teapotuniform-smooth.png   test-uniform-smooth.png
+teacup-uniform-wire.png    teapotuniform-wire.png     test-uniform-wire.png
+
+The "teacup" model is a model I found here: http://www.holmes3d.net/graphics/teapot/
