@@ -28,6 +28,9 @@ OBJECTS = imagewriter.o classes.o scene.o as5.o
 
 SOURCES = imagewriter.cpp classes.cpp scene.cpp as5.cpp
 
+OBJFILES := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
+
+
 #-----------------------------------------
 
 LIBS = $(X_LIB) $(GL_LIB)
@@ -47,21 +50,28 @@ clean:
 #-----------------------------------------
 #-----------------------------------------
 
-as5: as5.o
-	$(CC) $(OBJECTS) $(LDOPTS) -o $(TARGET) 
 
-as5.o: as5.cpp
-	$(CC) $(SOURCES) -c $(CCOPTS)
+as5: $(OBJFILES)
+	$(CC) $(LDOPTS) -o as5 $(OBJFILES)
 
-imagewriter.o: imagewriter.cpp
-	$(CC) $(SOURCES) -c $(CCOPTS)
+%.o: %.cpp
+	$(CC) -c $< $(CCOPTS)
 
-classes.o: classes.cpp
-	$(CC) $(SOURCES) -c $(CCOPTS)
-
-scene.o: scene.cpp
-	$(CC) $(SOURCES) -c $(CCOPTS)
-
+#as5: as5.o
+#	$(CC) $(OBJECTS) $(LDOPTS) -o $(TARGET) 
+#
+#as5.o: as5.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTS)
+#
+#imagewriter.o: imagewriter.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTS)
+#
+#classes.o: classes.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTS)
+#
+#scene.o: scene.cpp
+#	$(CC) $(SOURCES) -c $(CCOPTS)
+#
 
 #export LD_LIBRARY_PATH="/usr/sww/pkg/Mesa/lib:/usr/lib:/usr/sww/lib"
 
