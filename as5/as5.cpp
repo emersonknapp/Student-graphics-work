@@ -62,6 +62,7 @@ void myDisplay() {
 	
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);				// clear the color buffer (sets everything to black)
 	
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	vec3 t = scene->translation;
 	glTranslatef(t[0] ,t[1], t[2]);
@@ -108,10 +109,8 @@ void myReshape(int w, int h) {
 	glViewport(0,0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+	gluPerspective(45, (double)w/(double)h, 0.1f, 1000.0f);
 	
-	gluPerspective(45, w/h, 0.1f, 1000.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
 }
 

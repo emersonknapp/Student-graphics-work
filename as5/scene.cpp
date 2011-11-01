@@ -268,6 +268,7 @@ void TriMesh::createArrays() {
 		indices[b+2] = triangles[i].v[2];
 	}
 	
+	/*
 	//DEBUG PRINT
 	cout << "VERTS" << endl;
 	for (int i=0; i<vertsVec.size(); i++) {
@@ -283,6 +284,7 @@ void TriMesh::createArrays() {
 		}
 		cout << endl;
 	}
+	*/
 }
 
 void Mesh::adaptivesubdividepatch(float error) {
@@ -454,7 +456,6 @@ void Mesh::adaptivesubdividepatch(float error) {
 		}
 	}
 	
-	cout << "end subdivide" << endl;
 	for (int i = modTri.size()-1; i >= 0 ; i--) {
 		triangles.erase(triangles.begin()+modTri[i]);
 	}
