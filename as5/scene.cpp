@@ -14,7 +14,7 @@ Scene::Scene(string filename, float p, bool adapt) {
 		}
 		meshes[i]->createArrays();
 	}
-	translation = vec3(0,0,-10);
+//	translation = vec3(0,0,-10);
 	translating = vec3(0,0,0);
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
@@ -26,6 +26,7 @@ Scene::Scene(string filename, float p, bool adapt) {
 	minZ = INT_MAX;
 	maxX = 0;
 	maxY = 0;
+	maxZ = 0;
 }
 
 void Scene::update(float dt) {
@@ -133,10 +134,14 @@ bool Scene::parseBezLine(string line, int lineNum) {
 		minY = min(bb,minY);
 		maxY = max(bb,maxY);
 		minZ = min(cc,minZ);
+		maxZ = max(cc,maxZ);
+		float tmpZ = max(abs(maxX-minX),abs(maxY-minY));
+		float zpoint = max(tmpZ,abs(maxZ-minZ));
+		translation = vec3(0,0,min(-.1f, -2*zpoint));
 		//meshes.back()->addUV(uv);
 		//cout << uv << endl;
+//		cout << translation << endl;
 	}
-	cout << minX << endl;
 	return true;
 	
 }
