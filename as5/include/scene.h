@@ -82,6 +82,7 @@ public:
 	int lastVertex;
 	float param;
 	bool smoothShading, wireframe, adaptiveSub;
+	float minX, minY, minZ, maxX, maxY;
 
 };
 

@@ -21,6 +21,11 @@ Scene::Scene(string filename, float p, bool adapt) {
 	rotating = vec3(0,0,0);
 	lastVertex = 0;
 	smoothShading = true;
+	minX = INT_MAX;
+	minY = INT_MAX;
+	minZ = INT_MAX;
+	maxX = 0;
+	maxY = 0;
 }
 
 void Scene::update(float dt) {
@@ -116,12 +121,22 @@ bool Scene::parseBezLine(string line, int lineNum) {
 	ss.str(line);
 	for (int i=0; i<4; i++) {
 		ss >> a >> b >> c;
+		float aa = atof(a.c_str());
+		float bb = atof(b.c_str());
+		float cc = atof(c.c_str());
 		vec3 v = vec3(atof(a.c_str()), atof(b.c_str()), atof(c.c_str()));
 		vec2 uv = vec2(i/3.0, lineNum/3.0);
 		meshes.back()->addVert(v);
+		//find x,y,z min maxes for autozoom
+		minX = min(aa,minX);
+		maxX = max(aa,maxX);
+		minY = min(bb,minY);
+		maxY = max(bb,maxY);
+		minZ = min(cc,minZ);
 		//meshes.back()->addUV(uv);
 		//cout << uv << endl;
 	}
+	cout << minX << endl;
 	return true;
 	
 }
