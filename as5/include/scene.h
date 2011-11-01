@@ -9,9 +9,7 @@ struct tri {
 	int v[3];
 } ;
 
-struct quad {
-	int a,b,c,d;
-} ;
+
 
 
 class Mesh {

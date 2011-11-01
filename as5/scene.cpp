@@ -21,9 +21,9 @@ Scene::Scene(string filename, float p, bool adapt) {
 	rotating = vec3(0,0,0);
 	lastVertex = 0;
 	smoothShading = true;
-	minX = INT_MAX;
-	minY = INT_MAX;
-	minZ = INT_MAX;
+	minX = 1001;
+	minY = 1001;
+	minZ = 1001;
 	maxX = 0;
 	maxY = 0;
 	maxZ = 0;
