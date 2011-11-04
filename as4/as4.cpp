@@ -150,15 +150,19 @@ void myDisplay() {
 	
 	for (float x = 0; x < viewport.w; x++) {
 		for (float y = 0; y < viewport.h; y++) {
-			Camera* camera = scene->camera;			
+			Camera* camera = scene->camera;		
+			
 			Ray camRay = camera->generate_ray(x/viewport.w,y/viewport.h);	
+			
 			//cout << camRay.dir << " " << camRay.pos << endl;		
 			//vec4 color = camRay.dir;
 			vec3 color = traceRay(camRay, 0);
 			color += scene->ambience;
 			setPixel(x,y,color[0], color[1], color[2]);
+			
 		}	
 	}
+	
 	
 	if(!imageWriter.drawing) {
 		glEnd();

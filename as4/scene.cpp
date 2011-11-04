@@ -131,6 +131,7 @@ bool Scene::parseLine(string line) {
 	} 
 	else if (op.compare("cam")==0) { //camera
 		//delete camera;
+		cout << "SIOJGH" << endl;
 		camera = new Camera();
 		camera->scale(scale);
 		camera->rotate(rotation);
