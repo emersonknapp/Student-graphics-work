@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>scene.cpp</string>
+	<string>as4.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>as4.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-27T17:47:06Z</date>
+			<date>2011-11-04T22:47:09Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -48,7 +48,7 @@
 			<key>filename</key>
 			<string>kdtree.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-19T19:41:36Z</date>
+			<date>2011-11-04T22:35:19Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -68,25 +68,27 @@
 			<key>filename</key>
 			<string>makefile.osx</string>
 			<key>lastUsed</key>
-			<date>2011-10-16T22:28:17Z</date>
+			<date>2011-11-04T22:47:09Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>scene.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-27T17:47:06Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-11-04T22:36:53Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>t</string>
+			<key>lastUsed</key>
+			<date>2011-11-04T22:30:48Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
 			<string>test</string>
 			<key>regexFolderFilter</key>
 			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>selected</key>
+			<true/>
 			<key>sourceDirectory</key>
 			<string>test</string>
 		</dict>
@@ -100,14 +102,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>36</integer>
+				<integer>5</integer>
 				<key>line</key>
-				<integer>241</integer>
+				<integer>156</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>217</integer>
+			<integer>138</integer>
 		</dict>
 		<key>imagewriter.cpp</key>
 		<dict>
@@ -165,35 +167,47 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>makefile.osx</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>34</integer>
+				<key>line</key>
+				<integer>23</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>scene.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>27</integer>
+				<key>line</key>
+				<integer>133</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>118</integer>
+		</dict>
+		<key>t</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>34</integer>
+				<integer>0</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>1</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>1</integer>
-				<key>line</key>
-				<integer>197</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>34</integer>
-			</dict>
+			<integer>0</integer>
 		</dict>
 		<key>test/4.t</key>
 		<dict>
@@ -321,7 +335,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>24</integer>
+			<integer>0</integer>
 		</dict>
 		<key>test/ss.t</key>
 		<dict>
@@ -337,14 +351,31 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>test/triforce.t</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>kdtree.cpp</string>
 		<string>imagewriter.cpp</string>
 		<string>test/poly2.t</string>
+		<string>makefile.osx</string>
 		<string>as4.cpp</string>
 		<string>scene.cpp</string>
+		<string>t</string>
+		<string>test/triforce.t</string>
 		<string>include/scene.h</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
@@ -354,6 +385,6 @@
 	<key>treeState</key>
 	<dict/>
 	<key>windowFrame</key>
-	<string>{{355, 0}, {675, 778}}</string>
+	<string>{{0, 0}, {1276, 778}}</string>
 </dict>
 </plist>
