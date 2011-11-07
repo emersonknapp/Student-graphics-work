@@ -1,7 +1,7 @@
 #ifndef _IMAGEWRITER_H
 #define _IMAGEWRITER_H
 
-#include "as4.h"
+#include "pc.h"
 
 #define BITSPERPIXEL 24
 

@@ -9,11 +9,11 @@ cc          = gcc
 #Optimization ----------------------------
 OPTMAC = -fast
 
-TARGETS = as4
+TARGETS = pc
 
-OBJECTS = classes.o as4.o imagewriter.o scene.o
+OBJECTS = classes.o pc.o imagewriter.o scene.o
 
-SOURCES = as4.cpp classes.cpp imagewriter.cpp scene.cpp
+SOURCES = pc.cpp classes.cpp imagewriter.cpp scene.cpp
 
 #-----------------------------------------
 # Mac specific stuff
@@ -37,7 +37,7 @@ clean:
 #-----------------------------------------
 #-----------------------------------------
 
-as4: as4.o
+pc: pc.o
 	$(CC) $(OBJECTS) $(FRAMEWORK) $(LDOPTSMAC) -o $(TARGETS)
 	
 imagewriter.o: imagewriter.cpp
@@ -49,7 +49,7 @@ classes.o: classes.cpp
 scene.o: scene.cpp
 	$(CC) $(SOURCES) -c $(CCOPTSMAC)
 
-as4.o: as4.cpp
+pc.o: pc.cpp
 	$(CC) $(SOURCES) -c $(CCOPTSMAC)
 
 

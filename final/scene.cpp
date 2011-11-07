@@ -102,6 +102,12 @@ bool Scene::parseLine(string line) {
 		parseMaterial.sp = sp;
 		if (DEBUG) cout << "added sp = " << parseMaterial.sp << endl;
 	}	
+	else if (op.compare("ri")==0) {
+		int ri;
+		ss >> ri;
+		parseMaterial.ri = ri;
+		if (DEBUG) cout << "added ri = " << parseMaterial.ri << endl;
+	}
 	else if (op.compare("s")==0) { //Parse a sphere
 		float r;
 		ss >> r;

@@ -75,6 +75,7 @@ public:
 	vec3 kd; //diffuse
 	vec3 ks; //specular
 	vec3 kr; //reflection coefficient
+	float ri; //refractive index
 	int sp; //specular power
 };
 
@@ -83,6 +84,7 @@ public:
 	vec4 pos;
 	vec4 dir;
 	float t_min, t_max;
+	float ri; //refractive index (current ri for this ray)
 	Ray();
 	Ray(vec4 a, vec4 b);	
 };

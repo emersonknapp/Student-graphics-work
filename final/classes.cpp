@@ -24,12 +24,14 @@ Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
 Ray::Ray() {
 	pos = vec4(0,0,0,0);
 	dir = vec4(0,0,0,0);
+	ri = 1.0;
 }	
 
 Ray::Ray(vec4 a, vec4 b) {
 	pos = a;
 	dir = b;
 	dir.normalize();
+	ri = 1.0;
 }
 	
 

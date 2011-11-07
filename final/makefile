@@ -22,11 +22,11 @@ GL_LIB  =   -lglut -lGLU -lGL -lX11 -lfreeimage
 
 #-----------------------------------------
 
-TARGET = as4
+TARGET = pc
 
-OBJECTS = imagewriter.o classes.o scene.o as4.o
+OBJECTS = imagewriter.o classes.o scene.o pc.o
 
-SOURCES = imagewriter.cpp classes.cpp scene.cpp as4.cpp
+SOURCES = imagewriter.cpp classes.cpp scene.cpp pc.cpp
 
 #-----------------------------------------
 
@@ -47,10 +47,10 @@ clean:
 #-----------------------------------------
 #-----------------------------------------
 
-as4: as4.o
+pc: pc.o
 	$(CC) $(OBJECTS) $(LDOPTS) -o $(TARGET) 
 
-as4.o: as4.cpp
+pc.o: pc.cpp
 	$(CC) $(SOURCES) -c $(CCOPTS)
 
 imagewriter.o: imagewriter.cpp
