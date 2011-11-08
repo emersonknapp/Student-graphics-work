@@ -192,7 +192,14 @@ void Scene::parseScene(string filename) {
 	if (!inFile) {
 		Error("Could not open file " + filename);
 	}
-
+	
+	size_t f = filename.find(".obj");
+	if (filename.size() - int(f) == 4 ) {
+		//init Camera
+		
+		//init material
+//		parseOBJ(inFile);
+	}
 
 	 while (inFile.good()) {
 		inFile.getline(line, 1023);
@@ -201,6 +208,21 @@ void Scene::parseScene(string filename) {
 		}
 	}
 	inFile.close();
+}
+
+void Scene::parseOBJ(ifstream& obj) {
+	char line[1024];
+	string op;
+	while (obj.good()) {
+		obj.getline(line, 1023);
+		
+		stringstream ss(stringstream::in | stringstream::out);
+		ss.str(line);
+		ss >> op;
+		
+	}
+	
+	obj.close();
 }
 
 bool Scene::rayIntersect(Ray r, float& t, int& index) {

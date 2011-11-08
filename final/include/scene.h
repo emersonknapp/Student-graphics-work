@@ -8,6 +8,7 @@ class Scene {
 public:
 	Scene(string);
 	void parseScene(string);
+	void parseOBJ(ifstream&);
 	bool parseLine(string);
 	vec4 getVertex(int);
 	int extractVertex(string);

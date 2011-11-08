@@ -86,7 +86,8 @@ public:
 	float t_min, t_max;
 	float ri; //refractive index (current ri for this ray)
 	Ray();
-	Ray(vec4 a, vec4 b);	
+	Ray(vec4 a, vec4 b);
+	Ray(vec4 a, vec4 b, float r);
 };
 
 class Renderable {

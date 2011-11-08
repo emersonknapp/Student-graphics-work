@@ -33,6 +33,13 @@ Ray::Ray(vec4 a, vec4 b) {
 	dir.normalize();
 	ri = 1.0;
 }
+
+Ray::Ray(vec4 a, vec4 b, float r) {
+	pos = a;
+	dir = b;
+	dir.normalize();
+	ri = r;
+}
 	
 
 
