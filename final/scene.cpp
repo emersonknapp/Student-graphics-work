@@ -103,7 +103,7 @@ bool Scene::parseLine(string line) {
 		if (DEBUG) cout << "added sp = " << parseMaterial.sp << endl;
 	}	
 	else if (op.compare("ri")==0) {
-		int ri;
+		float ri;
 		ss >> ri;
 		parseMaterial.ri = ri;
 		if (DEBUG) cout << "added ri = " << parseMaterial.ri << endl;
