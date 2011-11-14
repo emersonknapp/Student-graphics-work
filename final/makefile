@@ -2,6 +2,8 @@
 CC=g++
 cc=gcc
 
+OPT = -g -Wall
+
 UNAME := $(shell uname)
 
 #-LIBRARIES AND INCLUDES
@@ -9,16 +11,17 @@ LIBS = -lm -lstdc++ -lfreeimage
 INCS = -I include
 ifeq ($(UNAME), Linux)
 INCS += -L./lib/filinux -I./lib/filinux 
+OPT += -O3
 endif
 ifeq ($(UNAME), SunOS)
 INCS += -L./lib/fisolaris -I./lib/fisolaris
 endif
 ifeq ($(UNAME), Darwin)
 INCS += -L./lib/fiosx -I./lib/fiosx 
+OPT += -fast
 endif
 
-#OPTIMIZATIONS
-OPT = -fast -g -Wall
+#FLAGS
 CCOPTS = $(OPT) $(INCS) -c
 LDOPTS = $(OPT) $(INCS) $(LIBS)
 
