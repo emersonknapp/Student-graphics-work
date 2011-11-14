@@ -7,8 +7,7 @@
 
 class ImageWriter {
 public:
-	ImageWriter();
-	void init(int, int);
+	ImageWriter(int, int);
 	void setPixel(int, int, unsigned char[3]);
 	void setSize(int, int);
 	bool drawing;

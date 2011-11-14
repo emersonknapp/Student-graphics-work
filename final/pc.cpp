@@ -7,7 +7,7 @@ using namespace std;
 //****************************************************
 Viewport			viewport;
 Scene*				scene;
-ImageWriter			imageWriter;
+ImageWriter*		imageWriter;
 
 
 //****************************************************
@@ -16,33 +16,41 @@ ImageWriter			imageWriter;
 
 vec3 traceRay(Ray, int);
 
-void setPixel(float x, float y, GLfloat r, GLfloat g, GLfloat b) {
-	if (imageWriter.drawing) {
-		unsigned char color[3];
-		color[0] = min((int)floor(r*255), 255);
-		color[1] = min((int)floor(g*255), 255);
-		color[2] = min((int)floor(b*255), 255);
-		imageWriter.setPixel(x, y, color);
-	} else {
-		glColor3f(r, g, b);
-		glVertex2f(x, y);
-	}
+void setPixel(float x, float y, float r, float g, float b) {
+	unsigned char color[3];
+	color[0] = min((int)floor(r*255), 255);
+	color[1] = min((int)floor(g*255), 255);
+	color[2] = min((int)floor(b*255), 255);
+	imageWriter->setPixel(x, y, color);
+}
+
+void quitProgram(int exitCode) {
+	//Make sure to delete stuff that was created using new.
+	delete imageWriter;
+	delete scene;
+	FreeImage_DeInitialise();
+	exit(exitCode);
 }
 
 void Error(string msg) {
-	cout << msg << endl;
-	exit(1);
+	cerr << msg << endl;
+	quitProgram(1);
 }
 
-void quitProgram() {
-	//Make sure to delete stuff that was created using new.
-	delete scene;
-	FreeImage_DeInitialise();
-	exit(0);
+void Usage() {
+	cout << "Photon Cannon v" << VERSION_NUMBER << endl
+	<< "Usage:" << endl
+	<< "    pc [-s scene] [-pr outputfile] [-px x y]" << endl
+	<< "        -s: scene file" << endl
+	<< "        -pr: output print file name, defaults to \"out.png\"" << endl
+	<< "        -px: the size of the output image, in pixels" << endl
+	;
+	quitProgram(0);
 }
+
 
 //***************************************************
-// does phong shading on a point
+// Do phong shading on a point
 //***************************************************
 vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	vec3 normal = norm.dehomogenize();
@@ -56,24 +64,25 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	// don't forget to increase recursionDepth!
 	
 	//Loop through lights
-	for (int i=0; i<scene->lights.size(); i++) {
-		Light* currentLight = scene->lights[i];
+	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
+		Light* currentLight = *it;
 		
-		float t = T_MAX;
 		Material material;
 		bool shadePixel = true;
-		float newT;
+		float t;
 
 		
 		//shadow ray
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
 		//Linearly search renderables for shadow intersection
-		for (int j = 0; j < scene->renderables.size(); j++ ) {
-			Renderable* rend = scene->renderables[j];
-			if((newT=rend->ray_intersect(lightCheck)) <= lightCheck.dir.length() && newT>0 && index != j) {	
+		int j = 0;
+		for (vector<Renderable*>::iterator it = scene->renderables.begin(); it != scene->renderables.end(); ++it) {
+			Renderable* rend = *it;
+			if((t=rend->ray_intersect(lightCheck)) <= lightCheck.dir.length() && t>0 && index != j) {	
 				shadePixel = false;
 				break;
 			}
+			++j;
 		}
 		
 		if (shadePixel) {
@@ -169,11 +178,9 @@ vec3 traceRay(Ray r, int depth) {
 //***************************************************
 // Function what actually draws to screen
 //***************************************************
-void myDisplay() {
-	if (!imageWriter.drawing) {
-		glClear(GL_COLOR_BUFFER_BIT);				// clear the color buffer (sets everything to black)
-		glBegin(GL_POINTS);
-	}
+void render() {
+	
+	cout << "Rendering..." << endl;
 	
 	for (float x = 0; x < viewport.w; x++) {
 		for (float y = 0; y < viewport.h; y++) {
@@ -187,89 +194,33 @@ void myDisplay() {
 		}	
 	}
 	
-	if(!imageWriter.drawing) {
-		glEnd();
-		
-		glFlush();
-		glutSwapBuffers();					// swap buffers (we earlier set double buffer)
-	}
+	cout << "Completed render! Outputting to file." << endl;
+	imageWriter->printScreen();
 	
-	
-	
-	if (imageWriter.drawing) {
-		
-		if (DEBUG) cout << "Completed render! Outputting to file." << endl;
-		imageWriter.printScreen();
-		quitProgram();	
-	}
 }
-
-//Reshape the viewport if the window is resized
-void myReshape(int w, int h) {
-	viewport.w = w;
-	viewport.h = h;
-	
-	glViewport(0,0, w, h);// sets the rectangle that will be the window
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();				// loading the identity matrix for the screen
-	
-	gluOrtho2D(0, viewport.w, 0, viewport.h);
-
-}
-
-//Deals with normal keydowns
-void processNormalKeys(unsigned char key, int x, int y) {
-	//escape, q quit
-	if (key == 27 || key == 'q' || key==32) {
-		quitProgram();
-	} else if (key >= '0' && key <= '9') {	
-		string name = "pic";
-		name += key;
-		name += ".png";
-		imageWriter.fileName = name;
-		imageWriter.init(viewport.w, viewport.h);
-	}
-}
-
-//Deals with normal keyups
-void processNormalKeyups(unsigned char key, int x, int y) {
-
-}
-
-//****************************************************
-// sets the window up
-//****************************************************
-void initScene(){
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Clear to black, fully transparent
-	myReshape(viewport.w,viewport.h);
-	if (DEBUG) cout << "Scene initialized" << endl;
-}
-
 
 void processArgs(int argc, char* argv[]) {
+	if (argc < 2) {
+		Usage();
+	}
 	
+	string arg;
 	for (int i=1; i<argc; i++) {
-		vec3 translation(0,0,0);
-		vec3 scale(1,1,1);
-		vec3 rotation(0,0,0);
 		
-		string arg = argv[i];
+		arg = argv[i];
 		
 		if (arg.compare("-s") == 0) {
-			scene = new Scene(argv[++i]);
-		} else if (arg.compare("-pr")==0) {
-			imageWriter.init(viewport.w, viewport.h);
-			imageWriter.glOn = false;
-			imageWriter.fileName = argv[++i];
+			scene->parseScene(argv[++i]);
+		} else if (arg.compare("-pr")==0) { //TODO: fix this.
+			imageWriter->fileName = argv[++i];
 		} else if (arg.compare("-px")==0) {
 			int width = atoi(argv[++i]);
 			int height = atoi(argv[++i]);
 			viewport.w = width;
 			viewport.h = height;
-			imageWriter.setSize(width, height);
+			imageWriter->setSize(width, height);
 		}
 	}
-
 	
 }
 
@@ -280,37 +231,14 @@ int main(int argc, char *argv[]) {
 	
 	srand((unsigned)time(NULL));
 	
-	//Initialize FreeImage library
-	
-	//cout << "FreeImage " << FreeImage_GetVersion() << endl;
-	//cout << FreeImage_GetCopyrightMessage() << endl;
-	
+	//TODO: init stuff
 	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
+	imageWriter = new ImageWriter(viewport.w, viewport.h);
+	scene = new Scene();
+	
 	processArgs(argc, argv);
 	
-	if (imageWriter.drawing) {
-		myDisplay();
-	} else {
-	  	glutInit(&argc, argv);
-	
-	  	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	render();
 
-	  	//The size and position of the window
-	  	glutInitWindowSize(viewport.w, viewport.h);
-	  	glutInitWindowPosition(-1, -1);
-	  	glutCreateWindow("Final Project Bitchessssss");
-	
-	  	initScene();							// quick function to set up scene
-
-		glutIgnoreKeyRepeat(1);
-		glutKeyboardFunc(processNormalKeys);
-		glutKeyboardUpFunc(processNormalKeyups);
-		glutIdleFunc(glutPostRedisplay);
-	  	glutDisplayFunc(myDisplay);				// function to run when its time to draw something
-	  	glutReshapeFunc(myReshape);				// function to run when the window gets resized
-	
-		glutMainLoop();							// infinite loop that will keep drawing and resizing and whatever else
-	}
-  
   	return 0;
 }

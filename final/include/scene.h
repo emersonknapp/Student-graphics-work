@@ -6,7 +6,7 @@
 
 class Scene {
 public:
-	Scene(string);
+	Scene();
 	void parseScene(string);
 	void parseOBJ(ifstream&);
 	bool parseLine(string);

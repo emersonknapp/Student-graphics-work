@@ -2,14 +2,11 @@
 
 using namespace std;
 
-Scene::Scene(string filename) {
-	parseScene(filename);
-	Material parseMaterial;
+Scene::Scene() {
 	translation = vec3(0,0,0);
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
 	lastVertex = 0;
-	//camera = new Camera();
 }
 
 vec4 Scene::getVertex(int i) {
@@ -22,7 +19,7 @@ vec4 Scene::getVertex(int i) {
 
 int Scene::extractVertex(string s) {
 	string result = "";
-	for (int i=0; i<s.length(); i++) {
+	for (unsigned int i=0; i<s.length(); i++) {
 		if (s[i] == '/') {
 			break;
 		} else {
@@ -228,13 +225,14 @@ void Scene::parseOBJ(ifstream& obj) {
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
 	
 	float newT;
-	int renderableIndex=-1;
 	bool hasHit = false;
-	
-	for (int i=0; i<renderables.size(); i++) {
+
+	int i=0;
+	for (vector<Renderable*>::iterator it=renderables.begin(); it != renderables.end(); ++it, ++i) {
+		Renderable* rend = *it;
 		vec3 color = vec3(0,0,0);
 		//cout << renderables[i]->tmat << endl << endl;
-		if((newT=renderables[i]->ray_intersect(r)) < t && newT>0) {	
+		if((newT=rend->ray_intersect(r)) < t && newT>0) {	
 			hasHit = true;			
 			index = i;
 			t = newT;
