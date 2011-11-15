@@ -39,19 +39,19 @@ bool Scene::parseLine(string line) {
 	stringstream ss(stringstream::in | stringstream::out);
 	ss.str(line);
 	ss >> op;
-	if (op.compare("")==0) {
+	if (op.compare("")==0) { //empty lines
 		return true;
 	}
-	else if (op[0] == '#') {
+	else if (op[0] == '#') { //comments
 		return true;
 	}
-	else if (op.compare("v") == 0) {
+	else if (op.compare("v") == 0) { //vertex
 		double x, y, z;
 		ss >> x >> y >> z;
 		lastVertex++;
 		vertices.push_back(vec4(x,y,z,1));
 	} 
-	else if (op.compare("f") == 0) {
+	else if (op.compare("f") == 0) { //face, for now just a triangle TODO: earclipping
 		string i, j, k;
 		ss >> i >> j >> k;
 		int l, m, n;
@@ -70,36 +70,36 @@ bool Scene::parseLine(string line) {
 		renderables.push_back(tri);
 		if (DEBUG) cout << "Added triangle to scene. " << a << b << c << endl;
 	} 
-	else if (op.compare("ka") == 0) {
+	else if (op.compare("ka") == 0) { //ambient
 		float r, g, b;
 		ss >> r >> g >> b;
 		ambience = vec3(r, g, b);
 		if (DEBUG) cout << "added ka = " << ambience << endl;
 	}
-	else if (op.compare("kd") == 0) {
+	else if (op.compare("kd") == 0) { //diffuse
 		float r, g, b;
 		ss >> r >> g >> b;
 		parseMaterial.kd = vec3(r, g, b);
 		if (DEBUG) cout << "added kd = " << parseMaterial.kd << endl;				
 	} 	
-	else if (op.compare("ks") == 0) {
+	else if (op.compare("ks") == 0) { //specular
 		float r, g, b;
 		ss >> r >> g >> b;
 		parseMaterial.ks = vec3(r, g, b);
 		if (DEBUG) cout << "added ks = " << parseMaterial.ks << endl;
 	} 
-	else if (op.compare("kr") == 0) {
+	else if (op.compare("kr") == 0) { //reflective
 		float r,g,b;
 		ss >> r >> g >> b;
 		parseMaterial.kr = vec3(r, g, b);
 	}
-	else if (op.compare("sp")==0) {
+	else if (op.compare("sp")==0) { //specular power
 		int sp;
 		ss >> sp;
 		parseMaterial.sp = sp;
 		if (DEBUG) cout << "added sp = " << parseMaterial.sp << endl;
 	}	
-	else if (op.compare("ri")==0) {
+	else if (op.compare("ri")==0) { //index of refraction
 		float ri;
 		ss >> ri;
 		parseMaterial.ri = ri;
