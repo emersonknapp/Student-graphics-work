@@ -122,12 +122,15 @@ vec3 traceRay(Ray r, int depth) {
 	vec3 color = vec3(0,0,0);
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
-
+	
 	if (hasHit) {
+		
+
+		
 		Renderable* rend = scene->renderables[renderableIndex];
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
-
+		
 		color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
@@ -137,29 +140,32 @@ vec3 traceRay(Ray r, int depth) {
 		
 		vec3 refl = d - 2*(d*n)*n;
 		refl.normalize();
-		// to note: air has ri = 1.0 (should be default)
-		// non refractive materials have ri = 0
-		// all else are ri != 1.0 or != 0
 		// if hasHit, check the refractive index (ri) of the material we hit.
 		// if ri > 0, then the material is refractive, so we calculate the angle of refraction, and send out a new ray
 		if (rend->material.ri > 0) {
 			float c1 = -(n*d);
-			float refractiveIndex;
 			// if current index of ray is the same as the one we're hitting, it means we're inside something
 			// and going outside, so we set the refractiveIndex to 1.0 (air)
-			if (r.ri == rend->material.ri) refractiveIndex = 0.0f; else refractiveIndex = rend->material.ri;
-//			float nn = r.ri / refractiveIndex;
-			// get dotproduct of normal and incident ray (as unit vector). If absolute value is less than 90, we're outside, if > 90, we're inside
+			float nn;
+			vec4 rayStart;
+			if (c1 < 0) {
+				nn = rend->material.ri; // ri / 1.0
+				rayStart = hitPoint-EPSILON*normal;
+			} else {
+				nn = 1.0 / rend->material.ri;
+				rayStart = hitPoint+EPSILON*normal;
+			}
 			
-			float nn = refractiveIndex / r.ri;
-			float c2 = 1-pow(nn,2) * (1 - pow(c1,2));
+			float c2 = 1.0-pow(nn,2) * (1.0 - pow(c1,2));
 			if (c2 > 0.0) {
 				vec3 tmp1 = (nn*d);
-				vec3 tmp2 = (nn*c1-sqrt(c2))*normal.normalize();
+				vec3 tmp2 = (nn*c1-sqrt(c2))*normal.dehomogenize().normalize();
 				vec3 tmp3 = tmp1 + tmp2;
-				vec3 rayDirection = tmp3.normalize();
-				Ray refractedRay = Ray(hitPoint,rayDirection,rend->material.ri);
+				vec4 rayDirection = vec4(tmp3,0);
+				rayDirection.normalize();
+				Ray refractedRay = Ray(rayStart,rayDirection,true);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
+
 				//TODO: is there some constant we multiply this by?
 //				r.ri = rend->material.ri;
 				color += refractedColor;
@@ -189,6 +195,7 @@ void render() {
 			//cout << camRay.dir << " " << camRay.pos << endl;		
 			//vec4 color = camRay.dir;
 			vec3 color = traceRay(camRay, 0);
+			//TODO: this next line adds ambient color to *every* pixel, regardless of whether or not it's on an object
 			color += scene->ambience;
 			setPixel(x,y,color[0], color[1], color[2]);
 		}	

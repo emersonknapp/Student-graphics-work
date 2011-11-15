@@ -11,6 +11,7 @@ Material::Material() {
 	ks = vec3(0,0,0);
 	kr = vec3(0,0,0);
 	sp = 0;
+	ri = 0.0;
 }
 
 Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
@@ -24,24 +25,22 @@ Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
 Ray::Ray() {
 	pos = vec4(0,0,0,0);
 	dir = vec4(0,0,0,0);
-	ri = 0.0;
+	refracted = false;
 }	
 
 Ray::Ray(vec4 a, vec4 b) {
 	pos = a;
 	dir = b;
 	dir.normalize();
-	ri = 0.0;
-}
+	refracted = false;
+}	
 
-Ray::Ray(vec4 a, vec4 b, float r) {
+Ray::Ray(vec4 a, vec4 b, bool t) {
 	pos = a;
 	dir = b;
 	dir.normalize();
-	ri = r;
+	refracted = t;
 }
-	
-
 
 Renderable::Renderable () {
 	tmat = mat4(

@@ -76,10 +76,10 @@ public:
 	vec4 pos;
 	vec4 dir;
 	float t_min, t_max;
-	float ri; //refractive index (current ri for this ray)
+	bool refracted;
 	Ray();
 	Ray(vec4 a, vec4 b);
-	Ray(vec4 a, vec4 b, float r);
+	Ray(vec4 a, vec4 b, bool t);
 };
 
 class Renderable {
