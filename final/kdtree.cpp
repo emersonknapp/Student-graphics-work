@@ -5,6 +5,13 @@ class KDTree {
 	
 };
 
+/*
+vertices for kdtree = one vector from each triangle, or centerpoints, also center of spheres
+construct kdtree.
+for each level of kdtree, construct corresponding AABB for the entire set.
+Now, do intersections against AABB tree, the kdtree can wither and die.
+*/
+
 void KDTree::construct(vector<vec4>* vertices, int depth) {
 	if (vertices->size() == 0) {
 		return;
@@ -13,6 +20,7 @@ void KDTree::construct(vector<vec4>* vertices, int depth) {
 		int axis = depth % 3;
 
 		// Sort point list and choose median as pivot element
+		
 		select median by axis from pointList;
 
 		// Create node and construct subtrees
