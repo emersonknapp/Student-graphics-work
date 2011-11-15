@@ -204,7 +204,11 @@ float Triangle::ray_intersect ( Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
 	raydir.normalize();
-
+	
+	if (normal(vec4(0,0,0,1)) * raydir == 0) {
+	  return -1
+	 }
+	
 	vec4 a = v2-v3;
 	vec4 b = v1-v3;
 	vec3 res = mat3(
