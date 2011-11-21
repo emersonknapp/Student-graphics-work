@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "scene.h"
 
 class KDTree {
 	KDTree();
