@@ -71,11 +71,7 @@
 	<dict/>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
-	<key>showFileHierarchyPanel</key>
-	<true/>
-	<key>treeState</key>
-	<dict/>
 	<key>windowFrame</key>
-	<string>{{10, 0}, {1063, 778}}</string>
+	<string>{{10, 4}, {1063, 774}}</string>
 </dict>
 </plist>

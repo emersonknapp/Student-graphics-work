@@ -99,8 +99,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
-			// if the material is refractive, we only use specular ???
-//			if (material.ri != 0) color = specular; else color += specular;
+
 			color += specular;
 		}
 		
@@ -125,13 +124,15 @@ vec3 traceRay(Ray r, int depth) {
 	
 	if (hasHit) {
 		
-
-		
 		Renderable* rend = scene->renderables[renderableIndex];
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
 		
 		color += shade(r, hitPoint, normal, renderableIndex);
+		
+		if (rend->material.ri == 1.33) {
+			cout << color << endl;
+		}
 		
 		vec3 n = -normal.dehomogenize();
 		vec3 d = r.dir.dehomogenize();
@@ -140,34 +141,29 @@ vec3 traceRay(Ray r, int depth) {
 		
 		vec3 refl = d - 2*(d*n)*n;
 		refl.normalize();
-		// if hasHit, check the refractive index (ri) of the material we hit.
-		// if ri > 0, then the material is refractive, so we calculate the angle of refraction, and send out a new ray
+
 		if (rend->material.ri > 0) {
-			float c1 = -(n*d);
-			// if current index of ray is the same as the one we're hitting, it means we're inside something
-			// and going outside, so we set the refractiveIndex to 1.0 (air)
+			float c1 = (n*d);
 			float nn;
 			vec4 rayStart;
 			if (c1 < 0) {
 				nn = rend->material.ri; // ri / 1.0
-				rayStart = hitPoint-EPSILON*normal;
+				rayStart = hitPoint+EPSILON*normal;
 			} else {
 				nn = 1.0 / rend->material.ri;
-				rayStart = hitPoint+EPSILON*normal;
+				rayStart = hitPoint-EPSILON*normal;
 			}
 			
-			float c2 = 1.0-pow(nn,2) * (1.0 - pow(c1,2));
+			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
 			if (c2 > 0.0) {
 				vec3 tmp1 = (nn*d);
-				vec3 tmp2 = (nn*c1-sqrt(c2))*normal.dehomogenize().normalize();
+				vec3 tmp2 = (nn*c1-sqrt(c2))*(n);
 				vec3 tmp3 = tmp1 + tmp2;
+				tmp3.normalize();
 				vec4 rayDirection = vec4(tmp3,0);
-				rayDirection.normalize();
 				Ray refractedRay = Ray(rayStart,rayDirection,true);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
-
-				//TODO: is there some constant we multiply this by?
-//				r.ri = rend->material.ri;
+				cout << refractedColor << endl;
 				color += refractedColor;
 			}
 		}
