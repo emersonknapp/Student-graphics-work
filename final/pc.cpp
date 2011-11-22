@@ -128,6 +128,15 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
 		
+/*		if (r.refracted) {
+			cout << "start: " << r.pos << " end: " << hitPoint << endl;
+			Ray tmp = Ray(vec4(0,0,0,1),vec4(0,0,-1,0));
+			t = T_MAX;
+			if (scene->rayIntersect(tmp,t,renderableIndex)) {
+				cout << tmp.pos + t * tmp.dir << endl;
+			}
+		}
+*/		
 		color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
@@ -141,16 +150,12 @@ vec3 traceRay(Ray r, int depth) {
 		if (rend->material.ri > 0) {
 			float c1 = (n*d);
 			float nn;
-			vec4 rayStart;
-			//TODO: I'm pretty sure the bug is in this if/else statement
 			if (c1 < 0) {
 				nn = rend->material.ri; // ri / 1.0
-				rayStart = hitPoint+EPSILON*normal;
 				//i realize that this is redundant, I'm just doing it explicitly to keep track of what I'm doing
 				n=-normal.dehomogenize().normalize();
 			} else {
 				nn = 1.0 / rend->material.ri;
-				rayStart = hitPoint-EPSILON*normal;
 				n=normal.dehomogenize().normalize();
 			}
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
@@ -160,7 +165,7 @@ vec3 traceRay(Ray r, int depth) {
 				vec3 tmp3 = tmp1 + tmp2;
 				tmp3.normalize();
 				vec4 rayDirection = vec4(tmp3,0);
-				Ray refractedRay = Ray(rayStart,rayDirection,true);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,true);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
 				color += refractedColor;
 			}

@@ -182,7 +182,9 @@ float Sphere::ray_intersect (Ray r) {
 		float x1 = ((-1*b) - sqrt(discrim))/2;
 		float x2 = ((-1*b) + sqrt(discrim))/2;
 		float t = min(x1,x2);
-		
+		if ((t*raydir) * (raydir) < 0) { //if the ray folds back on itself. We always want ot move *forward*, so we check if the dot product is negative
+			t = max(x1,x2);
+		}
 		vec4 intersection = raypos + t * raydir;
         if (r.dir[2] != 0) t = (tmat*intersection - r.pos)[2] / r.dir[2];
 		else if (r.dir[1] != 0) t = (tmat*intersection - r.pos)[1] / r.dir[1];
