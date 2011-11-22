@@ -1,8 +1,14 @@
 #include <algorithm>
 #include "scene.h"
+#include "trees.h"
 
 class KDTree {
-	KDTree();
+	KDTree(vector<vec4>*, int);
+	vector<vec3>* vertices;
+	KDTree* leftChild;
+	KDTree* rightChild;
+	int median; //the value at this node
+	
 	
 };
 
@@ -13,7 +19,7 @@ for each level of kdtree, construct corresponding AABB for the entire set.
 Now, do intersections against AABB tree, the kdtree can wither and die.
 */
 
-void KDTree::construct(vector<vec4>* vertices, int depth) {
+KDTree::KDTree(vector<vec4>* vertices, int depth) {
 	if (vertices->size() == 0) {
 		return;
 	} else {
@@ -25,8 +31,8 @@ void KDTree::construct(vector<vec4>* vertices, int depth) {
 		select median by axis from pointList;
 
 		// Create node and construct subtrees
-		var tree_node node;
-		node.location := median;
+		KDTree node;
+		location = median;
 		node.leftChild := kdtree(points in pointList before median, depth+1);
 		node.rightChild := kdtree(points in pointList after median, depth+1);
 		return node;
