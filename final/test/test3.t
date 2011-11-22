@@ -20,7 +20,7 @@ translate 0 .5 -4
 f 3 2 1
 
 translate 0 0 0
-ri 1.33
+ri 6
 kd 0 0 .2
 ks .1 .1 0
 s 2

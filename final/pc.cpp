@@ -145,13 +145,13 @@ vec3 traceRay(Ray r, int depth) {
 			if (c1 < 0) {
 				nn = rend->material.ri; // ri / 1.0
 				rayStart = hitPoint+EPSILON*normal;
-				n=-normal.dehomogenize();
+				n=-normal.dehomogenize().normalize();
 			} else {
 				nn = 1.0 / rend->material.ri;
 				rayStart = hitPoint-EPSILON*normal;
-				n=normal.dehomogenize();
+				n=normal.dehomogenize().normalize();
 			}
-			
+			cout << nn << endl;	
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
 			if (c2 > 0.0) {
 				vec3 tmp1 = (nn*d);
