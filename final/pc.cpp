@@ -37,6 +37,10 @@ void Error(string msg) {
 	quitProgram(1);
 }
 
+void Warning(string msg) {
+	cerr << "Warning: " << msg << endl;
+}
+
 void Usage() {
 	cout << "Photon Cannon v" << VERSION_NUMBER << endl
 	<< "Usage:" << endl
@@ -151,7 +155,7 @@ vec3 traceRay(Ray r, int depth) {
 				rayStart = hitPoint-EPSILON*normal;
 				n=normal.dehomogenize().normalize();
 			}
-			cout << nn << endl;	
+			//cout << nn << endl;	
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
 			if (c2 > 0.0) {
 				vec3 tmp1 = (nn*d);

@@ -24,6 +24,7 @@
 #include "classes.h"
 #include "imagewriter.h"
 #include "scene.h"
+#include "mesh.h"
 
 
 #define VERSION_NUMBER "0.1"
@@ -40,6 +41,7 @@
 
 //Simple function to display a message and exit the program with status 1
 void Error(string);
+void Warning(string);
 
 enum {POINT, DIR};
 
