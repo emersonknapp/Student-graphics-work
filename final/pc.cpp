@@ -132,15 +132,6 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
 		
-/*		if (r.refracted) {
-			cout << "start: " << r.pos << " end: " << hitPoint << endl;
-			Ray tmp = Ray(vec4(0,0,0,1),vec4(0,0,-1,0));
-			t = T_MAX;
-			if (scene->rayIntersect(tmp,t,renderableIndex)) {
-				cout << tmp.pos + t * tmp.dir << endl;
-			}
-		}
-*/		
 		color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
@@ -154,14 +145,17 @@ vec3 traceRay(Ray r, int depth) {
 		if (rend->material.ri > 0) {
 			float c1 = (n*d);
 			float nn;
-			if (c1 < 0) {
-				nn = rend->material.ri; // ri / 1.0
-				//i realize that this is redundant, I'm just doing it explicitly to keep track of what I'm doing
+			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
+				nn = rend->material.ri / r.ri;
+				r.ri = rend->material.ri;
 				n=-normal.dehomogenize().normalize();
-			} else {
-				nn = 1.0 / rend->material.ri;
+			} else { // ray hits inside of object, then we know we're going to air
+				r.ri = 1.0;
+				nn = r.ri / rend->material.ri;
 				n=normal.dehomogenize().normalize();
 			}
+			nn = (rend->material.ri) / (r.ri);
+
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
 			if (c2 > 0.0) {
 				vec3 tmp1 = (nn*d);

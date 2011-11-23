@@ -33,14 +33,33 @@ Ray::Ray(vec4 a, vec4 b) {
 	dir = b;
 	dir.normalize();
 	refracted = false;
+	ri = 1.0;
 }	
+
+Ray::Ray(vec4 a, vec4 b, float r) {
+	pos = a;
+	dir = b;
+	dir.normalize();
+	ri = r;
+}
 
 Ray::Ray(vec4 a, vec4 b, bool t) {
 	pos = a;
 	dir = b;
 	dir.normalize();
 	refracted = t;
+	ri = 1.0;
 }
+
+
+Ray::Ray(vec4 a, vec4 b, float r, bool t) {
+	pos = a;
+	dir = b;
+	dir.normalize();
+	ri = r;
+	refracted = t;
+}
+
 
 Renderable::Renderable () {
 	tmat = mat4(

@@ -77,9 +77,12 @@ public:
 	vec4 dir;
 	float t_min, t_max;
 	bool refracted;
+	float ri;
 	Ray();
 	Ray(vec4 a, vec4 b);
+	Ray(vec4 a, vec4 b, float r);
 	Ray(vec4 a, vec4 b, bool t);
+	Ray(vec4 a, vec4 b, float r, bool t);
 };
 
 class Renderable {
