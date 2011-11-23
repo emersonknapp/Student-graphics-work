@@ -116,22 +116,7 @@ bool Scene::parseLine(string line) {
 		renderables.push_back(sph);
 		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
 		//cout << translation << rotation << scale << endl;
-	} 
-	else if (op.compare("t")==0) { //triangle i j k
-		int i, j, k;
-		ss >> i >> j >> k;
-		vec4 a, b, c;
-		a = vec4(getVertex(i), 1);
-		b = vec4(getVertex(j), 1);
-		c = vec4(getVertex(k), 1);
-		Triangle* tri = new Triangle(a, b, c);
-		tri->scale(scale);
-		tri->rotate(rotation);
-		tri->translate(translation);
-		tri->material = parseMaterial;
-		renderables.push_back(tri);
-		if (DEBUG) cout << "Added triangle to scene." << endl;
-	} 
+	}
 	else if (op.compare("cam")==0) { //camera
 		//delete camera;
 		camera = new Camera();

@@ -183,7 +183,12 @@ vec3 traceRay(Ray r, int depth) {
 //***************************************************
 void render() {
 	
-	cout << "Rendering..." << endl;
+	/*Logging output */
+	clog << "Rendering";
+	int onepercent = viewport.w/100;
+	int progress = 0.0;
+	int nextpercent = onepercent;
+	/*End*/
 	
 	for (float x = 0; x < viewport.w; x++) {
 		for (float y = 0; y < viewport.h; y++) {
@@ -195,10 +200,18 @@ void render() {
 			//TODO: this next line adds ambient color to *every* pixel, regardless of whether or not it's on an object
 			color += scene->ambience;
 			setPixel(x,y,color[0], color[1], color[2]);
-		}	
+		}
+		
+		/* logging output */
+		progress += 1.0;
+		if (progress >= nextpercent) {	
+			clog << ".";
+			nextpercent += onepercent;
+		}
+		/* End */
 	}
 	
-	cout << "Completed render! Outputting to file." << endl;
+	cout << endl << "Completed render! Outputting to file." << endl;
 	imageWriter->printScreen();
 	
 }
