@@ -7,11 +7,19 @@ for each level of kdtree, construct corresponding AABB for the entire set.
 Now, do intersections against AABB tree, the kdtree can wither and die.
 */
 
-bool xCompare(vec4 a, vec4 b) { return a[X] < b[X]; }
-bool yCompare(vec4 a, vec4 b) { return a[Y] < b[Y]; }
-bool zCompare(vec4 a, vec4 b) { return a[Z] < b[Z]; }
+bool xCompare(Renderable* a, Renderable* b) { 
+	return a->center[X] < b->center[X]; 
+}
+bool yCompare(Renderable* a, Renderable* b) { 
+	return a->center[Y] < b->center[Y]; 
+}
+bool zCompare(Renderable* a, Renderable* b) { 
+	return a->center[Z] < b->center[Z]; 
+}
 
-KDTree::KDTree(vector<vec4>::iterator begin, vector<vec4>::iterator end, int depth, Scene* s) {
+KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterator end, int depth, Scene* s) {
+	clog << "Constructing k-d tree depth " << depth << endl;
+	
 	scene = s;
 	if (begin == end) {
 		return;
@@ -35,9 +43,9 @@ KDTree::KDTree(vector<vec4>::iterator begin, vector<vec4>::iterator end, int dep
 		/* Sort point list and choose median as pivot element */
 		sort(begin, end, comparator);
 		int medianIndex = distance(begin, end)/2;
-		vector<vec4>::iterator median = begin;
+		vector<Renderable*>::iterator median = begin;
 		advance(median, medianIndex);
-		vec4 pivot = *median;
+		vec3 pivot = (*median)->center;
 		cout << pivot << endl;
 		//median = pivot[axis];
 		
@@ -46,6 +54,7 @@ KDTree::KDTree(vector<vec4>::iterator begin, vector<vec4>::iterator end, int dep
 		//leftChild = new KDTree(points in vertices before median, depth+1);
 		//rightChild = new KDTree(points in vertices after median, depth+1);
 	}
+	clog << "k-d tree " << depth << " completed." << endl;
 }
 
 KDTree::~KDTree() {

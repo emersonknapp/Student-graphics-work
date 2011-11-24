@@ -191,15 +191,16 @@ void render() {
 	/*End*/
 	
 	for (float x = 0; x < viewport.w; x++) {
-		for (float y = 0; y < viewport.h; y++) {
+		for (float y = 0; y < viewport.h; y++) {			
 			Camera* camera = scene->camera;			
 			Ray camRay = camera->generate_ray(x/viewport.w,y/viewport.h);	
 			//cout << camRay.dir << " " << camRay.pos << endl;		
 			//vec4 color = camRay.dir;
 			vec3 color = traceRay(camRay, 0);
+			
 			//TODO: this next line adds ambient color to *every* pixel, regardless of whether or not it's on an object
 			color += scene->ambience;
-			setPixel(x,y,color[0], color[1], color[2]);
+			setPixel(x,y,color[0], color[1], color[2]);			
 		}
 		
 		/* logging output */

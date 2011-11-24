@@ -20,7 +20,6 @@ public:
 	Material parseMaterial; /* Temporary storage for the most recently parsed material */
 	vector<vec4> vertices;
 	int lastVertex; /* Vertices.size()-1, shortcut to index of last vertex */
-	vector<vec3> centers; /* One point associated with each renderable, for use in the kdtree */
 	vector<Renderable*> renderables;
 	vector<Light*> lights;
 	Camera * camera;

@@ -86,7 +86,7 @@ void Renderable::translate (float x, float y, float z) { // generates translatio
 				);
 
 	tmat = transmat * rotmat * scalemat;
-	
+	//center = tmat*center;
 	imat = tmat.inverse();
 	
 }
@@ -121,6 +121,7 @@ void Renderable::rotate(float x, float y, float z) { // generates rotation matri
 				 );
 
 	tmat = transmat * rotmat * scalemat;
+	//center = tmat*center;
 	imat = tmat.inverse();
 	
 }
@@ -141,6 +142,7 @@ void Renderable::scale(float xScale, float yScale, float zScale) { // generates 
 				vec4(0,0,0,1.0f)
 				);
 	tmat = transmat * rotmat * scalemat;
+	//center = tmat*center;
 	imat = tmat.inverse();
 }
 
@@ -182,7 +184,7 @@ Ray Camera::generate_ray (float u, float v) {
 
 
 Sphere::Sphere() : Renderable() {
-	
+	center = vec3(0,0,0);
 }
 
 float Sphere::ray_intersect (Ray r) {
@@ -225,6 +227,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
+	center = ((v1+v2+v3)/3).dehomogenize();
 
 }
 	

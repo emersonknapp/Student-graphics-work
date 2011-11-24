@@ -5,6 +5,7 @@
 #include "pc.h"
 
 class Scene;
+class Renderable;
 
 
 
@@ -14,15 +15,15 @@ class Scene;
 */
 enum Axis { X, Y, Z, W };
 
-typedef bool (*comp)(vec4, vec4);
-bool xCompare(vec4, vec4);
-bool yCompare(vec4, vec4);
-bool zCompare(vec4, vec4);
+typedef bool (*comp)(Renderable*, Renderable*);
+bool xCompare(Renderable*, Renderable*);
+bool yCompare(Renderable*, Renderable*);
+bool zCompare(Renderable*, Renderable*);
 
 class KDTree {
 public:
 	
-	KDTree(vector<vec4>::iterator, vector<vec4>::iterator, int, Scene*);
+	KDTree(vector<Renderable*>::iterator, vector<Renderable*>::iterator, int, Scene*);
 	~KDTree();
 	float rayIntersect();
 

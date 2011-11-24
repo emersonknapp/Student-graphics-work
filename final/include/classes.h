@@ -92,6 +92,7 @@ public:
 	mat4 rotmat;
 	mat4 transmat;
 	mat4 scalemat;
+	vec3 center;
 	Material material;
 	// constructors
 	Renderable () ;
@@ -139,7 +140,6 @@ class Triangle : public Renderable {
 public:
 	//vertices
 	vec4 v1, v2, v3;
-	vec3 center;
 	vec3 norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
