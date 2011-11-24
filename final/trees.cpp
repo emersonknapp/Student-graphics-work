@@ -18,12 +18,12 @@ bool zCompare(Renderable* a, Renderable* b) {
 }
 
 KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterator end, int depth, Scene* s) {
-	clog << "Constructing k-d tree depth " << depth << endl;
+	if (DEBUG) clog << "Constructing k-d tree depth " << depth << endl;
 	
 	scene = s;
 	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { //TODO: leaf node behavior
-		cout << "    LEAF NODE" << endl;
-		clog << "k-d tree " << depth << " completed." << endl;
+		if (DEBUG) cout << "    LEAF NODE" << endl;
+		if (DEBUG) clog << "k-d tree " << depth << " completed." << endl;
 		return;
 	} else {
 		// Select axis based on depth so that axis cycles through all valid values
@@ -55,7 +55,7 @@ KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterato
 		leftChild = new KDTree(begin, medianIterator, depth+1, s);
 		rightChild = new KDTree(medianIterator, end, depth+1, s);
 	}
-	clog << "k-d tree " << depth << " completed." << endl;
+	if (DEBUG) clog << "k-d tree " << depth << " completed." << endl;
 }
 
 KDTree::~KDTree() {
