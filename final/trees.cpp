@@ -21,7 +21,9 @@ KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterato
 	clog << "Constructing k-d tree depth " << depth << endl;
 	
 	scene = s;
-	if (begin == end) {
+	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { //TODO: leaf node behavior
+		cout << "    LEAF NODE" << endl;
+		clog << "k-d tree " << depth << " completed." << endl;
 		return;
 	} else {
 		// Select axis based on depth so that axis cycles through all valid values
@@ -43,16 +45,15 @@ KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterato
 		/* Sort point list and choose median as pivot element */
 		sort(begin, end, comparator);
 		int medianIndex = distance(begin, end)/2;
-		vector<Renderable*>::iterator median = begin;
-		advance(median, medianIndex);
-		vec3 pivot = (*median)->center;
-		cout << pivot << endl;
-		//median = pivot[axis];
+		vector<Renderable*>::iterator medianIterator = begin;
+		advance(medianIterator, medianIndex);
+		vec3 pivot = (*medianIterator)->center;
+		cout << "   Pivot: " << pivot << endl;
+		median = pivot[axis];
 		
 		// Construct subtrees
-		//location = median;
-		//leftChild = new KDTree(points in vertices before median, depth+1);
-		//rightChild = new KDTree(points in vertices after median, depth+1);
+		leftChild = new KDTree(begin, medianIterator, depth+1, s);
+		rightChild = new KDTree(medianIterator, end, depth+1, s);
 	}
 	clog << "k-d tree " << depth << " completed." << endl;
 }
