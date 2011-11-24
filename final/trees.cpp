@@ -18,14 +18,15 @@ bool zCompare(Renderable* a, Renderable* b) {
 }
 
 KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterator end, int depth, Scene* s) {
-	if (DEBUG) clog << "Constructing k-d tree depth " << depth << endl;
-	
+	leftChild = NULL;
+	rightChild = NULL;
 	scene = s;
-	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { //TODO: leaf node behavior
-		if (DEBUG) cout << "    LEAF NODE" << endl;
-		if (DEBUG) clog << "k-d tree " << depth << " completed." << endl;
+	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { 
+		leafNode = true;
+		//TODO: leaf node behavior
 		return;
 	} else {
+		leafNode = false;
 		// Select axis based on depth so that axis cycles through all valid values
 		axis = depth % 3;
 		switch(axis) {
@@ -48,17 +49,48 @@ KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterato
 		vector<Renderable*>::iterator medianIterator = begin;
 		advance(medianIterator, medianIndex);
 		vec3 pivot = (*medianIterator)->center;
-		cout << "   Pivot: " << pivot << endl;
 		median = pivot[axis];
 		
 		// Construct subtrees
 		leftChild = new KDTree(begin, medianIterator, depth+1, s);
 		rightChild = new KDTree(medianIterator, end, depth+1, s);
 	}
-	if (DEBUG) clog << "k-d tree " << depth << " completed." << endl;
 }
 
 KDTree::~KDTree() {
 	delete leftChild;
 	delete rightChild;
+}
+
+void KDTree::print(int indent) {
+	if (leafNode) {
+		cout << string(indent*2, ' ') << "LEAF NODE" << endl;
+		return;
+	}
+	string ax = "";
+	switch(axis) {
+		case X:
+			ax="X";
+			break;
+		case Y:
+		ax="Y";
+		break;
+		case Z:
+		ax = "Z";
+		break;
+		case W:
+		ax = "W";
+		break;
+	}
+	cout << string(indent*2, ' ');
+	cout << "KDTree along axis " << ax << " " << median << endl;
+	if (leftChild) {
+		cout << string(indent*2+1, ' ') << "Left Child:" << endl;
+		leftChild->print(indent+1);
+	}
+	if (rightChild) {
+		cout << string(indent*2+1, ' ') << "Right Child:" << endl;
+		rightChild->print(indent+1);
+	}
+	
 }

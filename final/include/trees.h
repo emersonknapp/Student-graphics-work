@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "pc.h"
 
-#define LEAF_NUM_ELEMENTS 2
+#define LEAF_NUM_ELEMENTS 1
 
 class Scene;
 class Renderable;
@@ -28,9 +28,11 @@ public:
 	KDTree(vector<Renderable*>::iterator, vector<Renderable*>::iterator, int, Scene*);
 	~KDTree();
 	float rayIntersect();
+	void print(int);
 
 
 protected:
+	bool leafNode;
 	comp comparator;
 	Scene* scene;
 	vector<int> polygons;
