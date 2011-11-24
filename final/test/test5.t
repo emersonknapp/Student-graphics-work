@@ -1,13 +1,13 @@
 dl 0 0 -1 1 1 1
 
-translate 0 3 4
-rotate -.4 0 0 
-#translate 0 0 4
+#translate 0 3 4
+#rotate -.4 0 0 
+translate 0 0 8
 cam
 
 kd .4 0 0
 ks .5 0 0
-kr .3 .3 .3
+kr 0 0 0
 sp 100
 
 ct

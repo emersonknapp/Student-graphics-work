@@ -146,15 +146,20 @@ vec3 traceRay(Ray r, int depth) {
 			float c1 = (n*d);
 			float nn;
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
+//				cout << "hitting outside: rend: " << rend->material.ri << "ri: " << r.ri << endl;
 				nn = rend->material.ri / r.ri;
 				r.ri = rend->material.ri;
 				n=-normal.dehomogenize().normalize();
 			} else { // ray hits inside of object, then we know we're going to air
+//				cout << "hitting inside: rend: " << rend->material.ri << "ri: " << r.ri << endl;
+				// we want to set rend->material.ri to the *old* r.ri (before it hit the object), but for now, jsut set to 1.0
+				nn = r.ri / 1.0;
+				cout << r.ri << endl;
+				nn = 1.33;
 				r.ri = 1.0;
-				nn = r.ri / rend->material.ri;
 				n=normal.dehomogenize().normalize();
 			}
-			nn = (rend->material.ri) / (r.ri);
+			//nn = (rend->material.ri) / (r.ri);
 
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
 			if (c2 > 0.0) {

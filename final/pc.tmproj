@@ -2,15 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>currentDocument</key>
-	<string>include/scene.h</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>classes.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-11-17T23:38:31Z</date>
+			<date>2011-11-24T06:17:32Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -44,7 +42,9 @@
 			<key>filename</key>
 			<string>makefile</string>
 			<key>lastUsed</key>
-			<date>2011-11-14T23:36:47Z</date>
+			<date>2011-11-24T06:17:32Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -71,34 +71,6 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>classes.cpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>include/scene.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>7</integer>
-				<key>line</key>
-				<integer>8</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 		<key>kdtree.cpp</key>
 		<dict>
 			<key>caret</key>
@@ -113,43 +85,10 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>makefile</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>10</integer>
-				<key>line</key>
-				<integer>13</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 	</dict>
-	<key>openDocuments</key>
-	<array>
-		<string>makefile</string>
-		<string>classes.cpp</string>
-		<string>kdtree.cpp</string>
-		<string>include/scene.h</string>
-	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
-	<key>showFileHierarchyPanel</key>
-	<true/>
-	<key>treeState</key>
-	<dict>
-		<key>include</key>
-		<dict>
-			<key>isExpanded</key>
-			<true/>
-			<key>subItems</key>
-			<dict/>
-		</dict>
-	</dict>
 	<key>windowFrame</key>
-	<string>{{0, 0}, {1436, 778}}</string>
+	<string>{{0, 4}, {1280, 774}}</string>
 </dict>
 </plist>
