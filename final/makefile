@@ -26,7 +26,7 @@ CCOPTS = $(OPT) $(INCS) -c
 LDOPTS = $(OPT) $(INCS) $(LIBS)
 
 #USEFUL INFORMATION
-SOURCES=pc.cpp classes.cpp imagewriter.cpp scene.cpp mesh.cpp
+SOURCES=pc.cpp classes.cpp imagewriter.cpp scene.cpp mesh.cpp trees.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=pc
 
@@ -34,7 +34,7 @@ EXECUTABLE=pc
 all: $(SOURCES) $(EXECUTABLE)
 
 clean:
-	/bin/rm -f *.o $(EXECUTABLE)
+	/bin/rm -f *.o $(EXECUTABLE) out.png
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDOPTS) -o $@

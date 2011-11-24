@@ -70,6 +70,18 @@ bool Scene::parseLine(string line) {
 		renderables.push_back(tri);
 		if (DEBUG) cout << "Added triangle to scene. " << a << b << c << endl;
 	} 
+	else if (op.compare("s")==0) { //Parse a sphere
+		float r;
+		ss >> r;
+		Sphere* sph = new Sphere();
+		sph->scale(r*scale);
+		sph->rotate(rotation);
+		sph->translate(translation);
+		sph->material = parseMaterial;
+		renderables.push_back(sph);
+		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
+		//cout << translation << rotation << scale << endl;
+	}
 	else if (op.compare("ka") == 0) { //ambient
 		float r, g, b;
 		ss >> r >> g >> b;
@@ -104,18 +116,6 @@ bool Scene::parseLine(string line) {
 		ss >> ri;
 		parseMaterial.ri = ri;
 		if (DEBUG) cout << "added ri = " << parseMaterial.ri << endl;
-	}
-	else if (op.compare("s")==0) { //Parse a sphere
-		float r;
-		ss >> r;
-		Sphere* sph = new Sphere();
-		sph->scale(r*scale);
-		sph->rotate(rotation);
-		sph->translate(translation);
-		sph->material = parseMaterial;
-		renderables.push_back(sph);
-		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
-		//cout << translation << rotation << scale << endl;
 	}
 	else if (op.compare("cam")==0) { //camera
 		//delete camera;
@@ -190,6 +190,17 @@ void Scene::parseScene(string filename) {
 		}
 	}
 	inFile.close();
+	
+
+	delete kdTree;
+	kdTree = new KDTree(renderables.begin(), renderables.end(), 0, this);
+	
+	/*Contruct kdtree for this scene*/
+	cout << "CENTERS" << endl;
+	for (int i=0; i<renderables.size(); i++) {
+		cout << i << renderables[i]->center << endl;
+	}
+	kdTree->print(0);
 }
 
 void Scene::parseOBJ(ifstream& obj) {
