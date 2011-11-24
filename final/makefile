@@ -34,7 +34,7 @@ EXECUTABLE=pc
 all: $(SOURCES) $(EXECUTABLE)
 
 clean:
-	/bin/rm -f *.o $(EXECUTABLE)
+	/bin/rm -f *.o $(EXECUTABLE) out.png
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDOPTS) -o $@
