@@ -8,12 +8,14 @@
 class KDTree {
 	KDTree(vector<vec4>*, int);
 	~KDTree();
+	float rayIntersect
 	
-	vector<vec3>* vertices;
+	vector<int> vertices;
+	
 	KDTree* leftChild;
 	KDTree* rightChild;
 	int median; //the value at this node
-	
+	float aabb[6];
 	
 	
 };
