@@ -190,6 +190,10 @@ void Scene::parseScene(string filename) {
 		}
 	}
 	inFile.close();
+	
+	/*Contruct kdtree for this scene*/
+	delete kdTree;
+	kdTree = new KDTree(vertices.begin(), vertices.end(), 0, this);
 }
 
 void Scene::parseOBJ(ifstream& obj) {

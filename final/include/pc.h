@@ -23,8 +23,10 @@
 
 #include "classes.h"
 #include "imagewriter.h"
+#include "trees.h"
 #include "scene.h"
 #include "mesh.h"
+
 
 
 #define VERSION_NUMBER "0.1"

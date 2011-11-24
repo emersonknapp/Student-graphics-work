@@ -4,6 +4,8 @@
 #include "pc.h"
 #include <map>
 
+class KDTree;
+
 class Scene {
 public:
 	Scene();
@@ -15,14 +17,19 @@ public:
 	bool rayIntersect(Ray, float&, int&);
 	
 	vec3 rotation, translation, scale;
-	Material parseMaterial;
+	Material parseMaterial; /* Temporary storage for the most recently parsed material */
 	vector<vec4> vertices;
-	map<string, Material*> materials;
+	int lastVertex; /* Vertices.size()-1, shortcut to index of last vertex */
+	vector<vec3> centers; /* One point associated with each renderable, for use in the kdtree */
 	vector<Renderable*> renderables;
 	vector<Light*> lights;
 	Camera * camera;
-	int lastVertex;
-	vec3 ambience;
+	KDTree* kdTree;
+
+	vec3 ambience; /* Ambient light color */
+	
+	//map<string, Material*> materials;
+	
 
 };
 
