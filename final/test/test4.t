@@ -64,8 +64,17 @@ s 1
 translate 4 -2 -4
 s 1
 
+v -20 20 -8
+v 20 20 -8
+v -20 -20 -8
+v 20 -20 -8
+kd .3 0 .3
+ks 0 0 0
+kr .5 .5 .5
+f 3 2 1
+f 3 4 2
 ct
-translate -1 -1 0
-kd 0.1 0 0
+translate -4 -4 0
+kd 0 0 0
 ri 1.33
 s 2

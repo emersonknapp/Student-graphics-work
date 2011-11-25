@@ -127,7 +127,6 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	
 	if (hasHit) {
-		
 		Renderable* rend = scene->renderables[renderableIndex];
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
@@ -144,8 +143,9 @@ vec3 traceRay(Ray r, int depth) {
 		// interesting... if we hit the rend->material.ri > 0 case, then we don't have a refracted ray?
 		// we get this black ring around the sphere in example test4.t, and I think it's because the rays with
 		// r.ri = 1.33 don't hit anything in the scene for some reason
-		if (r.ri > 1.0) return vec3(1,0,0);
+//		if (r.ri > 1.0) cout << r.refracted << endl;	
 		if (rend->material.ri > 0) {
+
 			float c1 = (n*d);
 			float nn;
 			float newRI;
@@ -161,9 +161,8 @@ vec3 traceRay(Ray r, int depth) {
 				newRI = 1.0;
 				n=normal.dehomogenize().normalize();
 			}
-
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
-			if (c2 > 0.0) {
+			if (c2 >= 0.0) {
 				vec3 tmp1 = (nn*d);
 				vec3 tmp2 = (nn*c1-sqrt(c2))*(n);
 				vec3 tmp3 = tmp1 + tmp2;
@@ -172,8 +171,9 @@ vec3 traceRay(Ray r, int depth) {
 				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,newRI,true);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
 				color += refractedColor;
-			}
+			} 
 		}
+		
 		//calculate reflections
 		Ray newray = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
 		vec3 kr = rend->material.kr;

@@ -242,28 +242,49 @@ float Triangle::ray_intersect ( Ray r) {
 	}		
 	
 	
-	vec4 a = v2-v3;
-	vec4 b = v1-v3;
-	//cout << "shit ";
-	//cout << v1 << v2 << v3;
-	vec3 res = mat3(
-					vec3(a[0],b[0],-raydir[0]),
-					vec3(a[1],b[1],-raydir[1]),
-					vec3(a[2],b[2],-raydir[2])
-					).inverse() * (raypos - v3).dehomogenize();
-	//cout << "fuck" << endl;
-	if (res[0] > 0 && res[1] > 0 && res[0]+res[1] < 1) {
-		t = res[2];
-		vec4 intersection = raypos + t * raydir; // this is a point on the triangle
-		if (r.dir[2] != 0) t = (tmat*intersection - r.pos)[2] / r.dir[2];
-		else if (r.dir[1] != 0) t = (tmat*intersection - r.pos)[1] / r.dir[1];
-		else if (r.dir[0] != 0) t = (tmat*intersection - r.pos)[0] / r.dir[0];
-		return t;
-	} else {
+	vec4 u = v2-v3;
+	vec4 v = v1-v3;
+	
+	vec4 norm = vec4((u.dehomogenize()^v.dehomogenize()).normalize(),0);
+
+	if (norm == vec4(0,0,0,0)) {
 		return -1;
 	}
-	
 
+	vec4 w0 = raypos - v3;
+
+	float a = -(norm * w0);
+	float b = (norm * raydir);
+
+	if (fabs(b) < WIGGLE) { //ray is parallel to triangle
+		return -1;
+	}
+
+	// get ray intersect point
+	
+	t = a / b; // t is the parametric intersection of ray with triangle
+	if (t < 0.0) return -1; //ray pointing away from triangle
+
+	// check if the ray intersects within the triangle (isntead of just the triangle plane)
+	
+	float uu, uv, vv, wu, wv, D;
+
+	uu = u*u;
+	uv = u*v;
+	vv = v*v;
+	vec4 w = (raypos + t*raydir - v3);
+	wu = w*u;
+	wv = w*v;
+	D = uv * uv - uu * vv;
+	float s,f;
+
+	s = (uv * wv - vv * wu) / D;
+	if (s < 0.0 or s > 1.0) return -1; // outside
+	
+	f = (uv * wu - uu * wv) / D;
+	if (f < 0.0 or (s+f) > 1.0) return -1; // outside
+
+	return t;
 }
 
 vec4 Triangle::normal(vec4 surface) {
