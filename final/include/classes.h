@@ -139,7 +139,7 @@ public:
 	float ray_intersect (Ray);
 	Ray generate_ray(float x, float y);
 	vec4 normal(vec4);
-	
+	vec3 textureColor(vec4);	
 };
 
 class Sphere : public Renderable {

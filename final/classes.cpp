@@ -197,7 +197,10 @@ float Camera::ray_intersect (Ray r) {
 vec4 Camera::normal (vec4 v) {
 	return vec4(0,0,1,0);
 }
-
+//shouldn't ever use  this
+vec3 Camera::textureColor (vec4 t) {
+	return vec3(-1,-1,-1);
+}
 Ray Camera::generate_ray (float u, float v) {
 	
 	vec4 p = (1-u)*((1-v)*(tmat*LL) + v*(tmat*UL)) + (u * ((1-v) * (tmat*LR) + v * (tmat*UR)));
