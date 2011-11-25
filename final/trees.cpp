@@ -17,13 +17,17 @@ bool zCompare(Renderable* a, Renderable* b) {
 	return a->center[Z] < b->center[Z]; 
 }
 
-KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterator end, int depth, Scene* s) {
+KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
+	/*Defining instance vars */
+	myBegin = begin;
+	myEnd = end;
 	leftChild = NULL;
 	rightChild = NULL;
 	scene = s;
+	
+	/*Construct the tree */
 	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { 
 		leafNode = true;
-		//TODO: leaf node behavior
 		return;
 	} else {
 		leafNode = false;
@@ -46,7 +50,8 @@ KDTree::KDTree(vector<Renderable*>::iterator begin, vector<Renderable*>::iterato
 		/* Sort point list and choose median as pivot element */
 		sort(begin, end, comparator);
 		int medianIndex = distance(begin, end)/2;
-		vector<Renderable*>::iterator medianIterator = begin;
+		rendIt medianIterator = begin;
+		
 		advance(medianIterator, medianIndex);
 		vec3 pivot = (*medianIterator)->center;
 		median = pivot[axis];
@@ -65,6 +70,10 @@ KDTree::~KDTree() {
 void KDTree::print(int indent) {
 	if (leafNode) {
 		cout << string(indent*2, ' ') << "LEAF NODE" << endl;
+		rendIt begin = myBegin;
+		for (; begin!=myEnd; begin++) {
+			cout << string(indent*2, ' ') << (*begin)->center << endl;
+		}
 		return;
 	}
 	string ax = "";

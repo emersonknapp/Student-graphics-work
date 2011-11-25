@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "pc.h"
 
-#define LEAF_NUM_ELEMENTS 1
+#define LEAF_NUM_ELEMENTS 2
 
 class Scene;
 class Renderable;
@@ -18,6 +18,7 @@ class Renderable;
 enum Axis { X, Y, Z, W };
 
 typedef bool (*comp)(Renderable*, Renderable*);
+typedef vector<Renderable*>::iterator rendIt;
 bool xCompare(Renderable*, Renderable*);
 bool yCompare(Renderable*, Renderable*);
 bool zCompare(Renderable*, Renderable*);
@@ -25,7 +26,7 @@ bool zCompare(Renderable*, Renderable*);
 class KDTree {
 public:
 	
-	KDTree(vector<Renderable*>::iterator, vector<Renderable*>::iterator, int, Scene*);
+	KDTree(rendIt, rendIt, int, Scene*);
 	~KDTree();
 	float rayIntersect();
 	void print(int);
@@ -36,6 +37,8 @@ protected:
 	comp comparator;
 	Scene* scene;
 	vector<int> polygons;
+	rendIt myBegin;
+	rendIt myEnd;
 	
 	/* This is a binary tree, after all */
 	KDTree* leftChild;

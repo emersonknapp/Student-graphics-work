@@ -25,7 +25,6 @@
 #include "imagewriter.h"
 #include "trees.h"
 #include "scene.h"
-#include "mesh.h"
 
 
 

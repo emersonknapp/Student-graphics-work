@@ -1,0 +1,13 @@
+poly2 post-con lin-sect
+real	0m5.232s
+user	0m5.155s
+sys	0m0.016s
+
+tree1 post-con lin-sect
+real	0m1.543s
+user	0m1.505s
+sys	0m0.013s
+
+Construction on these small trees took less time than normal variation, pre-con times not included.
+
+
