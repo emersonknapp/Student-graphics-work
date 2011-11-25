@@ -142,23 +142,23 @@ vec3 traceRay(Ray r, int depth) {
 		refl.normalize();
 		// interesting... if we hit the rend->material.ri > 0 case, then we don't have a refracted ray?
 		// we get this black ring around the sphere in example test4.t, and I think it's because the rays with
-		// r.ri = 1.33 don't hit anything in the scene for some reason
-//		if (r.ri > 1.0) cout << r.refracted << endl;	
+		// r.curRI = 1.33 don't hit anything in the scene for some reason
 		if (rend->material.ri > 0) {
 
 			float c1 = (n*d);
 			float nn;
-			float newRI;
+			float curRI, oldRI;
+			//TODO: make it so that when we refract the ray, we set oldRI to the cur.curRI and *then* update the cur.curRI
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
-				if (r.ri > 1) cout << "hitting outside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
-				nn = rend->material.ri / r.ri;
-				newRI = rend->material.ri;
+				nn = rend->material.ri / r.curRI;
+				oldRI = r.curRI;
+				curRI = rend->material.ri;
 				n=-normal.dehomogenize().normalize();
-			} else { // ray hits inside of object, then we know we're going to air
-				if (r.ri > 1) cout << "hitting inside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
-				// we want to set rend->material.ri to the *old* r.ri (before it hit the object), but for now, jsut set to 1.0
-				nn = r.ri / 1.0;
-				newRI = 1.0;
+			} else { // ray hits inside of object, then we know we're going to what we had before (oldRI)
+				// we want to set rend->material.ri to the *old* r.curRI (before it hit the object), but for now, jsut set to 1.0
+				nn = r.curRI / 1.0;
+				curRI = oldRI;
+				oldRI = 1.0;
 				n=normal.dehomogenize().normalize();
 			}
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
@@ -168,7 +168,7 @@ vec3 traceRay(Ray r, int depth) {
 				vec3 tmp3 = tmp1 + tmp2;
 				tmp3.normalize();
 				vec4 rayDirection = vec4(tmp3,0);
-				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,newRI,true);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,curRI,oldRI,true);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
 				color += refractedColor;
 			} 

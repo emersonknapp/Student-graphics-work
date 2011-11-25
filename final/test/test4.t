@@ -74,7 +74,7 @@ kr .5 .5 .5
 f 3 2 1
 f 3 4 2
 ct
-translate -4 -4 0
+translate -1 -1 1
 kd 0 0 0
 ri 1.33
-s 2
+s 3

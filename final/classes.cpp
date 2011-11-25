@@ -26,6 +26,8 @@ Ray::Ray() {
 	pos = vec4(0,0,0,0);
 	dir = vec4(0,0,0,0);
 	refracted = false;
+	curRI = 1.0;
+	oldRI = 1.0;
 }	
 
 Ray::Ray(vec4 a, vec4 b) {
@@ -33,14 +35,16 @@ Ray::Ray(vec4 a, vec4 b) {
 	dir = b;
 	dir.normalize();
 	refracted = false;
-	ri = 1.0;
+	curRI = 1.0;
+	oldRI = 1.0;
 }	
 
 Ray::Ray(vec4 a, vec4 b, float r) {
 	pos = a;
 	dir = b;
 	dir.normalize();
-	ri = r;
+	curRI = r;
+	oldRI = 1.0;
 }
 
 Ray::Ray(vec4 a, vec4 b, bool t) {
@@ -48,15 +52,17 @@ Ray::Ray(vec4 a, vec4 b, bool t) {
 	dir = b;
 	dir.normalize();
 	refracted = t;
-	ri = 1.0;
+	curRI = 1.0;
+	oldRI = 1.0;
 }
 
 
-Ray::Ray(vec4 a, vec4 b, float r, bool t) {
+Ray::Ray(vec4 a, vec4 b, float rn, float ro, bool t) {
 	pos = a;
 	dir = b;
 	dir.normalize();
-	ri = r;
+	curRI = rn;
+	oldRI = ro;
 	refracted = t;
 }
 
