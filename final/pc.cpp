@@ -141,18 +141,21 @@ vec3 traceRay(Ray r, int depth) {
 		
 		vec3 refl = d - 2*(d*n)*n;
 		refl.normalize();
-
+		// interesting... if we hit the rend->material.ri > 0 case, then we don't have a refracted ray?
+		// we get this black ring around the sphere in example test4.t, and I think it's because the rays with
+		// r.ri = 1.33 don't hit anything in the scene for some reason
+		if (r.ri > 1.0) return vec3(1,0,0);
 		if (rend->material.ri > 0) {
 			float c1 = (n*d);
 			float nn;
 			float newRI;
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
-				//cout << "hitting outside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
+				if (r.ri > 1) cout << "hitting outside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
 				nn = rend->material.ri / r.ri;
 				newRI = rend->material.ri;
 				n=-normal.dehomogenize().normalize();
 			} else { // ray hits inside of object, then we know we're going to air
-				//cout << "hitting inside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
+				if (r.ri > 1) cout << "hitting inside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
 				// we want to set rend->material.ri to the *old* r.ri (before it hit the object), but for now, jsut set to 1.0
 				nn = r.ri / 1.0;
 				newRI = 1.0;

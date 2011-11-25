@@ -68,4 +68,4 @@ ct
 translate -1 -1 0
 kd 0.1 0 0
 ri 1.33
-s 3
+s 2

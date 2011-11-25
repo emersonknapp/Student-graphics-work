@@ -222,7 +222,6 @@ bool Scene::rayIntersect(Ray r, float& t, int& index) {
 	
 	float newT;
 	bool hasHit = false;
-
 	int i=0;
 	for (vector<Renderable*>::iterator it=renderables.begin(); it != renderables.end(); ++it, ++i) {
 		Renderable* rend = *it;
