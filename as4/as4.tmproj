@@ -2,15 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>currentDocument</key>
-	<string>as4.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>as4.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-11-04T22:47:09Z</date>
+			<date>2011-11-24T06:17:19Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -34,7 +32,7 @@
 			<key>filename</key>
 			<string>imagewriter.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-10-19T19:41:42Z</date>
+			<date>2011-11-24T06:17:34Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -48,7 +46,7 @@
 			<key>filename</key>
 			<string>kdtree.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-11-04T22:35:19Z</date>
+			<date>2011-11-24T06:17:34Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -68,19 +66,19 @@
 			<key>filename</key>
 			<string>makefile.osx</string>
 			<key>lastUsed</key>
-			<date>2011-11-04T22:47:09Z</date>
+			<date>2011-11-24T06:17:34Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>scene.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-11-04T22:36:53Z</date>
+			<date>2011-11-24T06:17:35Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>t</string>
 			<key>lastUsed</key>
-			<date>2011-11-04T22:30:48Z</date>
+			<date>2011-11-24T06:17:35Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -97,34 +95,6 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>as4.cpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>5</integer>
-				<key>line</key>
-				<integer>156</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>138</integer>
-		</dict>
-		<key>imagewriter.cpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>1</integer>
-				<key>line</key>
-				<integer>59</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>19</integer>
-		</dict>
 		<key>include/algebra3.h</key>
 		<dict>
 			<key>caret</key>
@@ -138,76 +108,6 @@
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>1276</integer>
-		</dict>
-		<key>include/scene.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>27</integer>
-				<key>line</key>
-				<integer>12</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>kdtree.cpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>makefile.osx</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>34</integer>
-				<key>line</key>
-				<integer>23</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>scene.cpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>27</integer>
-				<key>line</key>
-				<integer>133</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>118</integer>
-		</dict>
-		<key>t</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
 		</dict>
 		<key>test/4.t</key>
 		<dict>
@@ -323,20 +223,6 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>test/poly2.t</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>3</integer>
-				<key>line</key>
-				<integer>9</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 		<key>test/ss.t</key>
 		<dict>
 			<key>caret</key>
@@ -351,40 +237,10 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>test/triforce.t</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 	</dict>
-	<key>openDocuments</key>
-	<array>
-		<string>kdtree.cpp</string>
-		<string>imagewriter.cpp</string>
-		<string>test/poly2.t</string>
-		<string>makefile.osx</string>
-		<string>as4.cpp</string>
-		<string>scene.cpp</string>
-		<string>t</string>
-		<string>test/triforce.t</string>
-		<string>include/scene.h</string>
-	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
-	<key>showFileHierarchyPanel</key>
-	<true/>
-	<key>treeState</key>
-	<dict/>
 	<key>windowFrame</key>
-	<string>{{0, 0}, {1276, 778}}</string>
+	<string>{{0, 4}, {1276, 774}}</string>
 </dict>
 </plist>
