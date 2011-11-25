@@ -145,21 +145,19 @@ vec3 traceRay(Ray r, int depth) {
 		if (rend->material.ri > 0) {
 			float c1 = (n*d);
 			float nn;
+			float newRI;
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
-//				cout << "hitting outside: rend: " << rend->material.ri << "ri: " << r.ri << endl;
+				//cout << "hitting outside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
 				nn = rend->material.ri / r.ri;
-				r.ri = rend->material.ri;
+				newRI = rend->material.ri;
 				n=-normal.dehomogenize().normalize();
 			} else { // ray hits inside of object, then we know we're going to air
-//				cout << "hitting inside: rend: " << rend->material.ri << "ri: " << r.ri << endl;
+				//cout << "hitting inside: rend: " << rend->material.ri << " ri: " << r.ri << endl;
 				// we want to set rend->material.ri to the *old* r.ri (before it hit the object), but for now, jsut set to 1.0
 				nn = r.ri / 1.0;
-				cout << r.ri << endl;
-				nn = 1.33;
-				r.ri = 1.0;
+				newRI = 1.0;
 				n=normal.dehomogenize().normalize();
 			}
-			//nn = (rend->material.ri) / (r.ri);
 
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
 			if (c2 > 0.0) {
@@ -168,7 +166,7 @@ vec3 traceRay(Ray r, int depth) {
 				vec3 tmp3 = tmp1 + tmp2;
 				tmp3.normalize();
 				vec4 rayDirection = vec4(tmp3,0);
-				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,true);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,newRI,true);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
 				color += refractedColor;
 			}
@@ -189,7 +187,6 @@ vec3 traceRay(Ray r, int depth) {
 void render() {
 	
 	/*Logging output */
-	clog << "Rendering";
 	int onepercent = viewport.w/100;
 	int progress = 0.0;
 	int nextpercent = onepercent;
@@ -211,7 +208,8 @@ void render() {
 		/* logging output */
 		progress += 1.0;
 		if (progress >= nextpercent) {	
-			clog << ".";
+			//clog << ".";
+			clog << "Rendering: " << nextpercent * 100 / viewport.w << "%" << "\r";
 			nextpercent += onepercent;
 		}
 		/* End */
