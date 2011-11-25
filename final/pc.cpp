@@ -143,11 +143,15 @@ vec3 traceRay(Ray r, int depth) {
 		// interesting... if we hit the rend->material.ri > 0 case, then we don't have a refracted ray?
 		// we get this black ring around the sphere in example test4.t, and I think it's because the rays with
 		// r.curRI = 1.33 don't hit anything in the scene for some reason
+		
+		// *******************************
+		// COMPUTE REFRACTION
 		if (rend->material.ri > 0) {
 
 			float c1 = (n*d);
 			float nn;
-			float curRI, oldRI;
+			float curRI = 0.0;
+			float oldRI = 0.0;
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
 				nn = rend->material.ri / r.curRI;
 				oldRI = r.curRI;
@@ -178,6 +182,9 @@ vec3 traceRay(Ray r, int depth) {
 		vec3 kr = rend->material.kr;
 		vec3 reflColor = traceRay(newray, depth+1);
 		color += prod(kr,reflColor);
+		// *********************************
+		// COMPUTE TEXTURE MAPPING
+		// TODO: Renderable->texturemapping method
 		return color;
 	} else { 
 		return vec3(0,0,0);

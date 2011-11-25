@@ -106,7 +106,7 @@ public:
 	void scale(float xScale, float yScale, float zScale);
 	void scale(vec3 s);
 	virtual vec4 normal(vec4)=0;
-	
+	virtual vec3 textureColor(vec4)=0;	
 	mat3 dehomogenize(mat4 t);
 	
 	virtual float ray_intersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
@@ -149,6 +149,7 @@ public:
 	Sphere ();	
 	float ray_intersect ( Ray);
 	vec4 normal(vec4);
+	vec3 textureColor(vec4);
 };
 
 class Triangle : public Renderable {
@@ -161,6 +162,7 @@ public:
 	float ray_intersect ( Ray);
 	vec4 normal(vec4);
 	vec4 normal();
+	vec3 textureColor(vec4);
 };
 
 #endif

@@ -248,6 +248,12 @@ vec4 Sphere::normal(vec4 surface) {
 	return norm;
 }
 
+vec3 Sphere::textureColor(vec4 hitPoint) {
+	vec3 color;
+
+	return color;
+}
+
 Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
@@ -321,6 +327,12 @@ vec4 Triangle::normal() {
 	n.normalize();
 	
 	return n;
+}
+
+vec3 Triangle::textureColor(vec4 hitPoint) {
+	vec3 color;
+
+	return color;
 }
 
 Viewport::Viewport () {
