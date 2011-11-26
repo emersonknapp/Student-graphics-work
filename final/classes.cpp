@@ -12,6 +12,7 @@ Material::Material() {
 	kr = vec3(0,0,0);
 	sp = 0;
 	ri = 0.0;
+	textureIndex = -1;
 }
 
 Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
@@ -20,6 +21,7 @@ Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
 	ks = s;
 	sp = p;
 	kr = r;
+	textureIndex = -1;
 }
 
 Ray::Ray() {
@@ -160,7 +162,24 @@ mat3 Renderable::dehomogenize(mat4 t) {
 				);
 }
 
+Texture::Texture() {}
 
+Texture::Texture(const char* fn) {
+	txt = FreeImage_Load(FIF_PNG, fn, PNG_DEFAULT);
+	width = FreeImage_GetWidth(txt);
+	height = FreeImage_GetHeight(txt);
+}
+
+vec3 Texture::getColor(float x, float y) {
+//TODO: currently, this just gets pixels from a png input, but I want to enable function that generate textures too
+	RGBQUAD color;
+
+	FreeImage_GetPixelColor(txt, x, y, &color);
+	float r = color.rgbRed / 255.0f;
+	float g = color.rgbGreen / 255.0f;
+	float b = color.rgbBlue / 255.0f;
+	return vec3(r,g,b);
+}
 
 Camera::Camera() {
 	pos = vec4(0,0,0,1);

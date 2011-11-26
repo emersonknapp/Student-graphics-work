@@ -148,7 +148,6 @@ vec3 traceRay(Ray r, int depth) {
 			float c1 = (n*d);
 			float nn;
 			float curRI, oldRI;
-			//TODO: make it so that when we refract the ray, we set oldRI to the cur.curRI and *then* update the cur.curRI
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
 				nn = rend->material.ri / r.curRI;
 				oldRI = r.curRI;
@@ -235,7 +234,7 @@ void processArgs(int argc, char* argv[]) {
 		
 		if (arg.compare("-s") == 0) {
 			scene->parseScene(argv[++i]);
-		} else if (arg.compare("-pr")==0) { //TODO: fix this.
+		} else if (arg.compare("-pr")==0) {
 			imageWriter->fileName = argv[++i];
 		} else if (arg.compare("-px")==0) {
 			int width = atoi(argv[++i]);
@@ -255,7 +254,6 @@ int main(int argc, char *argv[]) {
 	
 	srand((unsigned)time(NULL));
 	
-	//TODO: init stuff
 	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
 	imageWriter = new ImageWriter(viewport.w, viewport.h);
 	scene = new Scene();

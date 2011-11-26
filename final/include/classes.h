@@ -69,6 +69,7 @@ public:
 	vec3 kr; //reflection coefficient
 	float ri; //refractive index
 	int sp; //specular power
+	int textureIndex; //index into the texture vector for the scene
 };
 
 class Ray {
@@ -110,6 +111,19 @@ public:
 	
 	virtual float ray_intersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
 
+};
+
+class Texture {
+// class for texture maps
+
+public:
+	
+	float width;
+	float height;
+	FIBITMAP *txt;
+	Texture();
+	Texture(const char* fn);
+	vec3 getColor(float x, float y);	
 };
 
 class Camera : public Renderable {

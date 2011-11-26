@@ -159,6 +159,18 @@ bool Scene::parseLine(string line) {
 		scale = vec3(1,1,1);
 		rotation= vec3(0,0,0);
 	} 
+	else if (op.compare("addtex")==0) { //set new texture map
+		string tmp;
+		ss >> tmp;
+		const char* name = tmp.c_str();
+		Texture t = Texture(name);
+		textures.push_back(t);
+	}
+	else if (op.compare("tex")==0) { // add texture to parseMaterial
+		int ind;
+		ss >> ind;
+		parseMaterial.textureIndex = ind;
+	}
 	else{
 		cout << "Warning: unrecognized command " << op << endl;
 	}
