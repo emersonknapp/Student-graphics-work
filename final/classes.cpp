@@ -253,7 +253,8 @@ vec4 Sphere::normal(vec4 surface) {
 
 vec3 Sphere::textureColor(vec4 hitPoint) {
 	vec3 color;
-
+	vec4 vn, ve, vp;
+	vp = imat*hitPoint; // vector from center of sphere to hitPoint
 	return color;
 }
 
