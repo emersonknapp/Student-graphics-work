@@ -22,7 +22,6 @@ public:
 	int lastVertex; /* Vertices.size()-1, shortcut to index of last vertex */
 	vector<Renderable*> renderables;
 	vector<Light*> lights;
-	vector<Texture> textures;
 	Camera * camera;
 	KDTree* kdTree;
 

@@ -12,7 +12,6 @@ Material::Material() {
 	kr = vec3(0,0,0);
 	sp = 0;
 	ri = 0.0;
-	textureIndex = -1;
 }
 
 Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
@@ -21,7 +20,6 @@ Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
 	ks = s;
 	sp = p;
 	kr = r;
-	textureIndex = -1;
 }
 
 Ray::Ray() {
@@ -170,9 +168,11 @@ Texture::Texture(const char* fn) {
 	height = FreeImage_GetHeight(txt);
 }
 
-vec3 Texture::getColor(float x, float y) {
+vec3 Texture::getColor(float u, float v) {
 //TODO: currently, this just gets pixels from a png input, but I want to enable function that generate textures too
 	RGBQUAD color;
+	float x = u * width;
+	float y = v * height;
 
 	FreeImage_GetPixelColor(txt, x, y, &color);
 	float r = color.rgbRed / 255.0f;
@@ -253,8 +253,20 @@ vec4 Sphere::normal(vec4 surface) {
 
 vec3 Sphere::textureColor(vec4 hitPoint) {
 	vec3 color;
+	float u,v;
 	vec4 vn, ve, vp;
 	vp = imat*hitPoint; // vector from center of sphere to hitPoint
+	vn = vec4(0,0,1,0); // I *think*, but I'm not sure that I want to treat the 'north pole' as (0,0,1) on the sphere
+	ve = vec4(1,0,0,0); // same with this point on the equator
+	//latitude
+	float phi = acos(-vn * vp);
+	v = phi / 3.1415;	
+	//longitude
+	float theta = acos( (vp * ve) / sin(phi) ) / (2 * 3.1415);
+	vec4 tmp = vec4((vn.dehomogenize() ^ ve.dehomogenize()),0);
+	if (tmp * vp > 0) u = theta;
+	else u = 1.0-theta;
+	color = material.texture.getColor(u,v); // v is latitude (y) , u is longitude (x)
 	return color;
 }
 
