@@ -2,17 +2,37 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>currentDocument</key>
+	<string>include/makefile</string>
 	<key>documents</key>
 	<array>
 		<dict>
-			<key>filename</key>
-			<string>classes.cpp</string>
-			<key>lastUsed</key>
-			<date>2011-11-24T06:17:32Z</date>
+			<key>name</key>
+			<string>test</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>sourceDirectory</key>
+			<string>test</string>
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>imagewriter.cpp</string>
+			<string>kdstats.txt</string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>images</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>sourceDirectory</key>
+			<string>images</string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>lib</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>sourceDirectory</key>
+			<string>lib</string>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -26,25 +46,23 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>kdtree.cpp</string>
+			<string>include/makefile</string>
 			<key>lastUsed</key>
-			<date>2011-11-17T23:38:51Z</date>
-		</dict>
-		<dict>
-			<key>name</key>
-			<string>lib</string>
-			<key>regexFolderFilter</key>
-			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
-			<key>sourceDirectory</key>
-			<string>lib</string>
+			<date>2011-11-27T12:21:05Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>makefile</string>
-			<key>lastUsed</key>
-			<date>2011-11-24T06:17:32Z</date>
-			<key>selected</key>
-			<true/>
+			<string>trees.cpp</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>scene.cpp</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>renderable.cpp</string>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -52,33 +70,25 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>scene.cpp</string>
-		</dict>
-		<dict>
-			<key>name</key>
-			<string>test</string>
-			<key>regexFolderFilter</key>
-			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
-			<key>sourceDirectory</key>
-			<string>test</string>
+			<string>imagewriter.cpp</string>
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>tri.t</string>
+			<string>classes.cpp</string>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>kdtree.cpp</key>
+		<key>include/makefile</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>18</integer>
 				<key>line</key>
-				<integer>1</integer>
+				<integer>4</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -86,9 +96,25 @@
 			<integer>0</integer>
 		</dict>
 	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>include/makefile</string>
+	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
+	<key>showFileHierarchyPanel</key>
+	<true/>
+	<key>treeState</key>
+	<dict>
+		<key>include</key>
+		<dict>
+			<key>isExpanded</key>
+			<true/>
+			<key>subItems</key>
+			<dict/>
+		</dict>
+	</dict>
 	<key>windowFrame</key>
-	<string>{{0, 4}, {1280, 774}}</string>
+	<string>{{203, 4}, {1063, 774}}</string>
 </dict>
 </plist>
