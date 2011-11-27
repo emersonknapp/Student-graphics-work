@@ -26,8 +26,9 @@ public:
 	
 	KDTree(rendIt, rendIt, int, Scene*);
 	~KDTree();
-	float rayIntersect();
+	float rayIntersect(Ray);
 	void print(int);
+	void leafMakeAABB();
 
 
 protected:

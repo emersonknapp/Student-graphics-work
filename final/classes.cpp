@@ -84,6 +84,7 @@ vec3 Texture::getColor(float u, float v) {
 	return vec3(r,g,b);
 }
 
+
 Viewport::Viewport () {
 	w = 0;
 	h = 0;
@@ -114,4 +115,8 @@ vec4 DLight::lightVector(vec4 origin) {
 AABB::AABB() {
 	mins = vec3(0,0,0);
 	maxes = vec3(0,0,0);
+}
+
+float AABB::rayIntersect(Ray r) {
+	return -1; //TODO: this
 }

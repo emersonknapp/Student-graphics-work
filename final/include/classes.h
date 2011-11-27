@@ -23,10 +23,26 @@
 
 using namespace std;
 
+class Ray {
+public:
+	vec4 pos;
+	vec4 dir;
+	float t_min, t_max;
+	bool refracted;
+	float curRI;
+	float oldRI;
+	Ray();
+	Ray(vec4 a, vec4 b);
+	Ray(vec4 a, vec4 b, float r);
+	Ray(vec4 a, vec4 b, bool t);
+	Ray(vec4 a, vec4 b, float rn, float ro, bool t);
+};
+
 class AABB {
 public:
 	AABB();
 	AABB* concat(AABB*);
+	float rayIntersect(Ray);
 	vec3 mins;
 	vec3 maxes;
 };
@@ -81,21 +97,6 @@ public:
 	float ri; //refractive index
 	int sp; //specular power
 	Texture texture;
-};
-
-class Ray {
-public:
-	vec4 pos;
-	vec4 dir;
-	float t_min, t_max;
-	bool refracted;
-	float curRI;
-	float oldRI;
-	Ray();
-	Ray(vec4 a, vec4 b);
-	Ray(vec4 a, vec4 b, float r);
-	Ray(vec4 a, vec4 b, bool t);
-	Ray(vec4 a, vec4 b, float rn, float ro, bool t);
 };
 
 //

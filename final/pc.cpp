@@ -127,6 +127,11 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	
 	if (hasHit) {
+		if (depth==0) {
+		//TODO: this is still a todo statement, but i think this is the right way to go. only add ambient on first level hit
+		color += scene->ambience;
+		}
+			
 		Renderable* rend = scene->renderables[renderableIndex];
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
@@ -208,9 +213,7 @@ void render() {
 			//cout << camRay.dir << " " << camRay.pos << endl;		
 			//vec4 color = camRay.dir;
 			vec3 color = traceRay(camRay, 0);
-			
-			//TODO: this next line adds ambient color to *every* pixel, regardless of whether or not it's on an object
-			color += scene->ambience;
+		
 			setPixel(x,y,color[0], color[1], color[2]);			
 		}
 		

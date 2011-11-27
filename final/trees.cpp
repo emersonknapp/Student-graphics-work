@@ -27,6 +27,7 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 	/*Construct the tree */
 	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { 
 		leafNode = true;
+		leafMakeAABB();
 		return;
 	} else {
 		leafNode = false;
@@ -59,7 +60,23 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 		leftChild = new KDTree(begin, medianIterator, depth+1, s);
 		rightChild = new KDTree(medianIterator, end, depth+1, s);
 	}
+	
+	//Construct AABB for non-leaf nodes
+	for (; begin != end; ++begin) {
+		//TODO: this
+	}
+	
 }
+
+float KDTree::rayIntersect(Ray r) {
+	if (aabb->rayIntersect(r) >= 0) {
+		float left = leftChild->rayIntersect(r);
+		float right = rightChild->rayIntersect(r);
+		return min(left, right);
+	} 
+	return -1;
+}
+
 
 KDTree::~KDTree() {
 	delete leftChild;
@@ -100,5 +117,9 @@ void KDTree::print(int indent) {
 		cout << string(indent*2+1, ' ') << "Right Child:" << endl;
 		rightChild->print(indent+1);
 	}
+	
+}
+
+void KDTree::leafMakeAABB() {
 	
 }
