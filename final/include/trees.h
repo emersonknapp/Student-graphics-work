@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "pc.h"
 
-#define LEAF_NUM_ELEMENTS 2
+#define LEAF_NUM_ELEMENTS 3
 
 class Scene;
 class Renderable;

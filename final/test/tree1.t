@@ -6,10 +6,11 @@ sp 100
 
 pl 0 1.5 2 .3 .3 .3
 
-translate 0 0 10
+translate 0 0 0
 cam
 
 ct
+translate 0 0 -10
 
 v 0 0 0
 v 0 1 0

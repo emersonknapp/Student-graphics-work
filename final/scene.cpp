@@ -198,16 +198,17 @@ void Scene::parseScene(string filename) {
 	}
 	inFile.close();
 	
-
+	/*Contruct kdtree for this scene*/
 	delete kdTree;
 	kdTree = new KDTree(renderables.begin(), renderables.end(), 0, this);
 	
-	/*Contruct kdtree for this scene*/
+
 	cout << "CENTERS" << endl;
 	for (int i=0; i<renderables.size(); i++) {
 		cout << i << renderables[i]->center << endl;
 	}
-	kdTree->print(0);
+	//kdTree->print(0);
+	
 }
 
 void Scene::parseOBJ(ifstream& obj) {

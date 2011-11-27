@@ -21,17 +21,6 @@
 
 #define WIGGLE .005
 
-
-
-
-
-//
-// Basic class definition for anything we're going to render or apply transformations to
-// Call the map/rotate/scale transformation methods in the order you want to apply the transformations.
-// The resulting transformation matrix will be stored in tmat, which has transpose() and inverse() methods
-// for the necessary operations
-//
-
 using namespace std;
 
 class AABB {
@@ -109,6 +98,13 @@ public:
 	Ray(vec4 a, vec4 b, float rn, float ro, bool t);
 };
 
+//
+// Basic class definition for anything we're going to render or apply transformations to
+// Call the map/rotate/scale transformation methods in the order you want to apply the transformations.
+// The resulting transformation matrix will be stored in tmat, which has transpose() and inverse() methods
+// for the necessary operations
+//
+
 class Renderable {
 public:
 	mat4 tmat;
@@ -119,7 +115,7 @@ public:
 	vec3 center;
 	Material material;
 	AABB* aabb;
-	AABB* getAABB();
+	virtual AABB* makeAABB();
 	// constructors
 	Renderable ();
 	// methods
@@ -159,6 +155,7 @@ public:
 	
 	Sphere ();	
 	float ray_intersect ( Ray);
+	AABB* makeAABB();
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);
 };
@@ -171,6 +168,7 @@ public:
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
 	float ray_intersect ( Ray);
+	AABB* makeAABB();
 	vec4 normal(vec4);
 	vec4 normal();
 	vec3 textureColor(vec4);

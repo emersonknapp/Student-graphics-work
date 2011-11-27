@@ -2,7 +2,7 @@
 CC=g++
 cc=gcc
 
-OPT = -g -Wall
+OPT = -g -Wall -O3
 
 UNAME := $(shell uname)
 
@@ -10,14 +10,13 @@ UNAME := $(shell uname)
 LIBS = -lm -lstdc++ -lfreeimage
 INCS = -I include
 ifeq ($(UNAME), Linux)
-INCS += -L./lib/filinux -I./lib/filinux 
-OPT += -O3
+INCS += -L./lib/filinux -I./lib/filinux
 endif
 ifeq ($(UNAME), SunOS)
 INCS += -L./lib/fisolaris -I./lib/fisolaris
 endif
 ifeq ($(UNAME), Darwin)
-INCS += -L./lib/fiosx -I./lib/fiosx 
+INCS += -L./lib/fiosx -I./lib/fiosx
 OPT += -fast
 endif
 
