@@ -3,8 +3,7 @@
 /*
 vertices for kdtree = one vector from each triangle, or centerpoints, also center of spheres
 construct kdtree.
-for each level of kdtree, construct corresponding AABB for the entire set.
-Now, do intersections against AABB tree, the kdtree can wither and die.
+each kdtree node has an aabb with it that intersection is tested against
 */
 
 bool xCompare(Renderable* a, Renderable* b) { 

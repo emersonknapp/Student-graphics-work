@@ -10,4 +10,9 @@ sys	0m0.013s
 
 Construction on these small trees took less time than normal variation, pre-con times not included.
 
+looks like kdtree construction on even this hi-poly chair model is negligible, my estimate is less than a second
+
+chippchairfixed post-con lin-sect
+~10min
+
 

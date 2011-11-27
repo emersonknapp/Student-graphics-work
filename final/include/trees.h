@@ -9,8 +9,6 @@
 class Scene;
 class Renderable;
 
-
-
 /*
 3-Dimensional tree
 	stores midpoints in axis-aligned BSP Tree
@@ -33,6 +31,7 @@ public:
 
 
 protected:
+	AABB* aabb;
 	bool leafNode;
 	comp comparator;
 	Scene* scene;
@@ -47,8 +46,6 @@ protected:
 	/* The axis and splitting plane value */ 
 	int axis;
 	float median;
-	/* Axis aligned bounding box of this branch of the tree */
-	float aabb[6];
 	
 };
 

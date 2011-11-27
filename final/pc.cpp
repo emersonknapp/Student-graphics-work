@@ -217,7 +217,6 @@ void render() {
 		/* logging output */
 		progress += 1.0;
 		if (progress >= nextpercent) {	
-			//clog << ".";
 			clog << "Rendering: " << nextpercent * 100 / viewport.w << "%" << "\r";
 			nextpercent += onepercent;
 		}

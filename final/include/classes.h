@@ -23,6 +23,8 @@
 
 
 
+
+
 //
 // Basic class definition for anything we're going to render or apply transformations to
 // Call the map/rotate/scale transformation methods in the order you want to apply the transformations.
@@ -31,6 +33,14 @@
 //
 
 using namespace std;
+
+class AABB {
+public:
+	AABB();
+	AABB* concat(AABB*);
+	vec3 mins;
+	vec3 maxes;
+};
 
 class Viewport {
 public:
@@ -108,8 +118,10 @@ public:
 	mat4 scalemat;
 	vec3 center;
 	Material material;
+	AABB* aabb;
+	AABB* getAABB();
 	// constructors
-	Renderable () ;
+	Renderable ();
 	// methods
 	void translate(vec3 t);
 	void translate(float x, float y, float z) ;
@@ -163,5 +175,7 @@ public:
 	vec4 normal();
 	vec3 textureColor(vec4);
 };
+
+
 
 #endif

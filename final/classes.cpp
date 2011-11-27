@@ -5,6 +5,7 @@ using namespace std;
 mat4 Identity4 = mat4(vec4(1, 0, 0, 0), vec4(0,1,0,0), vec4(0,0,1,0), vec4(0,0,0,1));
 
 
+
 Material::Material() {
 	ka = vec3(.1,.1,.1);
 	kd = vec3(1,1,1);
@@ -376,4 +377,9 @@ vec4 PLight::lightVector(vec4 origin) {
 
 vec4 DLight::lightVector(vec4 origin) {
 	return -v;
+}
+
+AABB::AABB() {
+	mins = vec3(0,0,0);
+	maxes = vec3(0,0,0);
 }
