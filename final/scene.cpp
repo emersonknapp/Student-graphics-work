@@ -202,6 +202,11 @@ void Scene::parseScene(string filename) {
 	delete kdTree;
 	kdTree = new KDTree(renderables.begin(), renderables.end(), 0, this);
 	
+
+	cout << "CENTERS" << endl;
+	for (int i=0; i<renderables.size(); i++) {
+		cout << i << renderables[i]->center << endl;
+	}
 	kdTree->print(0);
 	
 }
@@ -222,33 +227,19 @@ void Scene::parseOBJ(ifstream& obj) {
 }
 
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
-	bool kd = false;
-	/* linear intersection test */
-	if (!kd) {
-		float newT;
-		bool hasHit = false;
-		int i=0;
-		for (vector<Renderable*>::iterator it=renderables.begin(); it != renderables.end(); ++it, ++i) {
-			Renderable* rend = *it;
-			vec3 color = vec3(0,0,0);
-			//cout << renderables[i]->tmat << endl << endl;
-			if((newT=rend->rayIntersect(r)) < t && newT>0) {	
-				hasHit = true;			
-				index = i;
-				t = newT;
-			}
-		}
-		return hasHit;
-	}
 	
-	/* with kd tree */
-	else {
-		rendIt rend;
-		bool hasHit = kdTree->rayIntersect(r, t, rend);
-		if (hasHit) {
-			index = distance(rend, renderables.begin());
+	float newT;
+	bool hasHit = false;
+	int i=0;
+	for (vector<Renderable*>::iterator it=renderables.begin(); it != renderables.end(); ++it, ++i) {
+		Renderable* rend = *it;
+		vec3 color = vec3(0,0,0);
+		//cout << renderables[i]->tmat << endl << endl;
+		if((newT=rend->ray_intersect(r)) < t && newT>0) {	
+			hasHit = true;			
+			index = i;
+			t = newT;
 		}
-		return hasHit;
 	}
-	
+	return hasHit;
 }

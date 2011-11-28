@@ -61,26 +61,24 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 	makeAABB();
 }
 
-
-bool KDTree::rayIntersect(Ray r, float& t, rendIt& rend) {
-	float newT;
-	bool hasHit = false;
+float KDTree::rayIntersect(Ray r) {
 	if (leafNode) {
+		float t = INT_MAX;
+		float newT;
 		rendIt begin = myBegin;
-		for (; begin != myEnd; ++begin) {
-			if ((newT = (*begin)->rayIntersect(r)) < t && newT>0) {
-				hasHit = true;
-				rend = begin;
-				t = newT;
-			}
+		for (; begin!=myEnd; ++begin) {
+			
 		}
-	} else { //Not a leaf node
-		hasHit = leftChild->rayIntersect(r, t, rend);
-		hasHit = rightChild->rayIntersect(r, t, rend);
-	} 
-	
-	return hasHit;	
+	} else if (aabb->rayIntersect(r) >= 0) {
+		float left = -1;
+		float right = -1;
+		if (leftChild) left = leftChild->rayIntersect(r);
+		if(rightChild) right = rightChild->rayIntersect(r);
+		return min(left, right); 
+	}
+	return -1;
 }
+
 
 KDTree::~KDTree() {
 	delete leftChild;

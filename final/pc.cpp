@@ -82,7 +82,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		int j = 0;
 		for (vector<Renderable*>::iterator it = scene->renderables.begin(); it != scene->renderables.end(); ++it) {
 			Renderable* rend = *it;
-			if((t=rend->rayIntersect(lightCheck)) <= lightCheck.dir.length() && t>0 && index != j) {	
+			if((t=rend->ray_intersect(lightCheck)) <= lightCheck.dir.length() && t>0 && index != j) {	
 				shadePixel = false;
 				break;
 			}
@@ -125,8 +125,6 @@ vec3 traceRay(Ray r, int depth) {
 	vec3 color = vec3(0,0,0);
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
-	//TODO: NOTE: this is for debuggggggiiing!
-	//if (hasHit) return vec3(1,0,0);
 	
 	if (hasHit) {
 		if (depth==0) {

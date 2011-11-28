@@ -24,10 +24,6 @@
 #define WIGGLE .005
 
 using namespace std;
-class Renderable;
-typedef vector<Renderable*>::iterator rendIt; //Renderable Pointer Iterator
-
-
 
 class Ray {
 public:
@@ -134,7 +130,7 @@ public:
 	virtual vec3 textureColor(vec4)=0;	
 	mat3 dehomogenize(mat4 t);
 	
-	virtual float rayIntersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
+	virtual float ray_intersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
 
 };
 
@@ -148,7 +144,7 @@ public:
 	vec4 UL, UR, LL, LR;
 	Camera();	
 	//Ray generate_ray();
-	float rayIntersect (Ray);
+	float ray_intersect (Ray);
 	Ray generate_ray(float x, float y);
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);	
@@ -159,7 +155,7 @@ class Sphere : public Renderable {
 public:
 	
 	Sphere ();	
-	float rayIntersect ( Ray);
+	float ray_intersect ( Ray);
 	AABB* makeAABB();
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);
@@ -172,7 +168,7 @@ public:
 	vec3 norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
 	
-	float rayIntersect ( Ray);
+	float ray_intersect ( Ray);
 	AABB* makeAABB();
 	vec4 normal(vec4);
 	vec4 normal();
