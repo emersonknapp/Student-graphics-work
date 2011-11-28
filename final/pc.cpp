@@ -147,9 +147,6 @@ vec3 traceRay(Ray r, int depth) {
 		
 		vec3 refl = d - 2*(d*n)*n;
 		refl.normalize();
-		// interesting... if we hit the rend->material.ri > 0 case, then we don't have a refracted ray?
-		// we get this black ring around the sphere in example test4.t, and I think it's because the rays with
-		// r.curRI = 1.33 don't hit anything in the scene for some reason
 		
 		// *******************************
 		// COMPUTE REFRACTION
@@ -157,18 +154,19 @@ vec3 traceRay(Ray r, int depth) {
 
 			float c1 = (n*d);
 			float nn;
-			float curRI = 0.0;
-			float oldRI = 0.0;
+			float curRI;
+			float newRI;
+			// top of the stack is the RI of the material the ray is in. we set curRI to the top(), then push the renderable's RI onto the stack bc that's where the ray is now
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
-				nn = rend->material.ri / r.curRI;
-				oldRI = r.curRI;
-				curRI = rend->material.ri;
+				curRI = r.ristack.top();
+				nn = rend->material.ri / curRI;
+				r.ristack.push(rend->material.ri);
 				n=-normal.dehomogenize().normalize();
 			} else { // ray hits inside of object, then we know we're going to what we had before (oldRI)
-				// we want to set rend->material.ri to the *old* r.curRI (before it hit the object), but for now, jsut set to 1.0
-				nn = r.curRI / 1.0;
-				curRI = oldRI;
-				oldRI = 1.0;
+				curRI = r.ristack.top();
+				r.ristack.pop();
+				newRI = r.ristack.top();
+				nn = curRI / newRI;
 				n=normal.dehomogenize().normalize();
 			}
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
@@ -178,7 +176,7 @@ vec3 traceRay(Ray r, int depth) {
 				vec3 tmp3 = tmp1 + tmp2;
 				tmp3.normalize();
 				vec4 rayDirection = vec4(tmp3,0);
-				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,curRI,oldRI,true);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,r.ristack);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
 				color += refractedColor;
 			} 

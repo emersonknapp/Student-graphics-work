@@ -2,6 +2,7 @@
 #define _CLASSES_H
 
 #include <vector>
+#include <stack>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -33,14 +34,11 @@ public:
 	vec4 pos;
 	vec4 dir;
 	float t_min, t_max;
-	bool refracted;
-	float curRI;
-	float oldRI;
+	stack<float> ristack;
 	Ray();
 	Ray(vec4 a, vec4 b);
 	Ray(vec4 a, vec4 b, float r);
-	Ray(vec4 a, vec4 b, bool t);
-	Ray(vec4 a, vec4 b, float rn, float ro, bool t);
+	Ray(vec4 a, vec4 b, stack<float> ris);
 };
 
 class AABB {
