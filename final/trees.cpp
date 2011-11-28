@@ -27,8 +27,6 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 	/*Construct the tree */
 	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { 
 		leafNode = true;
-		leafMakeAABB();
-		return;
 	} else {
 		leafNode = false;
 		// Select axis based on depth so that axis cycles through all valid values
@@ -58,22 +56,26 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 		
 		// Construct subtrees
 		leftChild = new KDTree(begin, medianIterator, depth+1, s);
-		rightChild = new KDTree(medianIterator, end, depth+1, s);
+		rightChild = new KDTree(medianIterator, end, depth+1, s);		
 	}
-	
-	//Construct AABB for non-leaf nodes
-	for (; begin != end; ++begin) {
-		//TODO: this
-	}
-	
+	makeAABB();
 }
 
 float KDTree::rayIntersect(Ray r) {
-	if (aabb->rayIntersect(r) >= 0) {
-		float left = leftChild->rayIntersect(r);
-		float right = rightChild->rayIntersect(r);
-		return min(left, right);
-	} 
+	if (leafNode) {
+		float t = INT_MAX;
+		float newT;
+		rendIt begin = myBegin;
+		for (; begin!=myEnd; ++begin) {
+			
+		}
+	} else if (aabb->rayIntersect(r) >= 0) {
+		float left = -1;
+		float right = -1;
+		if (leftChild) left = leftChild->rayIntersect(r);
+		if(rightChild) right = rightChild->rayIntersect(r);
+		return min(left, right); 
+	}
 	return -1;
 }
 
@@ -98,17 +100,20 @@ void KDTree::print(int indent) {
 			ax="X";
 			break;
 		case Y:
-		ax="Y";
-		break;
+			ax="Y";
+			break;
 		case Z:
-		ax = "Z";
-		break;
+			ax = "Z";
+			break;
 		case W:
-		ax = "W";
-		break;
+			ax = "W";
+			break;
+		default:
+			Error("Unrecognized axis enumeration.");
 	}
 	cout << string(indent*2, ' ');
 	cout << "KDTree along axis " << ax << " " << median << endl;
+	aabb->print(indent);
 	if (leftChild) {
 		cout << string(indent*2+1, ' ') << "Left Child:" << endl;
 		leftChild->print(indent+1);
@@ -120,6 +125,17 @@ void KDTree::print(int indent) {
 	
 }
 
-void KDTree::leafMakeAABB() {
-	
+void KDTree::makeAABB() {
+	if (leafNode) {
+		rendIt begin = myBegin;
+		aabb = new AABB();
+		for (; begin!=myEnd; ++begin) {
+			aabb->concat((*begin)->makeAABB());
+		}
+	} else {
+		aabb = new AABB();
+		aabb->concat(leftChild->aabb);
+		aabb->concat(rightChild->aabb);
+	}
 }
+

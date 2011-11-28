@@ -207,7 +207,7 @@ void Scene::parseScene(string filename) {
 	for (int i=0; i<renderables.size(); i++) {
 		cout << i << renderables[i]->center << endl;
 	}
-	//kdTree->print(0);
+	kdTree->print(0);
 	
 }
 

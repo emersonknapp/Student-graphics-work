@@ -168,6 +168,7 @@ AABB* Sphere::makeAABB() {
 		aabb->maxes[i] = center[i]+1;
 	}
 	return aabb;
+	//TODO: transformation on sphere aabb =/
 }
 
 Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
@@ -258,8 +259,9 @@ AABB* Triangle::makeAABB() {
 	aabb = new AABB();
 	for (int i=0; i<3; i++) {
 		aabb->mins[i] = min(tv1[i], min(tv2[i], tv3[i]));
-		aabb->maxes[0] = max(tv1[i], max(tv2[i], tv3[i]));
+		aabb->maxes[i] = max(tv1[i], max(tv2[i], tv3[i]));
 	}
+	
 	return aabb;
 }
 

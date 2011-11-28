@@ -113,10 +113,23 @@ vec4 DLight::lightVector(vec4 origin) {
 }
 
 AABB::AABB() {
-	mins = vec3(0,0,0);
-	maxes = vec3(0,0,0);
+	mins = vec3(INT_MAX, INT_MAX, INT_MAX);
+	maxes = vec3(INT_MIN, INT_MIN, INT_MIN);
 }
 
 float AABB::rayIntersect(Ray r) {
 	return -1; //TODO: this
+}
+
+//Makes this aabb the concatenation of itself and OTHER
+void AABB::concat(AABB* other) {
+	for (int i=0; i<3; i++) {
+		mins[i] = min(mins[i], other->mins[i]);
+		maxes[i] = max(maxes[i], other->maxes[i]);
+	}
+}
+
+void AABB::print(int indent) {
+	cout << string(indent*2, ' ') << "Bounding volume: " << endl;
+	cout << string(indent*2, ' ') << mins << maxes << endl;
 }

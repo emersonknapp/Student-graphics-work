@@ -7,6 +7,7 @@
 #include <sstream>
 #include <cmath>
 #include <cstring>
+#include <climits>
 #ifdef _WIN32
 #	include <windows.h>
 #else
@@ -41,8 +42,9 @@ public:
 class AABB {
 public:
 	AABB();
-	AABB* concat(AABB*);
+	void concat(AABB*);
 	float rayIntersect(Ray);
+	void print(int);
 	vec3 mins;
 	vec3 maxes;
 };
