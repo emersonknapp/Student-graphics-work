@@ -16,7 +16,6 @@ class Renderable;
 enum Axis { X, Y, Z, W };
 
 typedef bool (*comp)(Renderable*, Renderable*); //Renderable position comparison function pointer
-typedef vector<Renderable*>::iterator rendIt; //Renderable Pointer Iterator
 bool xCompare(Renderable*, Renderable*);
 bool yCompare(Renderable*, Renderable*);
 bool zCompare(Renderable*, Renderable*);
@@ -26,7 +25,7 @@ public:
 	
 	KDTree(rendIt, rendIt, int, Scene*);
 	~KDTree();
-	float rayIntersect(Ray);
+	bool rayIntersect(Ray, float&, rendIt&);
 	void print(int);
 	void makeAABB();
 

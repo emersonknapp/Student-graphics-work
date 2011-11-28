@@ -106,7 +106,7 @@ Sphere::Sphere() : Renderable() {
 	center = vec3(0,0,0);
 }
 
-float Sphere::ray_intersect (Ray r) {
+float Sphere::rayIntersect (Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
 	raydir.normalize();
@@ -178,7 +178,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	center = ((v1+v2+v3)/3).dehomogenize();
 }
 	
-float Triangle::ray_intersect ( Ray r) {
+float Triangle::rayIntersect ( Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
 	raydir.normalize();
@@ -274,7 +274,7 @@ Camera::Camera() {
 
 }
 
-float Camera::ray_intersect (Ray r) {
+float Camera::rayIntersect (Ray r) {
 	return -1;
 }
 vec4 Camera::normal (vec4 v) {
