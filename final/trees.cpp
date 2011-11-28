@@ -65,6 +65,9 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 bool KDTree::rayIntersect(Ray r, float& t, rendIt& rend) {
 	float newT;
 	bool hasHit = false;
+	if (!aabb->rayIntersect(r)) {
+		return false;
+	}
 	if (leafNode) {
 		rendIt begin = myBegin;
 		for (; begin != myEnd; ++begin) {

@@ -191,6 +191,7 @@ friend void swap(vec3& a, vec3& b);						// swap v1 & v2
 friend vec3 min(const vec3& a, const vec3& b);		    // min(v1, v2)
 friend vec3 max(const vec3& a, const vec3& b);		    // max(v1, v2)
 friend vec3 prod(const vec3& a, const vec3& b);		    // term by term *
+friend vec3 div(const vec3& a, const vec3& b);			// term by term /
 
 // necessary friend declarations
 
@@ -749,6 +750,9 @@ inline vec3 max(const vec3& a, const vec3& b)
 
 inline vec3 prod(const vec3& a, const vec3& b)
 { return vec3(a.n[VX] * b.n[VX], a.n[VY] * b.n[VY], a.n[VZ] * b.n[VZ]); }
+
+inline vec3 div(const vec3& a, const vec3& b)
+{ return vec3(a.n[VX] / b.n[VX], a.n[VY] / b.n[VY], a.n[VZ] / b.n[VZ]); }
 
 
 /****************************************************************

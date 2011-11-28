@@ -8,11 +8,6 @@
 #include <cmath>
 #include <cstring>
 #include <climits>
-#ifdef _WIN32
-#	include <windows.h>
-#else
-#	include <sys/time.h>
-#endif
 
 #include <time.h>
 #include <math.h>
@@ -47,7 +42,7 @@ class AABB {
 public:
 	AABB();
 	void concat(AABB*);
-	float rayIntersect(Ray);
+	bool rayIntersect(Ray);
 	void print(int);
 	vec3 mins;
 	vec3 maxes;

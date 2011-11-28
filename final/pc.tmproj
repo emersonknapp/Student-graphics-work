@@ -3,10 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>include/makefile</string>
+	<string>scene.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
+			<key>expanded</key>
+			<true/>
 			<key>name</key>
 			<string>test</string>
 			<key>regexFolderFilter</key>
@@ -46,27 +48,29 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>include/makefile</string>
+			<string>trees.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-11-27T12:21:05Z</date>
+			<date>2011-11-28T01:46:35Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>scene.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-28T01:47:33Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>trees.cpp</string>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>scene.cpp</string>
-		</dict>
-		<dict>
-			<key>filename</key>
 			<string>renderable.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-28T01:47:33Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>pc.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-28T01:47:31Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -75,30 +79,113 @@
 		<dict>
 			<key>filename</key>
 			<string>classes.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-28T01:07:04Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>makefile</string>
+			<key>lastUsed</key>
+			<date>2011-11-28T01:07:03Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>include/makefile</key>
+		<key>include/classes.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>18</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>4</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
+			<integer>105</integer>
+		</dict>
+		<key>include/trees.h</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>39</integer>
+				<key>line</key>
+				<integer>27</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
 			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>9</integer>
+		</dict>
+		<key>pc.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>3</integer>
+				<key>line</key>
+				<integer>128</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>110</integer>
+		</dict>
+		<key>renderable.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>14</integer>
+				<key>line</key>
+				<integer>160</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>139</integer>
+		</dict>
+		<key>scene.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>16</integer>
+				<key>line</key>
+				<integer>224</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>211</integer>
+		</dict>
+		<key>trees.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>79</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>60</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
-		<string>include/makefile</string>
+		<string>include/classes.h</string>
+		<string>trees.cpp</string>
+		<string>scene.cpp</string>
+		<string>renderable.cpp</string>
+		<string>pc.cpp</string>
+		<string>include/trees.h</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
@@ -107,6 +194,13 @@
 	<key>treeState</key>
 	<dict>
 		<key>include</key>
+		<dict>
+			<key>isExpanded</key>
+			<true/>
+			<key>subItems</key>
+			<dict/>
+		</dict>
+		<key>test</key>
 		<dict>
 			<key>isExpanded</key>
 			<true/>

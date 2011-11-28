@@ -222,9 +222,8 @@ void Scene::parseOBJ(ifstream& obj) {
 }
 
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
-	bool kd = false;
 	/* linear intersection test */
-	if (!kd) {
+	if (!KDEBUG) {
 		float newT;
 		bool hasHit = false;
 		int i=0;
@@ -246,7 +245,7 @@ bool Scene::rayIntersect(Ray r, float& t, int& index) {
 		rendIt rend;
 		bool hasHit = kdTree->rayIntersect(r, t, rend);
 		if (hasHit) {
-			index = distance(rend, renderables.begin());
+			index = distance(renderables.begin(), rend);
 		}
 		return hasHit;
 	}

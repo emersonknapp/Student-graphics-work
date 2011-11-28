@@ -117,8 +117,13 @@ AABB::AABB() {
 	maxes = vec3(INT_MIN, INT_MIN, INT_MIN);
 }
 
-float AABB::rayIntersect(Ray r) {
-	return -1; //TODO: this
+bool AABB::rayIntersect(Ray r) {
+	vec3 tmin; //tvalues at which boxmins are hit
+	vec3 tmax; //tvalues at which boxmaxes are hit
+	
+	
+	
+	return false; //TODO: this
 }
 
 //Makes this aabb the concatenation of itself and OTHER
