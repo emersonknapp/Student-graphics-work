@@ -46,7 +46,6 @@ vec3 Texture::getColor(float u, float v) {
 	RGBQUAD color;
 	float x = u * width;
 	float y = v * height;
-	cout << FreeImage_HasPixels(txt);
 	FreeImage_GetPixelColor(txt, x, y, &color);
 	float r = color.rgbRed / 255.0f;
 	float g = color.rgbGreen / 255.0f;
