@@ -77,8 +77,9 @@ bool KDTree::rayIntersect(Ray r, float& t, rendIt& rend) {
 				}
 			}
 		} else { //Not a leaf node
-			hasHit = rightChild->rayIntersect(r, t, rend);
-			hasHit = hasHit || leftChild->rayIntersect(r, t, rend);
+			bool rightHit = rightChild->rayIntersect(r, t, rend);
+			bool leftHit = leftChild->rayIntersect(r, t, rend);
+			hasHit = rightHit || leftHit;
 		}
 	}
 	
