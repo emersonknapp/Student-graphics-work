@@ -202,6 +202,14 @@ vec3 traceRay(Ray r, int depth) {
 		return vec3(0,0,0);
 	}
 }
+
+void photonCannon() {
+	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
+		Light* currentLight = *it;
+		//currentLight->emitPhotons();
+	}
+}
+
 //***************************************************
 // Function what actually draws to screen
 //***************************************************

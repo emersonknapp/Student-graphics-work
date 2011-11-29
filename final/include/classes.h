@@ -35,7 +35,10 @@ public:
 };
 
 class Photon : public Ray {
+public:
 	vec3 color;
+	Photon();
+	Photon(vec4 a, vec4 b, vec3 c);
 };
 
 class AABB {
@@ -61,18 +64,21 @@ public:
 	vec3 intensity;
 	vec4 v;
 	virtual vec4 lightVector(vec4) = 0;
+	virtual void emitPhotons() = 0;
 };
 
 class PLight: public Light {
 public:
 	PLight(vec4, vec3);
 	vec4 lightVector(vec4);
+	void emitPhotons();
 };
 
 class DLight: public Light {
 public:
 	DLight(vec4 , vec3 );
 	vec4 lightVector(vec4);
+	void emitPhotons();
 };
 
 class Texture {

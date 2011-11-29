@@ -30,6 +30,14 @@ Ray::Ray(vec4 a, vec4 b) {
 	dir.normalize();
 }	
 
+Photon::Photon() : Ray() {
+	color = vec3(0,0,0);
+}
+
+Photon::Photon(vec4 a, vec4 b, vec3 c) : Ray(a, b) {
+	color = c;
+}
+
 Texture::Texture() {}
 
 Texture::Texture(const char* fn) {
@@ -75,8 +83,20 @@ vec4 PLight::lightVector(vec4 origin) {
 	return v-origin;
 }
 
+void PLight::emitPhotons() {
+	//send out photons in random directions, calculate intersections against renderables, store photon at intersection in kdtree, reflection photons?
+	Photon photon = Photon();
+	
+	return;
+}
+
 vec4 DLight::lightVector(vec4 origin) {
 	return -v;
+}
+
+void DLight::emitPhotons() {
+	//IMPLEMENT...CAPS!!!
+	return;
 }
 
 AABB::AABB() {

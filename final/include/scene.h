@@ -24,6 +24,7 @@ public:
 	vector<Light*> lights;
 	Camera * camera;
 	KDTree* kdTree;
+	//KDTree* photonTree;
 
 	vec3 ambience; /* Ambient light color */
 	
