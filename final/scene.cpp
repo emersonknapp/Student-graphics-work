@@ -174,6 +174,9 @@ bool Scene::parseLine(string line) {
 		Texture t = Texture(name);
 		parseMaterial.texture = t;
 	}
+	else if (op.compare("ctex")==0) { //clear texture map
+		parseMaterial.texture = Texture();
+	}
 	else{
 		cout << "Warning: unrecognized command " << op << endl;
 	}

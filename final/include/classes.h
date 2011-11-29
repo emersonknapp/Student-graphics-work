@@ -54,6 +54,7 @@ public:
 	Viewport (int width, int height);
 	int w;
 	int h;
+	int aliasing;
 };
 
 class Light {
@@ -78,7 +79,7 @@ public:
 class Texture {
 // class for texture maps
 public:
-	
+	bool exists;	
 	float width;
 	float height;
 	FIBITMAP *txt;
