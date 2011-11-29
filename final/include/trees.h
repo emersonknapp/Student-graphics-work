@@ -8,6 +8,7 @@
 
 class Scene;
 class Renderable;
+class Photon;
 
 /*
 3-Dimensional tree
@@ -15,15 +16,22 @@ class Renderable;
 */
 enum Axis { X, Y, Z, W };
 
-typedef bool (*comp)(Renderable*, Renderable*); //Renderable position comparison function pointer
-bool xCompare(Renderable*, Renderable*);
-bool yCompare(Renderable*, Renderable*);
-bool zCompare(Renderable*, Renderable*);
+typedef bool (*rendComp)(Renderable*, Renderable*); //Renderable position comparison function pointer
+bool rendCompareX(Renderable*, Renderable*);
+bool rendCompareY(Renderable*, Renderable*);
+bool rendCompareZ(Renderable*, Renderable*);
+typedef bool (*photComp)(Photon*, Photon*); //Renderable position comparison function pointer
+bool photCompareX(Photon*, Photon*);
+bool photCompareY(Photon*, Photon*);
+bool photCompareZ(Photon*, Photon*);
+
+
 
 class KDTree {
 public:
 	
 	KDTree(rendIt, rendIt, int, Scene*);
+	KDTree();
 	~KDTree();
 	bool rayIntersect(Ray, float&, rendIt&);
 	void print(int);
@@ -32,9 +40,8 @@ public:
 protected:
 	AABB* aabb;
 	bool leafNode;
-	comp comparator;
+	rendComp comparator;
 	Scene* scene;
-	vector<int> polygons;
 	rendIt myBegin;
 	rendIt myEnd;
 	
@@ -45,6 +52,21 @@ protected:
 	/* The axis and splitting plane value */ 
 	int axis;
 	float median;
+	
+};
+
+class PhotonTree : protected KDTree {
+public:
+	PhotonTree(photIt, photIt, int, Scene*);
+	~PhotonTree();
+	vector<photIt> rayIntersect(Ray, float&);
+	void print(int);
+	void makeAABB();
+
+protected:
+	photComp comparator;
+	photIt myBegin;
+	photIt myEnd;
 	
 };
 

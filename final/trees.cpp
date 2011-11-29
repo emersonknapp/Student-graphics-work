@@ -6,16 +6,85 @@ construct kdtree.
 each kdtree node has an aabb with it that intersection is tested against
 */
 
-bool xCompare(Renderable* a, Renderable* b) { 
+bool rendCompareX(Renderable* a, Renderable* b) { 
 	return a->center[X] < b->center[X]; 
 }
-bool yCompare(Renderable* a, Renderable* b) { 
+bool rendCompareY(Renderable* a, Renderable* b) { 
 	return a->center[Y] < b->center[Y]; 
 }
-bool zCompare(Renderable* a, Renderable* b) { 
+bool rendCompareZ(Renderable* a, Renderable* b) { 
 	return a->center[Z] < b->center[Z]; 
 }
+bool photCompareX(Photon* a, Photon* b) {
+	return a->pos[X] < b->pos[X];
+}
+bool photCompareY(Photon* a, Photon* b) {
+	return a->pos[Y] < b->pos[Y];
+}
+bool photCompareZ(Photon* a, Photon* b) {
+	return a->pos[Z] < b->pos[Z];
+}
 
+PhotonTree::PhotonTree(photIt begin, photIt end, int depth, Scene* s) {
+	/*Defining instance vars */
+	myBegin = begin;
+	myEnd = end;
+	leftChild = NULL;
+	rightChild = NULL;
+	scene = s;
+	
+	/*Construct the tree */
+	if (distance(begin, end) <= LEAF_NUM_ELEMENTS) { 
+		leafNode = true;
+	} else {
+		leafNode = false;
+		// Select axis based on depth so that axis cycles through all valid values
+		axis = depth % 3;
+		switch(axis) {
+			case X:
+				comparator = photCompareX;
+				break;
+			case Y:
+				comparator = photCompareY;
+				break;
+			case Z:
+				comparator = photCompareZ;
+				break;
+		}
+
+		/* Sort point list and choose median as pivot element */
+		sort(begin, end, comparator);
+		int medianIndex = distance(begin, end)/2;
+		photIt medianIterator = begin;
+		
+		advance(medianIterator, medianIndex);
+		vec3 pivot = (*medianIterator)->pos;
+		median = pivot[axis];
+		
+		// Construct subtrees
+		leftChild = new PhotonTree(begin, medianIterator, depth+1, s);
+		rightChild = new PhotonTree(medianIterator, end, depth+1, s);		
+	}
+	makeAABB();
+}
+void PhotonTree::makeAABB() {
+	aabb = new AABB();
+	//TODO: photon aabb
+}
+
+vector<photIt> PhotonTree::rayIntersect(Ray r, float& t) {
+	vector<photIt> photons;
+	return photons;
+	//TODO: photon tree rayIntersect
+}
+
+void PhotonTree::print(int index) {
+	//TODO: photon tree print
+}
+
+KDTree::KDTree() {
+	
+}
 KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 	/*Defining instance vars */
 	myBegin = begin;
@@ -33,16 +102,14 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 		axis = depth % 3;
 		switch(axis) {
 			case X:
-				comparator = xCompare;
+				comparator = rendCompareX;
 				break;
 			case Y:
-				comparator = yCompare;
+				comparator = rendCompareY;
 				break;
 			case Z:
-				comparator = zCompare;
+				comparator = rendCompareZ;
 				break;
-			default:
-				Error("Received illegal axis in kdtree constructor.");
 		}
 
 		/* Sort point list and choose median as pivot element */

@@ -8,7 +8,7 @@ UNAME := $(shell uname)
 
 #-LIBRARIES AND INCLUDES
 LIBS = -lm -lstdc++ -lfreeimage
-INCS = -I include
+INCS = -I include -fopenmp
 ifeq ($(UNAME), Linux)
 INCS += -L./lib/filinux -I./lib/filinux
 endif

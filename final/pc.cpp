@@ -125,13 +125,10 @@ vec3 traceRay(Ray r, int depth) {
 	vec3 color = vec3(0,0,0);
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
-	//TODO: NOTE: this is for debuggggggiiing!
-	//if (hasHit) return vec3(1,0,0);
 	
 	if (hasHit) {
 
 		if (depth==0) {
-			//TODO: this is still a todo statement, but i think this is the right way to go. only add ambient on first level hit
 			color += scene->ambience;
 		}
 			
@@ -221,8 +218,9 @@ void render() {
 	int nextpercent = onepercent;
 	/*End*/
 	
-	for (float x = 0; x < viewport.w; x++) {
-		for (float y = 0; y < viewport.h; y++) {
+	#pragma omp parallel for
+	for (int x = 0; x < viewport.w; x++) {
+		for (int y = 0; y < viewport.h; y++) {
 			Ray camRay;
 			vec3 color = vec3(0,0,0);
 			Camera* camera = scene->camera;
