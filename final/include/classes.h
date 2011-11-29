@@ -20,7 +20,9 @@
 
 using namespace std;
 class Renderable;
+class Photon;
 typedef vector<Renderable*>::iterator rendIt; //Renderable Pointer Iterator
+typedef vector<Photon*>::iterator photIt;
 
 
 

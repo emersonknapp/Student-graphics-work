@@ -210,7 +210,7 @@ void Scene::parseScene(string filename) {
 	inFile.close();
 	
 	/*Contruct kdtree for this scene*/
-	delete kdTree;
+	//delete kdTree;
 	kdTree = new KDTree(renderables.begin(), renderables.end(), 0, this);
 	
 	//kdTree->print(0);
