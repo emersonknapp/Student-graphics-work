@@ -163,12 +163,32 @@ vec3 Sphere::textureColor(vec4 hitPoint) {
 
 AABB* Sphere::makeAABB() {
 	aabb = new AABB();
-	for (int i=0; i<3; i++) {
-		aabb->mins[i] = center[i]-1;
-		aabb->maxes[i] = center[i]+1;
+	aabb->mins = vec3(-1,-1,-1);
+	aabb->maxes = vec3(1,1,1);
+	
+	//create box vertices and tranform by tmat
+	vec4 box[8];
+	int bit;
+	for (int i=0; i<8; i++) {
+		for (int j=0; j<3; j++) {
+			bit = (i>>j)%2;
+			box[i][j] = (1-bit)*aabb->mins[j] + bit*aabb->maxes[j];
+		}
+		box[i][3] = 1;
+		box[i] = tmat*box[i];
 	}
+	//reconstruct aabb
+	aabb->mins = box[0];
+	aabb->maxes = box[0];
+	for (int i=0; i<8; i++) {
+		for (int j=0; j<3; j++) {
+			aabb->mins[j] = min(aabb->mins[j], box[i][j]);
+			aabb->maxes[j] = max(aabb->maxes[j], box[i][j]);
+		}
+	}
+	
+	
 	return aabb;
-	//TODO: transformation on sphere aabb =/
 }
 
 Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
