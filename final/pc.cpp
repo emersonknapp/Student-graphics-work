@@ -47,7 +47,7 @@ void Usage() {
 	<< "    pc [-s scene] [-pr outputfile] [-px x y]" << endl
 	<< "        -s: scene file" << endl
 	<< "        -pr: output print file name, defaults to \"out.png\"" << endl
-	<< "        -px: the size of the output image, in pixels" << endl
+	<< "        -px: the size of the output image, in pixels (default 800x800)" << endl
 	;
 	quitProgram(0);
 }
@@ -80,7 +80,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
 		//Linearly search renderables for shadow intersection
 		int j = 0;
-		for (vector<Renderable*>::iterator it = scene->renderables.begin(); it != scene->renderables.end(); ++it) {
+		for (rendIt it = scene->renderables.begin(); it != scene->renderables.end(); ++it) {
 			Renderable* rend = *it;
 			if((t=rend->rayIntersect(lightCheck)) <= lightCheck.dir.length() && t>0 && index != j) {	
 				shadePixel = false;
@@ -103,8 +103,8 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
-
 			color += specular;
+			
 		}
 		
 	}
@@ -131,8 +131,8 @@ vec3 traceRay(Ray r, int depth) {
 	if (hasHit) {
 
 		if (depth==0) {
-		//TODO: this is still a todo statement, but i think this is the right way to go. only add ambient on first level hit
-		color += scene->ambience;
+			//TODO: this is still a todo statement, but i think this is the right way to go. only add ambient on first level hit
+			color += scene->ambience;
 		}
 			
 		Renderable* rend = scene->renderables[renderableIndex];

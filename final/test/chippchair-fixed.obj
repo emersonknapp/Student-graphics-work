@@ -4,7 +4,7 @@ ks .5 .5 .5
 sp 100
 dl 0 0 -1 1 1 1
 rotate 0 0 -1.7
-translate 0 0 3
+translate 0 .2 0
 cam
 
 ct
