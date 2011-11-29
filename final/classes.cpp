@@ -22,36 +22,14 @@ Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
 Ray::Ray() {
 	pos = vec4(0,0,0,0);
 	dir = vec4(0,0,0,0);
-	ristack.push(1.0);
-	
 }	
 
 Ray::Ray(vec4 a, vec4 b) {
 	pos = a;
 	dir = b;
 	dir.normalize();
-	ristack.push(1.0);
-	
+	ristack.push_back(1.0);
 }	
-
-Ray::Ray(vec4 a, vec4 b, float r) {
-	pos = a;
-	dir = b;
-	dir.normalize();
-	ristack.push(r);
-	
-}
-
-Ray::Ray(vec4 a, vec4 b, stack<float> ris) {
-	pos = a;
-	dir = b;
-	dir.normalize();
-	if (ris.empty()) {
-		ristack.push(1.0);
-	} else {
-		ristack = ris;
-	}
-}
 
 Texture::Texture() {}
 

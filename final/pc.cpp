@@ -129,6 +129,7 @@ vec3 traceRay(Ray r, int depth) {
 	//if (hasHit) return vec3(1,0,0);
 	
 	if (hasHit) {
+
 		if (depth==0) {
 		//TODO: this is still a todo statement, but i think this is the right way to go. only add ambient on first level hit
 		color += scene->ambience;
@@ -154,19 +155,19 @@ vec3 traceRay(Ray r, int depth) {
 
 			float c1 = (n*d);
 			float nn;
-			float curRI;
-			float newRI;
+			float curRI = 1.0;
+			if (r.ristack.empty()) curRI = 1.0;
+			else curRI = r.ristack[r.ristack.size()-1];
+			float newRI = 1.0;
 			// top of the stack is the RI of the material the ray is in. we set curRI to the top(), then push the renderable's RI onto the stack bc that's where the ray is now
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
-				curRI = r.ristack.top();
 				nn = rend->material.ri / curRI;
-				r.ristack.push(rend->material.ri);
+				r.ristack.push_back(rend->material.ri);
 				n=-normal.dehomogenize().normalize();
 			} else { // ray hits inside of object, then we know we're going to what we had before (oldRI)
-				curRI = r.ristack.top();
-				r.ristack.pop();
-				newRI = r.ristack.top();
-				nn = curRI / newRI;
+				if (r.ristack.empty()) newRI = 1.0;
+				else newRI = r.ristack[r.ristack.size()-1];
+				nn = newRI / curRI;
 				n=normal.dehomogenize().normalize();
 			}
 			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
@@ -176,7 +177,8 @@ vec3 traceRay(Ray r, int depth) {
 				vec3 tmp3 = tmp1 + tmp2;
 				tmp3.normalize();
 				vec4 rayDirection = vec4(tmp3,0);
-				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection,r.ristack);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection);
+			//	refractedRay.ristack.swap(r.ristack);
 				vec3 refractedColor = traceRay(refractedRay, depth+1);
 				color += refractedColor;
 			} 

@@ -34,11 +34,9 @@ public:
 	vec4 pos;
 	vec4 dir;
 	float t_min, t_max;
-	stack<float> ristack;
+	vector<float> ristack;
 	Ray();
 	Ray(vec4 a, vec4 b);
-	Ray(vec4 a, vec4 b, float r);
-	Ray(vec4 a, vec4 b, stack<float> ris);
 };
 
 class AABB {
