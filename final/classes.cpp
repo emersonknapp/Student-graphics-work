@@ -28,7 +28,6 @@ Ray::Ray(vec4 a, vec4 b) {
 	pos = a;
 	dir = b;
 	dir.normalize();
-	ristack.push_back(1.0);
 }	
 
 Texture::Texture() {}
