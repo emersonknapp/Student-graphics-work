@@ -196,7 +196,7 @@ vec3 traceRay(Ray r, int depth) {
 		color += prod(kr,reflColor);
 		// *********************************
 		// COMPUTE TEXTURE MAPPING
-		// TODO: Renderable->texturemapping method
+		if (rend->material.texture.exists) color += rend->textureColor(hitPoint);
 		return color;
 	} else { 
 		return vec3(0,0,0);
@@ -214,14 +214,22 @@ void render() {
 	/*End*/
 	
 	for (float x = 0; x < viewport.w; x++) {
-		for (float y = 0; y < viewport.h; y++) {			
-			Camera* camera = scene->camera;			
-			Ray camRay = camera->generate_ray(x/viewport.w,y/viewport.h);	
-			//cout << camRay.dir << " " << camRay.pos << endl;		
-			//vec4 color = camRay.dir;
-			vec3 color = traceRay(camRay, 0);
-		
+		for (float y = 0; y < viewport.h; y++) {
+			Ray camRay;
+			vec3 color = vec3(0,0,0);
+			Camera* camera = scene->camera;
+			float divisor = 1.0 / (max(1,viewport.aliasing));
+			for (float ax = 0 ; ax < 1 ; ax +=divisor) {
+				for (float ay = 0 ; ay < 1 ; ay+=divisor) {
+					float tmpX = (x+ax)/viewport.w;
+					float tmpY = (y+ay)/viewport.h;
+					camRay = camera->generate_ray(tmpX,tmpY);
+					color += traceRay(camRay, 0);
+				}
+			}
+			color = (1.0 / pow(max(1,viewport.aliasing),2.0)) * color;
 			setPixel(x,y,color[0], color[1], color[2]);			
+
 		}
 		
 		/* logging output */
@@ -258,6 +266,8 @@ void processArgs(int argc, char* argv[]) {
 			viewport.w = width;
 			viewport.h = height;
 			imageWriter->setSize(width, height);
+		} else if (arg.compare("-a")==0) {
+			viewport.aliasing = atoi(argv[++i]);
 		}
 	}
 	

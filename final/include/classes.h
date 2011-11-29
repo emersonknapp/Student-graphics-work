@@ -57,6 +57,7 @@ public:
 	Viewport (int width, int height);
 	int w;
 	int h;
+	int aliasing;
 };
 
 class Light {
@@ -81,7 +82,7 @@ public:
 class Texture {
 // class for texture maps
 public:
-	
+	bool exists;	
 	float width;
 	float height;
 	FIBITMAP *txt;
@@ -170,9 +171,10 @@ class Triangle : public Renderable {
 public:
 	//vertices
 	vec4 v1, v2, v3;
+	vec3 vt1, vt2, vt3; //texture vertices
 	vec3 norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
-	
+	Triangle (vec4 a, vec4 b, vec4 c, vec3 d, vec3 e, vec3 f);	
 	float rayIntersect ( Ray);
 	AABB* makeAABB();
 	vec4 normal(vec4);

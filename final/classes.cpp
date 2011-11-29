@@ -30,12 +30,15 @@ Ray::Ray(vec4 a, vec4 b) {
 	dir.normalize();
 }	
 
-Texture::Texture() {}
+Texture::Texture() {
+	exists = false;
+}
 
 Texture::Texture(const char* fn) {
 	txt = FreeImage_Load(FIF_PNG, fn, PNG_DEFAULT);
 	width = FreeImage_GetWidth(txt);
 	height = FreeImage_GetHeight(txt);
+	exists = true;
 }
 
 vec3 Texture::getColor(float u, float v) {
@@ -43,7 +46,6 @@ vec3 Texture::getColor(float u, float v) {
 	RGBQUAD color;
 	float x = u * width;
 	float y = v * height;
-
 	FreeImage_GetPixelColor(txt, x, y, &color);
 	float r = color.rgbRed / 255.0f;
 	float g = color.rgbGreen / 255.0f;
@@ -55,10 +57,12 @@ vec3 Texture::getColor(float u, float v) {
 Viewport::Viewport () {
 	w = 0;
 	h = 0;
+	aliasing = 0;
 }
 Viewport::Viewport (int width, int height) {
 	w = width;
 	h = height;
+	aliasing = 0;
 }
 
 PLight::PLight(vec4 p, vec3 i) {

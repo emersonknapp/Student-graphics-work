@@ -19,6 +19,7 @@ public:
 	vec3 rotation, translation, scale;
 	Material parseMaterial; /* Temporary storage for the most recently parsed material */
 	vector<vec4> vertices;
+	vector<vec3> textureVertices;
 	int lastVertex; /* Vertices.size()-1, shortcut to index of last vertex */
 	vector<Renderable*> renderables;
 	vector<Light*> lights;

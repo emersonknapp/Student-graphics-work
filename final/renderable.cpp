@@ -198,6 +198,17 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	center = ((v1+v2+v3)/3).dehomogenize();
 }
 	
+	
+Triangle::Triangle(vec4 a, vec4 b, vec4 c, vec3 d, vec3 e, vec3 f) : Renderable() {
+	v1 = a;
+	v2 = b;
+	v3 = c;
+	vt1 = d;
+	vt2 = e;
+	vt3 = f;
+	center = ((v1+v2+v3)/3).dehomogenize();
+}
+	
 float Triangle::rayIntersect ( Ray r) {
 	vec4 raypos = imat*r.pos;
 	vec4 raydir = imat*r.dir;
@@ -266,6 +277,9 @@ vec4 Triangle::normal() {
 }
 
 vec3 Triangle::textureColor(vec4 hitPoint) {
+	// Triangle has texture vertices between 0.0 and 1.0 (canonical coordinates of the texture map we're going to use)
+	// we specify vertices "vt .3 .2 0", etc, and then reference which texture vertices we're using w/ this triangle
+	// u, v, w (horizontal, vertical, depth)...not sure if we'll go depth
 	vec3 color;
 
 	return color;

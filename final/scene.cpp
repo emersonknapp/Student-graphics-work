@@ -51,6 +51,14 @@ bool Scene::parseLine(string line) {
 		lastVertex++;
 		vertices.push_back(vec4(x,y,z,1));
 	} 
+	else if (op.compare("vt") == 0) { //texture vertex
+		double a,b,c;
+		ss >> a >> b >> c;
+		if (a > 1 or a < 0) Error("Texture vertices must be between 0 and 1"); 
+		if (b > 1 or b < 0) Error("Texture vertices must be between 0 and 1");
+		if (c > 1 or c < 0) Error("Texture vertices must be between 0 and 1");
+		textureVertices.push_back(vec3(a,b,c));
+	}
 	else if (op.compare("f") == 0) { //face, for now just a triangle TODO: earclipping
 		string i, j, k;
 		ss >> i >> j >> k;
@@ -165,6 +173,9 @@ bool Scene::parseLine(string line) {
 		const char* name = tmp.c_str();
 		Texture t = Texture(name);
 		parseMaterial.texture = t;
+	}
+	else if (op.compare("ctex")==0) { //clear texture map
+		parseMaterial.texture = Texture();
 	}
 	else{
 		cout << "Warning: unrecognized command " << op << endl;
