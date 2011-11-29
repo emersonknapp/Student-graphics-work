@@ -197,6 +197,7 @@ vec3 traceRay(Ray r, int depth) {
 		// *********************************
 		// COMPUTE TEXTURE MAPPING
 		// TODO: Renderable->texturemapping method
+		color += rend->textureColor(hitPoint);
 		return color;
 	} else { 
 		return vec3(0,0,0);
