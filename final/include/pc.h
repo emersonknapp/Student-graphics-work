@@ -35,7 +35,7 @@
 #define FRAMERATE 10
 #define EPSILON 0.001
 #define DEBUG false
-#define KDEBUG false
+#define KDEBUG true
 #define T_MAX 400
 
 #define MAXRECURSION 4
