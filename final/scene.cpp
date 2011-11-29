@@ -222,12 +222,32 @@ void Scene::parseOBJ(ifstream& obj) {
 }
 
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
-	
-	rendIt rend;
-	bool hasHit = kdTree->rayIntersect(r, t, rend);
-	if (hasHit) {
-		index = distance(renderables.begin(), rend);
+	/* linear intersection test */
+	if (!KDEBUG) {
+		float newT;
+		bool hasHit = false;
+		int i=0;
+		for (vector<Renderable*>::iterator it=renderables.begin(); it != renderables.end(); ++it, ++i) {
+			Renderable* rend = *it;
+			vec3 color = vec3(0,0,0);
+			//cout << renderables[i]->tmat << endl << endl;
+			if((newT=rend->rayIntersect(r)) < t && newT>0) {	
+				hasHit = true;			
+				index = i;
+				t = newT;
+			}
+		}
+		return hasHit;
 	}
-	return hasHit;
+	
+	/* with kd tree */
+	else {
+		rendIt rend;
+		bool hasHit = kdTree->rayIntersect(r, t, rend);
+		if (hasHit) {
+			index = distance(renderables.begin(), rend);
+		}
+		return hasHit;
+	}
 	
 }

@@ -36,7 +36,6 @@ public:
 
 class Photon : public Ray {
 	vec3 color;
-	
 };
 
 class AABB {
