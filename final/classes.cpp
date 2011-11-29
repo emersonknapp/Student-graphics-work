@@ -22,46 +22,13 @@ Material::Material(vec3 a, vec3 d, vec3 s, vec3 r, int p) {
 Ray::Ray() {
 	pos = vec4(0,0,0,0);
 	dir = vec4(0,0,0,0);
-	refracted = false;
-	curRI = 1.0;
-	oldRI = 1.0;
 }	
 
 Ray::Ray(vec4 a, vec4 b) {
 	pos = a;
 	dir = b;
 	dir.normalize();
-	refracted = false;
-	curRI = 1.0;
-	oldRI = 1.0;
 }	
-
-Ray::Ray(vec4 a, vec4 b, float r) {
-	pos = a;
-	dir = b;
-	dir.normalize();
-	curRI = r;
-	oldRI = 1.0;
-}
-
-Ray::Ray(vec4 a, vec4 b, bool t) {
-	pos = a;
-	dir = b;
-	dir.normalize();
-	refracted = t;
-	curRI = 1.0;
-	oldRI = 1.0;
-}
-
-
-Ray::Ray(vec4 a, vec4 b, float rn, float ro, bool t) {
-	pos = a;
-	dir = b;
-	dir.normalize();
-	curRI = rn;
-	oldRI = ro;
-	refracted = t;
-}
 
 Texture::Texture() {}
 
