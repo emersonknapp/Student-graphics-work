@@ -65,22 +65,22 @@ KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 bool KDTree::rayIntersect(Ray r, float& t, rendIt& rend) {
 	float newT;
 	bool hasHit = false;
-	if (!aabb->rayIntersect(r)) {
-		return false;
-	}
-	if (leafNode) {
-		rendIt begin = myBegin;
-		for (; begin != myEnd; ++begin) {
-			if ((newT = (*begin)->rayIntersect(r)) < t && newT>0) {
-				hasHit = true;
-				rend = begin;
-				t = newT;
+	if (aabb->rayIntersect(r)) {
+		if (leafNode) {
+			rendIt begin = myBegin;
+			for (; begin != myEnd; ++begin) {
+				newT = (*begin)->rayIntersect(r);
+				if (newT < t && newT>0) {
+					hasHit = true;
+					rend = begin;
+					t = newT;
+				}
 			}
+		} else { //Not a leaf node
+			hasHit = rightChild->rayIntersect(r, t, rend);
+			hasHit = hasHit || leftChild->rayIntersect(r, t, rend);
 		}
-	} else { //Not a leaf node
-		hasHit = leftChild->rayIntersect(r, t, rend);
-		hasHit = rightChild->rayIntersect(r, t, rend);
-	} 
+	}
 	
 	return hasHit;	
 }

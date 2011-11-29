@@ -118,12 +118,35 @@ AABB::AABB() {
 }
 
 bool AABB::rayIntersect(Ray r) {
-	vec3 tmin; //tvalues at which boxmins are hit
-	vec3 tmax; //tvalues at which boxmaxes are hit
+	vec3 raydir = r.dir.dehomogenize();
+	vec3 raypos = r.pos.dehomogenize();
+	//tvalues at which boxmins are hit
+	vec3 tmin;
+	//tvalues at which boxmaxes are hit
+	vec3 tmax;
 	
+	float t1;
+	float t2;
+	float tnear = INT_MIN;
+	float tfar = INT_MAX;
 	
+	for (int i=0; i<3; i++) {
+		if (raydir[i] == 0) {
+			if (!(raypos[i] >= mins[i] && raypos[i] <= maxes[i])) {
+				return false;
+			}
+		} else {
+			t1 = (mins[i]-raypos[i])/raydir[i];
+			t2 = (maxes[i]-raypos[i])/raydir[i];
+			if (t1 > t2) swap(t1, t2);
+			if (t1 > tnear) tnear = t1;
+			if (t2 < tfar) tfar = t2;
+			if (tnear > tfar) return false;
+			if (tfar < 0) return false;
+		}
+	}
 	
-	return false; //TODO: this
+	return true;
 }
 
 //Makes this aabb the concatenation of itself and OTHER
