@@ -93,6 +93,7 @@ KDTree::~KDTree() {
 
 void KDTree::print(int indent) {
 	if (leafNode) {
+		aabb->print(indent);
 		cout << string(indent*2, ' ') << "LEAF NODE" << endl;
 		rendIt begin = myBegin;
 		for (; begin!=myEnd; begin++) {

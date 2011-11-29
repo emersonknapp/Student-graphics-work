@@ -20,4 +20,4 @@ translate 0 0 0
 ri 1.33
 kd 0 .1 .2
 ks .1 .1 0
-s 2
+#s 2

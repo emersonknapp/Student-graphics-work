@@ -1,20 +1,9 @@
-pl 2 1 0 1 1 1
-translate 0 0 4
+pl 2 1 3 1 1 1
+translate 0 0 6
 cam
 
 ct
-translate 1 0 0
-kd 0 0 .4
-ks 0 .10 0
-sp 100
-kr 0 0 0
-s .2
+translate 0 0 -6
+scale 2 0 0
+s 1
 
-ct
-kd 1 1 1
-ri 0
-v 3 -1 0
-v -3 -1 0
-v 0 3 0
-translate 0 0 -1
-f 3 2 1

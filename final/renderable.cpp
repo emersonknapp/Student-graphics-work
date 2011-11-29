@@ -163,18 +163,49 @@ vec3 Sphere::textureColor(vec4 hitPoint) {
 
 AABB* Sphere::makeAABB() {
 	aabb = new AABB();
-	for (int i=0; i<3; i++) {
-		aabb->mins[i] = center[i]-1;
-		aabb->maxes[i] = center[i]+1;
+	aabb->mins = vec3(-1,-1,-1);
+	aabb->maxes = vec3(1,1,1);
+	
+	//create box vertices and tranform by tmat
+	vec4 box[8];
+	int bit;
+	for (int i=0; i<8; i++) {
+		for (int j=0; j<3; j++) {
+			bit = (i>>j)%2;
+			box[i][j] = (1-bit)*aabb->mins[j] + bit*aabb->maxes[j];
+		}
+		box[i][3] = 1;
+		box[i] = tmat*box[i];
 	}
+	//reconstruct aabb
+	aabb->mins = box[0];
+	aabb->maxes = box[0];
+	for (int i=0; i<8; i++) {
+		for (int j=0; j<3; j++) {
+			aabb->mins[j] = min(aabb->mins[j], box[i][j]);
+			aabb->maxes[j] = max(aabb->maxes[j], box[i][j]);
+		}
+	}
+	
+	
 	return aabb;
-	//TODO: transformation on sphere aabb =/
 }
 
 Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
+	center = ((v1+v2+v3)/3).dehomogenize();
+}
+	
+	
+Triangle::Triangle(vec4 a, vec4 b, vec4 c, vec3 d, vec3 e, vec3 f) : Renderable() {
+	v1 = a;
+	v2 = b;
+	v3 = c;
+	vt1 = d;
+	vt2 = e;
+	vt3 = f;
 	center = ((v1+v2+v3)/3).dehomogenize();
 }
 	
@@ -246,6 +277,9 @@ vec4 Triangle::normal() {
 }
 
 vec3 Triangle::textureColor(vec4 hitPoint) {
+	// Triangle has texture vertices between 0.0 and 1.0 (canonical coordinates of the texture map we're going to use)
+	// we specify vertices "vt .3 .2 0", etc, and then reference which texture vertices we're using w/ this triangle
+	// u, v, w (horizontal, vertical, depth)...not sure if we'll go depth
 	vec3 color;
 
 	return color;

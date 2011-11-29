@@ -51,6 +51,14 @@ bool Scene::parseLine(string line) {
 		lastVertex++;
 		vertices.push_back(vec4(x,y,z,1));
 	} 
+	else if (op.compare("vt") == 0) { //texture vertex
+		double a,b,c;
+		ss >> a >> b >> c;
+		if (a > 1 or a < 0) Error("Texture vertices must be between 0 and 1"); 
+		if (b > 1 or b < 0) Error("Texture vertices must be between 0 and 1");
+		if (c > 1 or c < 0) Error("Texture vertices must be between 0 and 1");
+		textureVertices.push_back(vec3(a,b,c));
+	}
 	else if (op.compare("f") == 0) { //face, for now just a triangle TODO: earclipping
 		string i, j, k;
 		ss >> i >> j >> k;
@@ -166,6 +174,9 @@ bool Scene::parseLine(string line) {
 		Texture t = Texture(name);
 		parseMaterial.texture = t;
 	}
+	else if (op.compare("ctex")==0) { //clear texture map
+		parseMaterial.texture = Texture();
+	}
 	else{
 		cout << "Warning: unrecognized command " << op << endl;
 	}
@@ -222,32 +233,12 @@ void Scene::parseOBJ(ifstream& obj) {
 }
 
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
-	/* linear intersection test */
-	if (!KDEBUG) {
-		float newT;
-		bool hasHit = false;
-		int i=0;
-		for (vector<Renderable*>::iterator it=renderables.begin(); it != renderables.end(); ++it, ++i) {
-			Renderable* rend = *it;
-			vec3 color = vec3(0,0,0);
-			//cout << renderables[i]->tmat << endl << endl;
-			if((newT=rend->rayIntersect(r)) < t && newT>0) {	
-				hasHit = true;			
-				index = i;
-				t = newT;
-			}
-		}
-		return hasHit;
+
+	rendIt rend;
+	bool hasHit = kdTree->rayIntersect(r, t, rend);
+	if (hasHit) {
+		index = distance(renderables.begin(), rend);
 	}
-	
-	/* with kd tree */
-	else {
-		rendIt rend;
-		bool hasHit = kdTree->rayIntersect(r, t, rend);
-		if (hasHit) {
-			index = distance(renderables.begin(), rend);
-		}
-		return hasHit;
-	}
+	return hasHit;
 	
 }
