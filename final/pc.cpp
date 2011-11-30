@@ -74,21 +74,14 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		
 		Material material;
 		bool shadePixel = true;
-		float t;
+		float t = T_MAX;
+		int renderableIndex=-1;
 
 		
 		//shadow ray
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
-		//Linearly search renderables for shadow intersection
-		int j = 0;
-		for (rendIt it = scene->renderables.begin(); it != scene->renderables.end(); ++it) {
-			Renderable* rend = *it;
-			if((t=rend->rayIntersect(lightCheck)) <= lightCheck.dir.length() && t>0 && index != j) {	
-				shadePixel = false;
-				break;
-			}
-			++j;
-		}
+		//Ask the scene for shadow intersect. Whoops, we were still checking linearly!
+		shadePixel = !(scene->rayIntersect(lightCheck, t, renderableIndex));
 		
 		if (shadePixel) {
 			material = scene->renderables[index]->material;

@@ -3,26 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>test/chippchair-fixed.obj</string>
+	<string>pc.cpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
-			<key>expanded</key>
-			<true/>
 			<key>name</key>
-			<string>test</string>
+			<string>images</string>
 			<key>regexFolderFilter</key>
 			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
 			<key>sourceDirectory</key>
-			<string>test</string>
-		</dict>
-		<dict>
-			<key>name</key>
-			<string>lib</string>
-			<key>regexFolderFilter</key>
-			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
-			<key>sourceDirectory</key>
-			<string>lib</string>
+			<string>images</string>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -36,45 +26,27 @@
 		</dict>
 		<dict>
 			<key>name</key>
-			<string>images</string>
+			<string>lib</string>
 			<key>regexFolderFilter</key>
 			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
 			<key>sourceDirectory</key>
-			<string>images</string>
+			<string>lib</string>
+		</dict>
+		<dict>
+			<key>expanded</key>
+			<true/>
+			<key>name</key>
+			<string>test</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>sourceDirectory</key>
+			<string>test</string>
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>kdstats.txt</string>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>trees.cpp</string>
+			<string>makefile</string>
 			<key>lastUsed</key>
-			<date>2011-11-29T11:38:38Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>scene.cpp</string>
-			<key>lastUsed</key>
-			<date>2011-11-29T12:01:21Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>renderable.cpp</string>
-			<key>lastUsed</key>
-			<date>2011-11-29T12:01:49Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>pc.cpp</string>
-			<key>lastUsed</key>
-			<date>2011-11-29T12:00:35Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>imagewriter.cpp</string>
-			<key>lastUsed</key>
-			<date>2011-11-28T23:32:46Z</date>
+			<date>2011-11-29T22:21:42Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -84,9 +56,39 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>makefile</string>
+			<string>imagewriter.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-11-29T07:37:18Z</date>
+			<date>2011-11-28T23:32:46Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>pc.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-30T02:28:19Z</date>
+			<key>selected</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>renderable.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-29T12:01:49Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>scene.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-29T12:01:21Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>trees.cpp</string>
+			<key>lastUsed</key>
+			<date>2011-11-29T22:20:46Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>kdstats.txt</string>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -154,9 +156,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>37</integer>
+				<integer>26</integer>
 				<key>line</key>
-				<integer>27</integer>
+				<integer>10</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -170,12 +172,12 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>131</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>104</integer>
+			<integer>206</integer>
 		</dict>
 		<key>renderable.cpp</key>
 		<dict>
@@ -205,6 +207,20 @@
 			<key>firstVisibleLine</key>
 			<integer>51</integer>
 		</dict>
+		<key>test/angelDrop_fixed.obj</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>test/chippchair-fixed.obj</key>
 		<dict>
 			<key>caret</key>
@@ -219,6 +235,20 @@
 			<key>firstVisibleLine</key>
 			<integer>1</integer>
 		</dict>
+		<key>test/dragon-fixed.obj</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>test/test.t</key>
 		<dict>
 			<key>caret</key>
@@ -232,6 +262,20 @@
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+		</dict>
+		<key>test/test4.t</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>15</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>38</integer>
 		</dict>
 		<key>trees.cpp</key>
 		<dict>
@@ -253,6 +297,9 @@
 		<string>include/trees.h</string>
 		<string>trees.cpp</string>
 		<string>pc.cpp</string>
+		<string>test/dragon-fixed.obj</string>
+		<string>test/angelDrop_fixed.obj</string>
+		<string>test/test4.t</string>
 		<string>test/chippchair-fixed.obj</string>
 		<string>scene.cpp</string>
 		<string>makefile</string>

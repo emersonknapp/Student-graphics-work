@@ -1,4 +1,6 @@
-pl 9 9 -9 .5 .5 .5
+pl -5 3 -10 .5 .5 .5
+#dl 1 -1 -1 1 0 0
+sp 100
 
 translate 0 0 20
 cam
@@ -49,5 +51,5 @@ f 7 4 3
 f 7 8 4
 
 kd 1 1 1
-translate -5 0 -17
-s 3
+translate -5 0 -15
+s 2
