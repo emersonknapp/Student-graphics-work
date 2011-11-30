@@ -45,10 +45,11 @@ void Warning(string msg) {
 void Usage() {
 	cout << "Photon Cannon v" << VERSION_NUMBER << endl
 	<< "Usage:" << endl
-	<< "    pc [-s scene] [-pr outputfile] [-px x y]" << endl
+	<< "    pc [-s scene] [-pr outputfile] [-px x y] [-a n]" << endl
 	<< "        -s: scene file" << endl
 	<< "        -pr: output print file name, defaults to \"out.png\"" << endl
 	<< "        -px: the size of the output image, in pixels (default 800x800)" << endl
+	<< "        -a: antialiasing, n-by-n rays per pixel, defaults to 1" << endl
 	;
 	quitProgram(0);
 }
@@ -254,10 +255,11 @@ void processArgs(int argc, char* argv[]) {
 	}
 	
 	string arg;
+	string sceneFile = "";
 	for (int i=1; i<argc; i++) {
 		arg = argv[i];
 		if (arg.compare("-s") == 0) {
-			scene->parseScene(argv[++i]);
+			sceneFile = argv[++i];
 		} else if (arg.compare("-pr")==0) {
 			imageWriter->fileName = argv[++i];
 		} else if (arg.compare("-px")==0) {
@@ -268,7 +270,13 @@ void processArgs(int argc, char* argv[]) {
 			imageWriter->setSize(width, height);
 		} else if (arg.compare("-a")==0) {
 			viewport.aliasing = atoi(argv[++i]);
+		} else {
+			Warning("Unrecognized command " + arg);
+			Usage();
 		}
+	}
+	if (sceneFile.length()>0) {
+		scene->parseScene(sceneFile);	
 	}
 	
 }

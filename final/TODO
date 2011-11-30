@@ -1,0 +1,23 @@
+TODO:
+earclipping
+jitter AA
+texture map on tri
+subsurface scattering
+full obj support
+	vertex normals, interp on tri for smoother shading
+final gather
+	option for # of diffuse rays
+photon raw output for debug
+Usage for unrecognized command line options
+long-name options
+photon cannon
+	point lights
+	directional lights
+spot lights
+area lights
+photon tree
+	intersection
+	AABB
+
+DONE:
+simple antialiasing
