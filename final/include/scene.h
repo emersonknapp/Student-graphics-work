@@ -13,7 +13,8 @@ public:
 	void parseOBJ(ifstream&);
 	bool parseLine(string);
 	vec4 getVertex(int);
-	int extractVertex(string);
+	vec3 getTextureVertex(int);
+	int extractVertex(string, int&);
 	bool rayIntersect(Ray, float&, int&);
 	
 	vec3 rotation, translation, scale;
@@ -21,6 +22,7 @@ public:
 	vector<vec4> vertices;
 	vector<vec3> textureVertices;
 	int lastVertex; /* Vertices.size()-1, shortcut to index of last vertex */
+	int lastTextureVertex;
 	vector<Renderable*> renderables;
 	vector<Light*> lights;
 	Camera * camera;

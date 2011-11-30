@@ -199,13 +199,13 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 }
 	
 	
-Triangle::Triangle(vec4 a, vec4 b, vec4 c, vec3 d, vec3 e, vec3 f) : Renderable() {
+Triangle::Triangle(vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
-	vt1 = d;
-	vt2 = e;
-	vt3 = f;
+	vt1 = g;
+	vt2 = h;
+	vt3 = i;
 	center = ((v1+v2+v3)/3).dehomogenize();
 }
 	
@@ -280,6 +280,8 @@ vec3 Triangle::textureColor(vec4 hitPoint) {
 	// Triangle has texture vertices between 0.0 and 1.0 (canonical coordinates of the texture map we're going to use)
 	// we specify vertices "vt .3 .2 0", etc, and then reference which texture vertices we're using w/ this triangle
 	// u, v, w (horizontal, vertical, depth)...not sure if we'll go depth
+	// TODO: fix file parsing so it assigns vt
+	// TODO: finish perspective correct texture mapping for triangles
 	vec3 color;
 
 	return color;
@@ -319,9 +321,7 @@ vec3 Camera::textureColor (vec4 t) {
 	return vec3(-1,-1,-1);
 }
 Ray Camera::generate_ray (float u, float v) {
-	
 	vec4 p = (1-u)*((1-v)*(tmat*LL) + v*(tmat*UL)) + (u * ((1-v) * (tmat*LR) + v * (tmat*UR)));
-
 	Ray r = Ray(tmat*pos, p-tmat*pos);
 	
 	return r;

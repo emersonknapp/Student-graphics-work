@@ -217,13 +217,14 @@ void render() {
 	int progress = 0.0;
 	int nextpercent = onepercent;
 	/*End*/
-	
+	Camera* camera = scene->camera;
 	#pragma omp parallel for
 	for (int x = 0; x < viewport.w; x++) {
 		for (int y = 0; y < viewport.h; y++) {
+
 			Ray camRay;
 			vec3 color = vec3(0,0,0);
-			Camera* camera = scene->camera;
+
 			float divisor = 1.0 / (max(1,viewport.aliasing));
 			for (float ax = 0 ; ax < 1 ; ax +=divisor) {
 				for (float ay = 0 ; ay < 1 ; ay+=divisor) {
@@ -259,9 +260,7 @@ void processArgs(int argc, char* argv[]) {
 	
 	string arg;
 	for (int i=1; i<argc; i++) {
-		
 		arg = argv[i];
-		
 		if (arg.compare("-s") == 0) {
 			scene->parseScene(argv[++i]);
 		} else if (arg.compare("-pr")==0) {
@@ -289,9 +288,8 @@ int main(int argc, char *argv[]) {
 	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
 	imageWriter = new ImageWriter(viewport.w, viewport.h);
 	scene = new Scene();
-	
+
 	processArgs(argc, argv);
-	
 	render();
 
   	return 0;

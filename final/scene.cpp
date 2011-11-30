@@ -7,6 +7,7 @@ Scene::Scene() {
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
 	lastVertex = 0;
+	lastTextureVertex = 0;
 }
 
 vec4 Scene::getVertex(int i) {
@@ -17,10 +18,26 @@ vec4 Scene::getVertex(int i) {
 	}
 }
 
-int Scene::extractVertex(string s) {
+vec3 Scene::getTextureVertex(int i) {
+	if (i >=0) {
+		return textureVertices[i-1];
+	} else {
+		return vec3(-1,-1,-1); 
+	}
+}
+
+int Scene::extractVertex(string s, int &vt) {
 	string result = "";
+	string vtres = "";
 	for (unsigned int i=0; i<s.length(); i++) {
 		if (s[i] == '/') {
+			i++;
+			// vertices in form of v/vt/vn. If we hit the '/' case, we know the next one is a texture vertex
+			for (;i<s.length(); i++) {
+				if (s[i] == '/') break;
+				else vtres += s[i];
+			}
+			vt = atoi(vtres.c_str());
 			break;
 		} else {
 			result += s[i];
@@ -57,20 +74,28 @@ bool Scene::parseLine(string line) {
 		if (a > 1 or a < 0) Error("Texture vertices must be between 0 and 1"); 
 		if (b > 1 or b < 0) Error("Texture vertices must be between 0 and 1");
 		if (c > 1 or c < 0) Error("Texture vertices must be between 0 and 1");
+		lastTextureVertex++;
 		textureVertices.push_back(vec3(a,b,c));
 	}
 	else if (op.compare("f") == 0) { //face, for now just a triangle TODO: earclipping
 		string i, j, k;
 		ss >> i >> j >> k;
 		int l, m, n;
-		l = extractVertex(i);
-		m = extractVertex(j);
-		n = extractVertex(k);
+		int vt1, vt2, vt3;
+		vt1 = vt2 = vt3 = -1;
+		l = extractVertex(i, vt1);
+		m = extractVertex(j, vt2);
+		n = extractVertex(k, vt3);
+		// check if we need to parse texture vertices
 		vec4 a, b, c;
 		a = getVertex(l);
 		b = getVertex(m);
 		c = getVertex(n);
-		Triangle* tri = new Triangle(a, b, c);
+		vec3 d, e, f;
+		d = getTextureVertex(vt1);
+		e = getTextureVertex(vt2);
+		f = getTextureVertex(vt3);
+		Triangle* tri = new Triangle(a, b, c, d, e, f);
 		tri->scale(scale);
 		tri->rotate(rotation);
 		tri->translate(translation);
@@ -208,11 +233,9 @@ void Scene::parseScene(string filename) {
 		}
 	}
 	inFile.close();
-	
 	/*Contruct kdtree for this scene*/
 	//delete kdTree;
 	kdTree = new KDTree(renderables.begin(), renderables.end(), 0, this);
-	
 	//kdTree->print(0);
 	
 }
@@ -233,7 +256,6 @@ void Scene::parseOBJ(ifstream& obj) {
 }
 
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
-
 	rendIt rend;
 	bool hasHit = kdTree->rayIntersect(r, t, rend);
 	if (hasHit) {

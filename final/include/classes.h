@@ -179,7 +179,7 @@ public:
 	vec3 vt1, vt2, vt3; //texture vertices
 	vec3 norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
-	Triangle (vec4 a, vec4 b, vec4 c, vec3 d, vec3 e, vec3 f);	
+	Triangle (vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i);	
 	float rayIntersect ( Ray);
 	AABB* makeAABB();
 	vec4 normal(vec4);
