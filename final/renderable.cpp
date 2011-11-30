@@ -280,7 +280,6 @@ vec3 Triangle::textureColor(vec4 hitPoint) {
 	// Triangle has texture vertices between 0.0 and 1.0 (canonical coordinates of the texture map we're going to use)
 	// we specify vertices "vt .3 .2 0", etc, and then reference which texture vertices we're using w/ this triangle
 	// u, v, w (horizontal, vertical, depth)...not sure if we'll go depth
-	// TODO: fix file parsing so it assigns vt
 	// TODO: finish perspective correct texture mapping for triangles
 	vec3 color;
 

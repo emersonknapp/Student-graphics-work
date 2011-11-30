@@ -1,3 +1,4 @@
+#include <omp.h>
 #include "pc.h"
 
 using namespace std;
@@ -242,6 +243,7 @@ void render() {
 		/* logging output */
 		progress += 1.0;
 		if (progress >= nextpercent) {	
+			if (omp_get_thread_num() == 0)
 			clog << "Rendering: " << nextpercent * 100 / viewport.w << "%" << "\r";
 			nextpercent += onepercent;
 		}
