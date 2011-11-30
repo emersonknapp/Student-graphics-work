@@ -21,3 +21,10 @@ photon tree
 
 DONE:
 simple antialiasing
+refraction
+backwards raytracing
+sphere texture mapping
+kd tree for object intersection
+output to png file
+reflection
+

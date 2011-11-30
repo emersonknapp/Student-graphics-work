@@ -88,6 +88,13 @@ vec4 PLight::lightVector(vec4 origin) {
 }
 
 void PLight::emitPhotons() {
+	/*To Harry: if you put a statement TODO anywhere,
+		you can run 
+		grep -R -n "TODO" .
+		and it will display all TODOs in the directory, plus line numbers and file names
+		delete this once you've read it
+	*/ 
+	//TODO: read this
 	//send out photons in random directions, calculate intersections against renderables, store photon at intersection in kdtree, reflection photons?
 	Photon photon = Photon();
 	//iterate through longitude and latitude of sphere around pointlight
@@ -99,7 +106,7 @@ vec4 DLight::lightVector(vec4 origin) {
 }
 
 void DLight::emitPhotons() {
-	//IMPLEMENT...CAPS!!!
+	//TODO: IMPLEMENT...CAPS!!!
 	return;
 }
 
