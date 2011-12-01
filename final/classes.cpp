@@ -66,13 +66,13 @@ Viewport::Viewport () {
 	w = 0;
 	h = 0;
 	aliasing = 0;
-	jaliasing = 0;
+	jittery = false;
 }
 Viewport::Viewport (int width, int height) {
 	w = width;
 	h = height;
 	aliasing = 0;
-	jaliasing = 0;
+	jittery = false;
 }
 
 PLight::PLight(vec4 p, vec3 i) {

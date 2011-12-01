@@ -66,7 +66,7 @@ public:
 	int w;
 	int h;
 	int aliasing;
-	int jaliasing;
+	bool jittery; 
 };
 
 class Light {
@@ -184,9 +184,10 @@ public:
 	//vertices
 	vec4 v1, v2, v3;
 	vec3 vt1, vt2, vt3; //texture vertices
+	vec4 vn1, vn2, vn3;
 	vec3 norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
-	Triangle (vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i);	
+	Triangle (vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i, vec4 m, vec4 n, vec4 o);	
 	float rayIntersect ( Ray);
 	AABB* makeAABB();
 	vec4 normal(vec4);
