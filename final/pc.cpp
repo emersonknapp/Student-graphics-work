@@ -199,8 +199,10 @@ vec3 traceRay(Ray r, int depth) {
 void photonCannon() {
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		//currentLight->emitPhotons();
+		currentLight->emitPhotons(scene);
 	}
+	//store photons that hit a renderable into kdtree
+	scene->photonTree = new PhotonTree(photons.begin(), photons.end(), 0, scene);
 }
 
 //***************************************************

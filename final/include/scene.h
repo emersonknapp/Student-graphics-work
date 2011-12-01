@@ -25,9 +25,10 @@ public:
 	int lastTextureVertex;
 	vector<Renderable*> renderables;
 	vector<Light*> lights;
+	vector<Photon*> photons;
 	Camera * camera;
 	KDTree* kdTree;
-	//KDTree* photonTree;
+	KDTree* photonTree;
 
 	vec3 ambience; /* Ambient light color */
 	
