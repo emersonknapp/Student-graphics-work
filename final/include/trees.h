@@ -64,6 +64,8 @@ public:
 	void makeAABB();
 
 protected:
+	PhotonTree* leftChild;
+	PhotonTree* rightChild;
 	photComp comparator;
 	photIt myBegin;
 	photIt myEnd;

@@ -17,7 +17,6 @@ spot lights
 area lights
 photon tree
 	intersection
-	AABB
 
 DONE:
 simple antialiasing

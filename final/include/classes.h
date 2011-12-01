@@ -36,21 +36,26 @@ public:
 	Ray(vec4 a, vec4 b);
 };
 
-class Photon : public Ray {
-public:
-	vec3 color;
-	Photon();
-	Photon(vec4 a, vec4 b, vec3 c);
-};
+
 
 class AABB {
 public:
 	AABB();
+	AABB(vec3, vec3);
 	void concat(AABB*);
 	bool rayIntersect(Ray);
 	void print(int);
 	vec3 mins;
 	vec3 maxes;
+};
+
+class Photon : public Ray {
+public:
+	vec3 color;
+	Photon();
+	Photon(vec4 a, vec4 b, vec3 c);
+	AABB* makeAABB();
+	AABB* aabb;
 };
 
 class Viewport {

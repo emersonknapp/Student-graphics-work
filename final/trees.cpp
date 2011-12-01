@@ -69,22 +69,68 @@ PhotonTree::PhotonTree(photIt begin, photIt end, int depth, Scene* s) {
 }
 void PhotonTree::makeAABB() {
 	aabb = new AABB();
-	//TODO: photon aabb
+	if (leafNode) {
+		photIt begin = myBegin;
+		for (; begin!=myEnd; ++begin) {
+			aabb->concat((*begin)->makeAABB());
+		}
+	} else {
+		aabb->concat(leftChild->aabb);
+		aabb->concat(rightChild->aabb);
+	}
 }
 
 vector<photIt> PhotonTree::rayIntersect(Ray r, float& t) {
 	vector<photIt> photons;
 	return photons;
 	//TODO: photon tree rayIntersect
+	
 }
 
-void PhotonTree::print(int index) {
-	//TODO: photon tree print
+void PhotonTree::print(int indent) {
+	if (leafNode) {
+		aabb->print(indent);
+		cout << string(indent*2, ' ') << "LEAF NODE" << endl;
+		photIt begin = myBegin;
+		for (; begin!=myEnd; begin++) {
+			cout << string(indent*2, ' ') << (*begin)->pos << endl;
+		}
+		return;
+	}
+	string ax = "";
+	switch(axis) {
+		case X:
+			ax="X";
+			break;
+		case Y:
+			ax="Y";
+			break;
+		case Z:
+			ax = "Z";
+			break;
+		case W:
+			ax = "W";
+			break;
+		default:
+			Error("Unrecognized axis enumeration.");
+	}
+	cout << string(indent*2, ' ');
+	cout << "PhotonTree along axis " << ax << " " << median << endl;
+	aabb->print(indent);
+	if (leftChild) {
+		cout << string(indent*2+1, ' ') << "Left Child:" << endl;
+		leftChild->print(indent+1);
+	}
+	if (rightChild) {
+		cout << string(indent*2+1, ' ') << "Right Child:" << endl;
+		rightChild->print(indent+1);
+	}
 }
 
 KDTree::KDTree() {
 	
 }
+
 KDTree::KDTree(rendIt begin, rendIt end, int depth, Scene* s) {
 	/*Defining instance vars */
 	myBegin = begin;

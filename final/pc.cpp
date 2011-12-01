@@ -258,17 +258,17 @@ void processArgs(int argc, char* argv[]) {
 	string sceneFile = "";
 	for (int i=1; i<argc; i++) {
 		arg = argv[i];
-		if (arg.compare("-s") == 0) {
+		if (arg.compare("-s") == 0 || arg.compare("--scene") == 0) {
 			sceneFile = argv[++i];
-		} else if (arg.compare("-pr")==0) {
+		} else if (arg.compare("-pr")==0 || arg.compare("--print")==0) {
 			imageWriter->fileName = argv[++i];
-		} else if (arg.compare("-px")==0) {
+		} else if (arg.compare("-px") == 0 || arg.compare("--pixels")==0) {
 			int width = atoi(argv[++i]);
 			int height = atoi(argv[++i]);
 			viewport.w = width;
 			viewport.h = height;
 			imageWriter->setSize(width, height);
-		} else if (arg.compare("-a")==0) {
+		} else if (arg.compare("-a")==0 || arg.compare("--antialias")==0) {
 			viewport.aliasing = atoi(argv[++i]);
 		} else {
 			Warning("Unrecognized command " + arg);

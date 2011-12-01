@@ -38,6 +38,11 @@ Photon::Photon(vec4 a, vec4 b, vec3 c) : Ray(a, b) {
 	color = c;
 }
 
+AABB* Photon::makeAABB() {
+	aabb = new AABB(pos, pos);
+	return aabb;
+}
+
 Texture::Texture() {
 	exists = false;
 }
@@ -113,6 +118,11 @@ void DLight::emitPhotons() {
 AABB::AABB() {
 	mins = vec3(INT_MAX, INT_MAX, INT_MAX);
 	maxes = vec3(INT_MIN, INT_MIN, INT_MIN);
+}
+
+AABB::AABB(vec3 n, vec3 x) {
+	mins = n;
+	maxes = x;
 }
 
 bool AABB::rayIntersect(Ray r) {
