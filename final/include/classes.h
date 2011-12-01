@@ -25,7 +25,6 @@ typedef vector<Renderable*>::iterator rendIt; //Renderable Pointer Iterator
 typedef vector<Photon*>::iterator photIt;
 
 
-
 class Ray {
 public:
 	vec4 pos;
