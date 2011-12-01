@@ -279,6 +279,9 @@ void processArgs(int argc, char* argv[]) {
 			viewport.aliasing = atoi(argv[++i]);
 		} else if (arg.compare("-j")==0) {
 			viewport.jittery = true; 
+		} else if (arg.compare("-ja")==0 || arg.compare("-aj")==0) {
+			viewport.aliasing = atoi(argv[++i]);
+			viewport.jittery = true;
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();

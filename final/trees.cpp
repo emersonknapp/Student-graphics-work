@@ -84,7 +84,7 @@ bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
 	//TODO: photon tree intersection
 	if (aabb->intersect(hitPoint)) {
 		if (leafNode) {
-		
+			
 		} else {
 			leftChild->gatherPhotons(hitPoint, photons);
 			rightChild->gatherPhotons(hitPoint, photons);

@@ -157,28 +157,16 @@ bool AABB::intersect(AABB* other) {
 	//	Look online for more efficient implementation. Until then, this.
 	//Make 8 corner points for this
 	vec3 box[8];
+	vec3 otherbox[8];
 	int bit;
 	for (int i=0; i<8; i++) {
 		for (int j=0; j<3; j++) {
 			bit = (i>>j)%2;
 			box[i][j] = (1-bit)*mins[j] + bit*maxes[j];
+			otherbox[i][j] = (1-bit)*other->mins[j] + bit*other->maxes[j];
 		}
-	}
-	
-	for (int i=0; i<3; i++) {
-		float myMin = mins[i];
-		float myMax = maxes[i];
-		bool minWithin = false;
-		bool maxWithin = false;
-	
-		float otherMin = other->mins[i];
-		float otherMax = other->maxes[i];
-		minWithin = minWithin || (myMin >= otherMin && myMin <= otherMax);
-		maxWithin = maxWithin || (myMax >= otherMin && myMax <= otherMax);
-		
-		if (minWithin) {
-			return true;
-		}
+		if (other->intersect(box[i])) return true; //True if I contain a corner within the other box
+		if (this->intersect(otherbox[i])) return true; //or if it contains a corner within me
 	}
 		
 	return false;
