@@ -72,7 +72,7 @@ void PhotonTree::makeAABB() {
 	if (leafNode) {
 		photIt begin = myBegin;
 		for (; begin!=myEnd; ++begin) {
-			aabb->concat((*begin)->makeAABB());
+			aabb->concat((*begin)->pos);
 		}
 	} else {
 		aabb->concat(leftChild->aabb);
@@ -80,11 +80,17 @@ void PhotonTree::makeAABB() {
 	}
 }
 
-vector<photIt> PhotonTree::rayIntersect(Ray r, float& t) {
-	vector<photIt> photons;
-	return photons;
-	//TODO: photon tree rayIntersect
-	
+bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
+	//TODO: photon tree intersection
+	if (aabb->intersect(hitPoint)) {
+		if (leafNode) {
+		
+		} else {
+			leftChild->gatherPhotons(hitPoint, photons);
+			rightChild->gatherPhotons(hitPoint, photons);
+		}
+	}
+	return (photons.size() > 0);	
 }
 
 void PhotonTree::print(int indent) {

@@ -43,7 +43,10 @@ public:
 	AABB();
 	AABB(vec3, vec3);
 	void concat(AABB*);
+	void concat(vec3);
 	bool rayIntersect(Ray);
+	bool intersect(AABB*);
+	bool intersect(vec3);
 	void print(int);
 	vec3 mins;
 	vec3 maxes;
@@ -54,8 +57,6 @@ public:
 	vec3 color;
 	Photon();
 	Photon(vec4 a, vec4 b, vec3 c);
-	AABB* makeAABB();
-	AABB* aabb;
 };
 
 class Viewport {

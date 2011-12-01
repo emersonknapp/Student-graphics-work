@@ -38,11 +38,6 @@ Photon::Photon(vec4 a, vec4 b, vec3 c) : Ray(a, b) {
 	color = c;
 }
 
-AABB* Photon::makeAABB() {
-	aabb = new AABB(pos, pos);
-	return aabb;
-}
-
 Texture::Texture() {
 	exists = false;
 }
@@ -128,10 +123,6 @@ AABB::AABB(vec3 n, vec3 x) {
 bool AABB::rayIntersect(Ray r) {
 	vec3 raydir = r.dir.dehomogenize();
 	vec3 raypos = r.pos.dehomogenize();
-	//tvalues at which boxmins are hit
-	vec3 tmin;
-	//tvalues at which boxmaxes are hit
-	vec3 tmax;
 	
 	float t1;
 	float t2;
@@ -157,11 +148,48 @@ bool AABB::rayIntersect(Ray r) {
 	return true;
 }
 
+
+
+bool AABB::intersect(AABB* other) {
+	for (int i=0; i<3; i++) {
+		float myMin = mins[i];
+		float myMax = maxes[i];
+		bool minWithin = false;
+		bool maxWithin = false;
+	
+		float otherMin = other->mins[i];
+		float otherMax = other->maxes[i];
+		minWithin = minWithin || (myMin >= otherMin && myMin <= otherMax);
+		maxWithin = maxWithin || (myMax >= otherMin && myMax <= otherMax);
+		
+		if (minWithin) {
+			return true;
+		}
+	}
+		
+	return false;
+}
+
+bool AABB::intersect(vec3 point) {
+	bool inside =
+		point[0] >= mins[0] && point[0] <= maxes[0] &&
+		point[1] >= mins[1] && point[1] <= maxes[1] &&
+		point[2] >= mins[0] && point[2] <= maxes[2];
+	return inside;
+}
+
 //Makes this aabb the concatenation of itself and OTHER
 void AABB::concat(AABB* other) {
 	for (int i=0; i<3; i++) {
 		mins[i] = min(mins[i], other->mins[i]);
 		maxes[i] = max(maxes[i], other->maxes[i]);
+	}
+}
+
+void AABB::concat(vec3 other) {
+	for (int i=0; i<3; i++) {
+		mins[i] = min(mins[i], other[i]);
+		maxes[i] = max(maxes[i], other[i]);
 	}
 }
 
