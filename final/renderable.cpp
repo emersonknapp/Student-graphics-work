@@ -283,6 +283,17 @@ vec3 Triangle::textureColor(vec4 hitPoint) {
 	// TODO: finish perspective correct texture mapping for triangles
 	vec3 color;
 
+	vec3 barycentric;
+
+	float t = (v1[0]-v3[0]) * (v2[1]-v3[1]) - (v1[1]-v3[1]) * (v2[0]-v3[0]);
+
+	barycentric[0] = ( (v2[1]-v3[1]) * (hitPoint[0] - v3[0]) + (v3[0]-v2[0]) * (hitPoint[1] - v3[1])) / t;
+	barycentric[1] = ( (v3[1]-v1[1]) * (hitPoint[0] - v3[0]) + (v1[0]-v3[0]) * (hitPoint[1] - v3[1])) / t;
+	barycentric[2] = 1 - barycentric[0] - barycentric[1];
+
+	vec3 point = vt1 * barycentric[0] + vt2 * barycentric[1]  + vt3 * barycentric[2]; 
+	color = material.texture.getColor(point[0],point[1]);
+
 	return color;
 }
 

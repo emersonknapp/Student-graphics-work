@@ -1,7 +1,5 @@
 TODO:
 earclipping
-jitter AA
-texture map on tri
 subsurface scattering
 full obj support
 	vertex normals, interp on tri for smoother shading
@@ -26,4 +24,5 @@ sphere texture mapping
 kd tree for object intersection
 output to png file
 reflection
-
+texture map on tri
+jitter AA
