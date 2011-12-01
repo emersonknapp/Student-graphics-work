@@ -199,13 +199,16 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 }
 	
 	
-Triangle::Triangle(vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i) : Renderable() {
+Triangle::Triangle(vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i, vec4 m, vec4 n, vec4 o) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
 	vt1 = g;
 	vt2 = h;
 	vt3 = i;
+	vn1 = m;
+	vn2 = n;
+	vn3 = o;
 	center = ((v1+v2+v3)/3).dehomogenize();
 }
 	

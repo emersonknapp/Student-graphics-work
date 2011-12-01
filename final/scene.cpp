@@ -26,16 +26,30 @@ vec3 Scene::getTextureVertex(int i) {
 	}
 }
 
-int Scene::extractVertex(string s, int &vt) {
+vec4 Scene::getVertexNormal(int i) {
+	if (i >= 0) {
+		return vertexNormals[i-1];
+	} else {
+		return vec4(0,0,0,0);
+	}
+}
+
+int Scene::extractVertex(string s, int &vt, int &vn) {
 	string result = "";
 	string vtres = "";
+	string vnres = "";
 	for (unsigned int i=0; i<s.length(); i++) {
 		if (s[i] == '/') {
 			i++;
 			// vertices in form of v/vt/vn. If we hit the '/' case, we know the next one is a texture vertex
 			for (;i<s.length(); i++) {
-				if (s[i] == '/') break;
-				else vtres += s[i];
+				if (s[i] == '/') {
+					i++;
+					for (;i<s.length(); i++) {
+						vnres += s[i];
+					}
+					vn = atoi(vnres.c_str());
+				} else vtres += s[i];
 			}
 			vt = atoi(vtres.c_str());
 			break;
@@ -70,22 +84,35 @@ bool Scene::parseLine(string line) {
 	} 
 	else if (op.compare("vt") == 0) { //texture vertex
 		double a,b,c;
-		ss >> a >> b >> c;
-		if (a > 1 or a < 0) Error("Texture vertices must be between 0 and 1"); 
-		if (b > 1 or b < 0) Error("Texture vertices must be between 0 and 1");
-		if (c > 1 or c < 0) Error("Texture vertices must be between 0 and 1");
+		ss >> a >> b;
+		try {
+			ss >> c;
+		} catch (int e) {
+			c = 0;
+		}
+//		if (abs(a) > 1) Error("Texture vertices must be between 0 and 1"); 
+//		if (abs(b) > 1) Error("Texture vertices must be between 0 and 1");
+//		if (abs(c) > 1) Error("Texture vertices must be between 0 and 1");
 		lastTextureVertex++;
 		textureVertices.push_back(vec3(a,b,c));
 	}
+	else if (op.compare("vn") == 0) { // vertex normals
+		double a,b,c;
+		ss >> a >> b >> c;
+		lastVertexNormal++;
+		vertexNormals.push_back(vec4(a,b,c,0));
+	}
 	else if (op.compare("f") == 0) { //face, for now just a triangle TODO: earclipping
-		string i, j, k;
+		string i, j, k, zz;
 		ss >> i >> j >> k;
 		int l, m, n;
 		int vt1, vt2, vt3;
+		int vn1, vn2, vn3;
 		vt1 = vt2 = vt3 = -1;
-		l = extractVertex(i, vt1);
-		m = extractVertex(j, vt2);
-		n = extractVertex(k, vt3);
+		vn1 = vn2 = vn3 = -1;
+		l = extractVertex(i, vt1, vn1);
+		m = extractVertex(j, vt2, vn2);
+		n = extractVertex(k, vt3, vn3);
 		// check if we need to parse texture vertices
 		vec4 a, b, c;
 		a = getVertex(l);
@@ -95,7 +122,11 @@ bool Scene::parseLine(string line) {
 		d = getTextureVertex(vt1);
 		e = getTextureVertex(vt2);
 		f = getTextureVertex(vt3);
-		Triangle* tri = new Triangle(a, b, c, d, e, f);
+		vec4 x, y, z;
+		x = getVertexNormal(vn1);
+		y = getVertexNormal(vn2);
+		z = getVertexNormal(vn3);
+		Triangle* tri = new Triangle(a, b, c, d, e, f, x, y, z);
 		tri->scale(scale);
 		tri->rotate(rotation);
 		tri->translate(translation);
