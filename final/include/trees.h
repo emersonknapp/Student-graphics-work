@@ -59,7 +59,7 @@ class PhotonTree : protected KDTree {
 public:
 	PhotonTree(photIt, photIt, int, Scene*);
 	~PhotonTree();
-	vector<photIt> rayIntersect(Ray, float&);
+	bool gatherPhotons(AABB*, vector<photIt>&);
 	void print(int);
 	void makeAABB();
 

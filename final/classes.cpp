@@ -38,11 +38,6 @@ Photon::Photon(vec4 a, vec4 b, vec3 c) : Ray(a, b) {
 	color = c;
 }
 
-AABB* Photon::makeAABB() {
-	aabb = new AABB(pos, pos);
-	return aabb;
-}
-
 Texture::Texture() {
 	exists = false;
 }
@@ -71,13 +66,13 @@ Viewport::Viewport () {
 	w = 0;
 	h = 0;
 	aliasing = 0;
-	jaliasing = 0;
+	jittery = false;
 }
 Viewport::Viewport (int width, int height) {
 	w = width;
 	h = height;
 	aliasing = 0;
-	jaliasing = 0;
+	jittery = false;
 }
 
 PLight::PLight(vec4 p, vec3 i) {
@@ -152,10 +147,6 @@ AABB::AABB(vec3 n, vec3 x) {
 bool AABB::rayIntersect(Ray r) {
 	vec3 raydir = r.dir.dehomogenize();
 	vec3 raypos = r.pos.dehomogenize();
-	//tvalues at which boxmins are hit
-	vec3 tmin;
-	//tvalues at which boxmaxes are hit
-	vec3 tmax;
 	
 	float t1;
 	float t2;
@@ -181,11 +172,48 @@ bool AABB::rayIntersect(Ray r) {
 	return true;
 }
 
+
+
+bool AABB::intersect(AABB* other) {
+	//Idea: just make 16 corner points, check each if it lies within the other box.
+	//	Look online for more efficient implementation. Until then, this.
+	//Make 8 corner points for this
+	vec3 box[8];
+	vec3 otherbox[8];
+	int bit;
+	for (int i=0; i<8; i++) {
+		for (int j=0; j<3; j++) {
+			bit = (i>>j)%2;
+			box[i][j] = (1-bit)*mins[j] + bit*maxes[j];
+			otherbox[i][j] = (1-bit)*other->mins[j] + bit*other->maxes[j];
+		}
+		if (other->intersect(box[i])) return true; //True if I contain a corner within the other box
+		if (this->intersect(otherbox[i])) return true; //or if it contains a corner within me
+	}
+		
+	return false;
+}
+
+bool AABB::intersect(vec3 point) {
+	bool inside =
+		point[0] >= mins[0] && point[0] <= maxes[0] &&
+		point[1] >= mins[1] && point[1] <= maxes[1] &&
+		point[2] >= mins[0] && point[2] <= maxes[2];
+	return inside;
+}
+
 //Makes this aabb the concatenation of itself and OTHER
 void AABB::concat(AABB* other) {
 	for (int i=0; i<3; i++) {
 		mins[i] = min(mins[i], other->mins[i]);
 		maxes[i] = max(maxes[i], other->maxes[i]);
+	}
+}
+
+void AABB::concat(vec3 other) {
+	for (int i=0; i<3; i++) {
+		mins[i] = min(mins[i], other[i]);
+		maxes[i] = max(maxes[i], other[i]);
 	}
 }
 

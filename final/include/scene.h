@@ -14,15 +14,18 @@ public:
 	bool parseLine(string);
 	vec4 getVertex(int);
 	vec3 getTextureVertex(int);
-	int extractVertex(string, int&);
+	vec4 getVertexNormal(int);
+	int extractVertex(string, int&, int&);
 	bool rayIntersect(Ray, float&, int&);
 	
 	vec3 rotation, translation, scale;
 	Material parseMaterial; /* Temporary storage for the most recently parsed material */
 	vector<vec4> vertices;
 	vector<vec3> textureVertices;
+	vector<vec4> vertexNormals;
 	int lastVertex; /* Vertices.size()-1, shortcut to index of last vertex */
 	int lastTextureVertex;
+	int lastVertexNormal;
 	vector<Renderable*> renderables;
 	vector<Light*> lights;
 	vector<Photon*> photons;

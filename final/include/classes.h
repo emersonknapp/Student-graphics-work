@@ -28,7 +28,6 @@ typedef vector<Renderable*>::iterator rendIt; //Renderable Pointer Iterator
 typedef vector<Photon*>::iterator photIt;
 
 
-
 class Ray {
 public:
 	vec4 pos;
@@ -46,7 +45,10 @@ public:
 	AABB();
 	AABB(vec3, vec3);
 	void concat(AABB*);
+	void concat(vec3);
 	bool rayIntersect(Ray);
+	bool intersect(AABB*);
+	bool intersect(vec3);
 	void print(int);
 	vec3 mins;
 	vec3 maxes;
@@ -57,8 +59,6 @@ public:
 	vec3 color;
 	Photon();
 	Photon(vec4 a, vec4 b, vec3 c);
-	AABB* makeAABB();
-	AABB* aabb;
 };
 
 class Viewport {
@@ -68,7 +68,7 @@ public:
 	int w;
 	int h;
 	int aliasing;
-	int jaliasing;
+	bool jittery; 
 };
 
 class Light {
@@ -186,13 +186,13 @@ public:
 	//vertices
 	vec4 v1, v2, v3;
 	vec3 vt1, vt2, vt3; //texture vertices
+	vec4 vn1, vn2, vn3;
 	vec3 norm;
 	Triangle (vec4 a, vec4 b, vec4 c);
-	Triangle (vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i);	
+	Triangle (vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i, vec4 m, vec4 n, vec4 o);	
 	float rayIntersect ( Ray);
 	AABB* makeAABB();
 	vec4 normal(vec4);
-	vec4 normal();
 	vec3 textureColor(vec4);
 };
 
