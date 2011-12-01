@@ -65,6 +65,7 @@ public:
 	int w;
 	int h;
 	int aliasing;
+	int jaliasing;
 };
 
 class Light {

@@ -50,6 +50,7 @@ void Usage() {
 	<< "        -pr: output print file name, defaults to \"out.png\"" << endl
 	<< "        -px: the size of the output image, in pixels (default 800x800)" << endl
 	<< "        -a: antialiasing, n-by-n rays per pixel, defaults to 1" << endl
+	<< "		-ja: jitter antialiasing, n random rays per pixel, defaults to 1" << endl
 	;
 	quitProgram(0);
 }
@@ -219,17 +220,30 @@ void render() {
 
 			Ray camRay;
 			vec3 color = vec3(0,0,0);
-
-			float divisor = 1.0 / (max(1,viewport.aliasing));
-			for (float ax = 0 ; ax < 1 ; ax +=divisor) {
-				for (float ay = 0 ; ay < 1 ; ay+=divisor) {
-					float tmpX = (x+ax)/viewport.w;
-					float tmpY = (y+ay)/viewport.h;
+			float ax, ay;
+			float tmpX, tmpY;
+			if (viewport.jaliasing > 0) {
+				for (int i = 0; i < viewport.jaliasing; i++) {
+					ax = (double)rand() / (double)RAND_MAX;
+					ay = (double)rand() / (double)RAND_MAX;
+					tmpX = (x+ax)/viewport.w;
+					tmpY = (y+ay)/viewport.h;
 					camRay = camera->generate_ray(tmpX,tmpY);
-					color += traceRay(camRay, 0);
+					color += traceRay(camRay,0);
 				}
+				color = (1.0 / viewport.jaliasing) * color;
+			} else {
+				float divisor = 1.0 / (max(1,viewport.aliasing));
+				for (ax = 0 ; ax < 1 ; ax +=divisor) {
+					for (ay = 0 ; ay < 1 ; ay+=divisor) {
+						float tmpX = (x+ax)/viewport.w;
+						float tmpY = (y+ay)/viewport.h;
+						camRay = camera->generate_ray(tmpX,tmpY);
+						color += traceRay(camRay, 0);
+					}
+				}
+				color = (1.0 / pow(max(1,viewport.aliasing),2.0)) * color;
 			}
-			color = (1.0 / pow(max(1,viewport.aliasing),2.0)) * color;
 			setPixel(x,y,color[0], color[1], color[2]);			
 
 		}
@@ -270,6 +284,8 @@ void processArgs(int argc, char* argv[]) {
 			imageWriter->setSize(width, height);
 		} else if (arg.compare("-a")==0 || arg.compare("--antialias")==0) {
 			viewport.aliasing = atoi(argv[++i]);
+		} else if (arg.compare("-ja")==0) {
+			viewport.jaliasing = atoi(argv[++i]);
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();
