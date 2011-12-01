@@ -218,18 +218,15 @@ float Triangle::rayIntersect ( Ray r) {
 	raydir.normalize();
 	float t;
 	
-	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);	
-
-	if (fabs(n * raydir) == 0) {
-		return -1;
-	}		
-	
-	
 	vec4 u = v2-v3;
 	vec4 v = v1-v3;
 	
 	vec4 norm = vec4((u.dehomogenize()^v.dehomogenize()).normalize(),0);
 
+	if (fabs(norm * raydir) == 0) {
+		return -1;
+	}		
+	
 	if (norm == vec4(0,0,0,0)) {
 		return -1;
 	}
@@ -283,8 +280,9 @@ vec4 Triangle::normal(vec4 surface) {
 		barycentric[2] = 1 - barycentric[0] - barycentric[1];
 		
 		vec3 norm = barycentric[0] * n[0] + barycentric[1] * n[1] + barycentric[2] * n[2];
-
+		norm.normalize();
 		return vec4(norm,0); 
+
 	} else {
 		n.normalize();
 		

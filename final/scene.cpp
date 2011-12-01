@@ -38,26 +38,28 @@ int Scene::extractVertex(string s, int &vt, int &vn) {
 	string result = "";
 	string vtres = "";
 	string vnres = "";
-	for (unsigned int i=0; i<s.length(); i++) {
-		if (s[i] == '/') {
-			i++;
-			// vertices in form of v/vt/vn. If we hit the '/' case, we know the next one is a texture vertex
-			for (;i<s.length(); i++) {
-				if (s[i] == '/') {
-					i++;
-					for (;i<s.length(); i++) {
-						vnres += s[i];
-					}
-					vn = atoi(vnres.c_str());
-				} else vtres += s[i];
-			}
-			vt = atoi(vtres.c_str());
-			break;
-		} else {
-			result += s[i];
-		}
+
+	unsigned int i = 0;
+	for (; i<s.length(); i++) {
+		if (s[i] == '/') break;
+		else result += s[i];
 	}
+	i++;
+	for (; i<s.length(); i++) {
+		if (s[i] == '/') break;
+		else vtres += s[i];
+	}
+	i++;
+	for (; i<s.length(); i++) {
+		if (s[i] == '/') break;
+		else vnres += s[i];
+	}
+
+	if (vnres=="") vn = -1; else vn = atoi(vnres.c_str());
+	if (vtres=="") vt = -1; else vt = atoi(vtres.c_str());
+
 	return atoi(result.c_str());
+
 }
 
 bool Scene::parseLine(string line) {

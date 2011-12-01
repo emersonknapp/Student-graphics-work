@@ -1,0 +1,24 @@
+tex textures/checkerboard.png
+
+dl 0 0 -1 1 1 1
+translate 0 0 12
+cam
+
+ct
+kd 0 0 0
+ks 0 0 0
+
+v -4 0 -2
+v 4 0 -2
+v 0 2 -4
+v -4 2 -4
+
+vt .1 0 .3
+vt .9 0 .3
+vt .5 .5 .3
+vt .1 .5 .3
+
+vn 0 0 -1
+
+f 1/1/1 2/2/1 3/3/1
+f 1/1/1 3/3/1 4/4/1
