@@ -191,7 +191,6 @@ public:
 	float rayIntersect ( Ray);
 	AABB* makeAABB();
 	vec4 normal(vec4);
-	vec4 normal();
 	vec3 textureColor(vec4);
 };
 

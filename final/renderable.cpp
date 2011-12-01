@@ -218,7 +218,9 @@ float Triangle::rayIntersect ( Ray r) {
 	raydir.normalize();
 	float t;
 	
-	if (fabs(normal() * raydir) == 0) {
+	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);	
+
+	if (fabs(n * raydir) == 0) {
 		return -1;
 	}		
 	
@@ -269,14 +271,25 @@ float Triangle::rayIntersect ( Ray r) {
 }
 
 vec4 Triangle::normal(vec4 surface) {
-	return normal();
-}
 
-vec4 Triangle::normal() {
 	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);	
-	n.normalize();
-	
-	return n;
+
+	if (vn1 != vec4(0,0,0,0)) {
+		vec3 barycentric;
+		float t = (v1[0]-v3[0]) * (v2[1]-v3[1]) - (v1[1]-v3[1]) * (v2[0]-v3[0]);
+
+		barycentric[0] = ( (v2[1]-v3[1]) * (surface[0] - v3[0]) + (v3[0]-v2[0]) * (surface[1] - v3[1])) / t;
+		barycentric[1] = ( (v3[1]-v1[1]) * (surface[0] - v3[0]) + (v1[0]-v3[0]) * (surface[1] - v3[1])) / t;
+		barycentric[2] = 1 - barycentric[0] - barycentric[1];
+		
+		vec3 norm = barycentric[0] * n[0] + barycentric[1] * n[1] + barycentric[2] * n[2];
+
+		return vec4(norm,0); 
+	} else {
+		n.normalize();
+		
+		return n;
+	}
 }
 
 vec3 Triangle::textureColor(vec4 hitPoint) {
