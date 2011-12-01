@@ -151,6 +151,18 @@ bool AABB::rayIntersect(Ray r) {
 
 
 bool AABB::intersect(AABB* other) {
+	//Idea: just make 16 corner points, check each if it lies within the other box.
+	//	Look online for more efficient implementation. Until then, this.
+	//Make 8 corner points for this
+	vec3 box[8];
+	int bit;
+	for (int i=0; i<8; i++) {
+		for (int j=0; j<3; j++) {
+			bit = (i>>j)%2;
+			box[i][j] = (1-bit)*mins[j] + bit*maxes[j];
+		}
+	}
+	
 	for (int i=0; i<3; i++) {
 		float myMin = mins[i];
 		float myMax = maxes[i];
