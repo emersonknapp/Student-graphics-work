@@ -50,7 +50,6 @@ Texture::Texture(const char* fn) {
 }
 
 vec3 Texture::getColor(float u, float v) {
-//TODO: currently, this just gets pixels from a png input, but I want to enable function that generate textures too
 	RGBQUAD color;
 	float x = u * width;
 	float y = v * height;
