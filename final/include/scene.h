@@ -5,6 +5,7 @@
 #include <map>
 
 class KDTree;
+class PhotonTree;
 
 class Scene {
 public:
@@ -31,7 +32,7 @@ public:
 	vector<Photon*> photons;
 	Camera * camera;
 	KDTree* kdTree;
-	KDTree* photonTree;
+	PhotonTree* photonTree;
 
 	vec3 ambience; /* Ambient light color */
 	

@@ -197,12 +197,31 @@ vec3 traceRay(Ray r, int depth) {
 }
 
 void photonCannon() {
+	Ray r;
+	int renderableIndex;
+	float t;
+	bool hasHit;
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		currentLight->emitPhotons(scene);
+		vector<Photon*> photonCloud = currentLight->emitPhotons();
+		//iterate through photonCloud, push photons that intersect onto scene->photons
+		for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
+			Photon* currentPhoton = *phot;
+			r = Ray(currentPhoton->pos, currentPhoton->dir);
+
+			renderableIndex=-1;
+			t = T_MAX;
+			hasHit = false;
+
+			hasHit = scene->rayIntersect(r, t, renderableIndex);
+			if (hasHit) {
+				scene->photons.push_back(currentPhoton);
+				//TODO: reflection photons
+			}
+		}
 	}
 	//store photons that hit a renderable into kdtree
-	scene->photonTree = new PhotonTree(photons.begin(), photons.end(), 0, scene);
+	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
 }
 
 //***************************************************

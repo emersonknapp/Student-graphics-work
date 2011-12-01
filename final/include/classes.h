@@ -16,8 +16,6 @@
 #include "algebra3.h"
 #include "FreeImage.h"
 
-#include "pc.h"
-
 #define WIGGLE .005
 //#define T_MAX 1000
 
@@ -76,21 +74,21 @@ public:
 	vec3 intensity;
 	vec4 v;
 	virtual vec4 lightVector(vec4) = 0;
-	virtual void emitPhotons(Scene* scene);
+	virtual vector<Photon*> emitPhotons() = 0;
 };
 
 class PLight: public Light {
 public:
 	PLight(vec4, vec3);
 	vec4 lightVector(vec4);
-	void emitPhotons(Scene* scene);
+	vector<Photon*> emitPhotons();
 };
 
 class DLight: public Light {
 public:
 	DLight(vec4 , vec3 );
 	vec4 lightVector(vec4);
-	void emitPhotons(Scene* scene);
+	vector<Photon*> emitPhotons();
 };
 
 class Texture {

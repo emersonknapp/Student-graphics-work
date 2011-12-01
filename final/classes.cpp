@@ -89,49 +89,32 @@ vec4 PLight::lightVector(vec4 origin) {
 	return v-origin;
 }
 
-void PLight::emitPhotons(Scene* scene) {
-	/*To Harry: if you put a statement TODO anywhere,
-		you can run 
-		grep -R -n "TODO" .
-		and it will display all TODOs in the directory, plus line numbers and file names
-		delete this once you've read it
-	*/ 
-	int renderableIndex;
-	float t;
-	bool hasHit;
+vector<Photon*> PLight::emitPhotons() {
+	vector<Photon*> photonCloud;
 	//TODO: send out photons in random directions, currently iterating through spherical coordinates which leads to a bias towards the poles
 	float stepsize = 0.1;
 	//iterate through longitude and latitude of sphere around pointlight
 	for (float longi=0.0; longi<=2.0; longi+=stepsize) {
 		for (float lati=-0.5; lati<=0.5; lati+=stepsize) {
-			//calculate intersections against renderables, store photon into scene->photons, reflection photons?
+			//forming a sphere of photons around the point light
 			float phi = longi*3.1415;
 			float theta = lati*3.1415;
-
-			vec4 photonDir = vec4(cos(phi)*sin(theta),sin(phi),cos(phi)*sin(theta);
-			Ray r = Ray(v,photonDir,0);
-
-			renderableIndex=-1;
-			t = T_MAX;
-			hasHit = false;
-
-			hasHit = scene->rayIntersect(r, t, renderableIndex);
-
-			if (hasHit) {
-				Photon* photon = new Photon(v,photonDir,intensity);
-				scene->photons.push_back(photon);
-			}
+			vec4 photonDir = vec4(cos(phi)*sin(theta),sin(phi),cos(phi)*sin(theta),0);
+			Photon* photon = new Photon(v,photonDir,intensity);
+			photonCloud.push_back(photon);
+		}
 	}
-	return;
+	return photonCloud;
 }
 
 vec4 DLight::lightVector(vec4 origin) {
 	return -v;
 }
 
-void DLight::emitPhotons(Scene* scene) {
-	//TODO: IMPLEMENT...CAPS!!!
-	return;
+vector<Photon*> DLight::emitPhotons() {
+	vector<Photon*> photonCloud;
+	//TODO: implement emitPhotons() for directional lights!!!
+	return photonCloud;
 }
 
 AABB::AABB() {
