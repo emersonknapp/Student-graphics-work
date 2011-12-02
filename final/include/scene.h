@@ -18,7 +18,7 @@ public:
 	vec4 getVertexNormal(int);
 	int extractVertex(string, int&, int&);
 	bool rayIntersect(Ray, float&, int&);
-	
+	void earClip(string);	
 	vec3 rotation, translation, scale;
 	Material parseMaterial; /* Temporary storage for the most recently parsed material */
 	vector<vec4> vertices;
@@ -40,11 +40,4 @@ public:
 	
 
 };
-//TODO: earclipping!
-// we loop around the vertices of the polygon. For every vertex V_i, we have
-// triangle V_(i-1), V_i, V_(i+1). if the interior angle (angle between V_(i-1) - V_i and
-// V_(i+1) - V_i ) is < 180, then V_i is a convex vertex. So for each of these triangles, if 
-// V_i is a convex vertex and for the triangle no other vertex lies inside, then the triangle is
-// an ear
-
 #endif
