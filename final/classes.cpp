@@ -75,21 +75,35 @@ Viewport::Viewport (int width, int height) {
 }
 
 PLight::PLight(vec4 p, vec3 i) {
-	v = p;
+	pos = p;
 	intensity = i;
 }
 
 DLight::DLight(vec4 d, vec3 i) {
-	v = d;
+	pos = d;
 	intensity = i;
 }
 
 vec4 PLight::lightVector(vec4 origin) {
-	return v-origin;
+	return pos-origin;
 }
 
-vector<Photon*> PLight::emitPhotons() {
-	vector<Photon*> photonCloud;
+void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots) {
+	double u, v, phi, theta;
+	double xdir, ydir, zdir;
+	
+	for (int i=0; i<numPhots; i++) {
+		u = rand01();
+		v = rand01();
+		phi = acos(2*v - 1);
+		theta = 2 * PI * u;
+		xdir = cos(phi)*sin(theta);
+		ydir = sin(phi);
+		zdir = cos(phi)*sin(theta);
+		vec4 photonDir = vec4(xdir, ydir, zdir, 0);
+		
+	}
+	
 	//TODO: send out photons in random directions, currently iterating through spherical coordinates which leads to a bias towards the poles
 	float stepsize = 0.1;
 	//iterate through longitude and latitude of sphere around pointlight
@@ -103,17 +117,15 @@ vector<Photon*> PLight::emitPhotons() {
 			photonCloud.push_back(photon);
 		}
 	}
-	return photonCloud;
 }
 
 vec4 DLight::lightVector(vec4 origin) {
-	return -v;
+	return -pos;
 }
 
-vector<Photon*> DLight::emitPhotons() {
-	vector<Photon*> photonCloud;
-	//TODO: implement emitPhotons() for directional lights!!!
-	return photonCloud;
+void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots) {
+	//TODO: implement generatePhotons() for directional lights!!!
+	
 }
 
 AABB::AABB() {

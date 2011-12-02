@@ -17,3 +17,7 @@ vec3 barycentric(vec3 v1, vec3 v2, vec3 v3, vec3 hitPoint) {
 vec3 barycentric(vec4 v1, vec4 v2, vec4 v3, vec4 hitPoint) {
 	return barycentric(v1.dehomogenize(), v2.dehomogenize(), v3.dehomogenize(), hitPoint.dehomogenize());
 }
+
+double rand01() {
+	return ((double) rand() / (RAND_MAX+1)) ;
+}

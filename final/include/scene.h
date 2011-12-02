@@ -20,6 +20,7 @@ public:
 	int extractVertex(string, int&, int&);
 	bool rayIntersect(Ray, float&, int&);
 	void earClip(string);	
+	
 	vec3 rotation, translation, scale;
 	Material parseMaterial; /* Temporary storage for the most recently parsed material */
 	vector<vec4> vertices;
@@ -34,6 +35,7 @@ public:
 	Camera * camera;
 	KDTree* kdTree;
 	PhotonTree* photonTree;
+	int photonsPerLight;
 
 	vec3 ambience; /* Ambient light color */
 	

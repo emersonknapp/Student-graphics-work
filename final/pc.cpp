@@ -201,23 +201,26 @@ void photonCannon() {
 	int renderableIndex;
 	float t;
 	bool hasHit;
+	vector<Photon*> photonCloud;
+	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		vector<Photon*> photonCloud = currentLight->emitPhotons();
-		//iterate through photonCloud, push photons that intersect onto scene->photons
-		for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
-			Photon* currentPhoton = *phot;
-			r = Ray(currentPhoton->pos, currentPhoton->dir);
+		currentLight->generatePhotons(photonCloud, scene->photonsPerLight);
+	}
+	
+	//iterate through photonCloud, push photons that intersect onto scene->photons
+	for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
+		Photon* currentPhoton = *phot;
+		//r = Ray(currentPhoton->pos, currentPhoton->dir);
 
-			renderableIndex=-1;
-			t = T_MAX;
-			hasHit = false;
+		renderableIndex=-1;
+		t = T_MAX;
+		hasHit = false;
 
-			hasHit = scene->rayIntersect(r, t, renderableIndex);
-			if (hasHit) {
-				scene->photons.push_back(currentPhoton);
-				//TODO: reflection photons
-			}
+		hasHit = scene->rayIntersect(*currentPhoton, t, renderableIndex);
+		if (hasHit) {
+			scene->photons.push_back(currentPhoton);
+			//TODO: reflection photons
 		}
 	}
 	//store photons that hit a renderable into kdtree
