@@ -3,9 +3,7 @@ translate 0 0 12
 cam
 
 ct
-kd 1 0 0
-ks .2 .2 .2
-
+usemtl materials/redplastic.mtl
 v -4 0 -2
 v 4 0 -2
 v 4 2 -4

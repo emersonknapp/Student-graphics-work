@@ -271,7 +271,9 @@ bool Scene::parseLine(string line) {
 		//cout << translation << rotation << scale << endl;
 	}
 	else if (op.compare("usemtl") == 0) { // open .mtl file
-		cout << "NOT IMPLEMENTED YET" << endl;
+		string f;
+		ss >> f;
+		parseMTL(f);
 	}
 	else if (op.compare("ka") == 0) { //ambient
 		float r, g, b;
@@ -390,9 +392,71 @@ void Scene::parseScene(string filename) {
 	
 }
 
-void Scene::parseMTL(ifstream& obj) {
+void Scene::parseMTL(string filename) {
+	ifstream inFile(filename.c_str(), ifstream::in);
+	char line[1024];
 
+	if (!inFile) Error("Could not open file " + filename);
+
+	while (inFile.good()) {
+		inFile.getline(line, 1023);
+		if(!getMTLLine(string(line))) Error("Bad line in input file.");
+	}
+	inFile.close();
 }
+
+bool Scene::getMTLLine(string line) {
+	
+	string op;
+	
+	if (line.empty())
+		return true;
+	stringstream ss(stringstream::in | stringstream::out);
+	ss.str(line);
+	ss >> op;
+
+	if (op.compare("ka") == 0) { //ambient
+		float r, g, b;
+		ss >> r >> g >> b;
+		ambience = vec3(r, g, b);
+	}
+	else if (op.compare("kd") == 0) { //diffuse
+		float r, g, b;
+		ss >> r >> g >> b;
+		parseMaterial.kd = vec3(r, g, b);
+	} 	
+	else if (op.compare("ks") == 0) { //specular
+		float r, g, b;
+		ss >> r >> g >> b;
+		parseMaterial.ks = vec3(r, g, b);
+	} 
+	else if (op.compare("kr") == 0) { //reflective
+		float r,g,b;
+		ss >> r >> g >> b;
+		parseMaterial.kr = vec3(r, g, b);
+	}
+	else if (op.compare("sp")==0) { //specular power
+		int sp;
+		ss >> sp;
+		parseMaterial.sp = sp;
+	}	
+	else if (op.compare("ri")==0) { //index of refraction
+		float ri;
+		ss >> ri;
+		parseMaterial.ri = ri;
+	}
+	else if (op.compare("tex")==0) { //set new texture map
+		string tmp;
+		ss >> tmp;
+		const char* name = tmp.c_str();
+		Texture t = Texture(name);
+		parseMaterial.texture = t;
+	}
+	if (ss.fail())
+		return false;
+	return true;
+}
+
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
 	rendIt rend;
 	bool hasHit = kdTree->rayIntersect(r, t, rend);
