@@ -1,13 +1,10 @@
 TODO:
-earclipping
 subsurface scattering
 full obj support
 	vertex normals, interp on tri for smoother shading
 final gather
 	option for # of diffuse rays
 photon raw output for debug
-Usage for unrecognized command line options
-long-name options
 photon cannon
 	point lights
 	directional lights
@@ -26,3 +23,7 @@ output to png file
 reflection
 texture map on tri
 jitter AA
+earclipping
+vertex normals
+Usage for unrecognized command line options
+long-name options
