@@ -270,6 +270,9 @@ bool Scene::parseLine(string line) {
 		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
 		//cout << translation << rotation << scale << endl;
 	}
+	else if (op.compare("usemtl") == 0) { // open .mtl file
+		cout << "NOT IMPLEMENTED YET" << endl;
+	}
 	else if (op.compare("ka") == 0) { //ambient
 		float r, g, b;
 		ss >> r >> g >> b;
@@ -373,14 +376,6 @@ void Scene::parseScene(string filename) {
 		Error("Could not open file " + filename);
 	}
 	
-	size_t f = filename.find(".obj");
-	if (filename.size() - int(f) == 4 ) {
-		//init Camera
-		
-		//init material
-//		parseOBJ(inFile);
-	}
-
 	 while (inFile.good()) {
 		inFile.getline(line, 1023);
 		if(!parseLine(string(line))) {
@@ -395,21 +390,9 @@ void Scene::parseScene(string filename) {
 	
 }
 
-void Scene::parseOBJ(ifstream& obj) {
-	char line[1024];
-	string op;
-	while (obj.good()) {
-		obj.getline(line, 1023);
-		
-		stringstream ss(stringstream::in | stringstream::out);
-		ss.str(line);
-		ss >> op;
-		
-	}
-	
-	obj.close();
-}
+void Scene::parseMTL(ifstream& obj) {
 
+}
 bool Scene::rayIntersect(Ray r, float& t, int& index) {
 	rendIt rend;
 	bool hasHit = kdTree->rayIntersect(r, t, rend);

@@ -11,7 +11,7 @@ class Scene {
 public:
 	Scene();
 	void parseScene(string);
-	void parseOBJ(ifstream&);
+	void parseMTL(ifstream&);
 	bool parseLine(string);
 	vec4 getVertex(int);
 	vec3 getTextureVertex(int);
