@@ -1,5 +1,5 @@
 #include "classes.h"
-
+#include "pc.h"
 using namespace std;
 
 mat4 Identity4 = mat4(vec4(1, 0, 0, 0), vec4(0,1,0,0), vec4(0,0,1,0), vec4(0,0,0,1));
@@ -272,14 +272,9 @@ vec4 Triangle::normal(vec4 surface) {
 	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);	
 
 	if (vn1 != vec4(0,0,0,0)) {
-		vec3 barycentric;
-		float t = (v1[0]-v3[0]) * (v2[1]-v3[1]) - (v1[1]-v3[1]) * (v2[0]-v3[0]);
-
-		barycentric[0] = ( (v2[1]-v3[1]) * (surface[0] - v3[0]) + (v3[0]-v2[0]) * (surface[1] - v3[1])) / t;
-		barycentric[1] = ( (v3[1]-v1[1]) * (surface[0] - v3[0]) + (v1[0]-v3[0]) * (surface[1] - v3[1])) / t;
-		barycentric[2] = 1 - barycentric[0] - barycentric[1];
-		
-		vec3 norm = barycentric[0] * n[0] + barycentric[1] * n[1] + barycentric[2] * n[2];
+		vec3 nn = n.dehomogenize();
+		vec3 bary = barycentric(v1,v2,v3,surface);
+		norm = bary[0] * vn1 + bary[1] * vn2 + bary[2] * vn3;
 		norm.normalize();
 		return vec4(norm,0); 
 
@@ -294,18 +289,9 @@ vec3 Triangle::textureColor(vec4 hitPoint) {
 	// Triangle has texture vertices between 0.0 and 1.0 (canonical coordinates of the texture map we're going to use)
 	// we specify vertices "vt .3 .2 0", etc, and then reference which texture vertices we're using w/ this triangle
 	// u, v, w (horizontal, vertical, depth)...not sure if we'll go depth
-	// TODO: finish perspective correct texture mapping for triangles
 	vec3 color;
-
-	vec3 barycentric;
-
-	float t = (v1[0]-v3[0]) * (v2[1]-v3[1]) - (v1[1]-v3[1]) * (v2[0]-v3[0]);
-
-	barycentric[0] = ( (v2[1]-v3[1]) * (hitPoint[0] - v3[0]) + (v3[0]-v2[0]) * (hitPoint[1] - v3[1])) / t;
-	barycentric[1] = ( (v3[1]-v1[1]) * (hitPoint[0] - v3[0]) + (v1[0]-v3[0]) * (hitPoint[1] - v3[1])) / t;
-	barycentric[2] = 1 - barycentric[0] - barycentric[1];
-
-	vec3 point = vt1 * barycentric[0] + vt2 * barycentric[1]  + vt3 * barycentric[2]; 
+	vec3 bary = barycentric(v1,v2,v3,hitPoint);
+	vec3 point = bary[0] * vt1 + bary[1] * vt2 + bary[2] * vt3;
 	color = material.texture.getColor(point[0],point[1]);
 
 	return color;

@@ -1,5 +1,4 @@
 #include "scene.h"
-
 using namespace std;
 
 Scene::Scene() {
@@ -64,13 +63,92 @@ int Scene::extractVertex(string s, int &vt, int &vn) {
 
 void Scene::earClip(string line) {
 
-	string polygon;
-	
 	stringstream ss(stringstream::in | stringstream::out);
 	ss.str(line);
-	ss >> polygon;
-	vector<int> vertices;
-	vector<int> convexVertices;
+	string v;
+	string dummy;
+	vector<int> polygonVertices; // indices into vertices vector
+	vector<int> polygonTextureVertices;
+	vector<int> polygonVertexNormals;
+	ss >> dummy;
+	// get all vertices
+	while (ss >> v)	{
+		int l, vt, vn;
+		vt = vn = -1;
+		l = extractVertex(v, vt, vn);
+		polygonVertices.push_back( l );
+		polygonTextureVertices.push_back( vt );
+		polygonVertexNormals.push_back( vn );
+	}
+	int numVertices = polygonVertices.size();
+	vec3 prevVertex, nextVertex, curVertex;
+	int prevIndex, nextIndex;
+	cout << "numVertices: " << numVertices << endl;
+	for (int cur = 0; cur < numVertices ; cur++) {
+		// initialize other points of possible ear (centered at curVertex)
+		// prev,nextVertex are indices into polygonVertices, which are in turn indices into the vertices vector
+		prevIndex = (cur-1) % numVertices;
+		nextIndex = (cur+1) % numVertices;
+
+		prevVertex = vertices [ polygonVertices[prevIndex] ];
+		nextVertex = vertices [ polygonVertices[nextIndex] ];
+		curVertex = vertices [ polygonVertices[cur] ] ;
+
+		cout << prevVertex << curVertex << nextVertex << endl;
+		
+		vec4 side1 = prevVertex - curVertex; 
+		vec4 side2 = nextVertex - curVertex;
+
+		float cosangle = side1.dehomogenize().normalize() * side2.dehomogenize().normalize();
+		// if angle < 180, then curVertex is a convex vertex
+		float sinangle = sqrt ( 1.0 - pow(cosangle,2.0f)  ) ;
+		if (sinangle < 0) { // sin < 0 means < 180degrees
+			// check no other vertex from triangle is inside this ear
+			//TODO: instead of pushing back, why not just do the calculations here and now?
+			
+			for (int tmp = 0; tmp <= numVertices ; tmp++) {
+				if (tmp != prevIndex and tmp != cur and tmp != nextIndex) {
+					vec3 tmpVertex = vertices[ polygonVertices[tmp] ];
+					vec3 tmpBary = barycentric(prevVertex, curVertex, nextVertex, tmpVertex);
+
+					// check if barycentric coordinate is outside triangle (any one of its elements > 1)
+					if (!(tmpBary[0] > 1 or tmpBary[1] > 1 or tmpBary[2] > 1)) {
+						// add the current ear to the renderables as a triangle, parse the texture vertices and shit
+						// then delete the convex vertex!
+						vec4 a, b, c, d, e, f, x, y, z;
+						
+						a = getVertex(polygonVertices[prevIndex]);
+						b = getVertex(polygonVertices[cur]);
+						c = getVertex(polygonVertices[nextIndex]);
+
+						d = getTextureVertex(polygonTextureVertices[prevIndex]);
+						e = getTextureVertex(polygonTextureVertices[cur]);
+						f = getTextureVertex(polygonTextureVertices[nextIndex]);
+
+						x = getVertexNormal(polygonVertexNormals[prevIndex]);
+						y = getVertexNormal(polygonVertexNormals[cur]);
+						z = getVertexNormal(polygonVertexNormals[nextIndex]);
+						
+						cout << a << " " << b << " " << c << " " << endl;
+
+						Triangle* tri = new Triangle(a, b, c, d, e, f, x, y, z);
+						tri->scale(scale);
+						tri->rotate(rotation);
+						tri->translate(translation);
+						tri->material = parseMaterial;
+
+						renderables.push_back(tri);
+						//TODO: add scale/rotation/material/etc
+						//delete convexVertex
+						polygonVertices.erase (polygonVertices.begin() + cur);
+						polygonTextureVertices.erase (polygonTextureVertices.begin() + cur);
+						polygonVertexNormals.erase (polygonVertexNormals.begin() + cur);
+					}
+				}
+			}
+		}
+
+	}
 
 //TODO: earclipping!
 // we loop around the vertices of the polygon. For every vertex V_i, we have
@@ -126,6 +204,12 @@ bool Scene::parseLine(string line) {
 	else if (op.compare("f") == 0) { //face, for now just a triangle TODO: earclipping
 		string i, j, k, zz;
 		ss >> i >> j >> k;
+
+		if (ss >> zz) {
+			earClip(line);
+			return true;
+		}
+
 		int l, m, n;
 		int vt1, vt2, vt3;
 		int vn1, vn2, vn3;

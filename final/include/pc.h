@@ -25,8 +25,7 @@
 #include "imagewriter.h"
 #include "trees.h"
 #include "scene.h"
-
-
+#include "util.h"
 
 #define VERSION_NUMBER "0.1"
 #define PI 3.14159265

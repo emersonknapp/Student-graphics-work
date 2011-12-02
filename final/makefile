@@ -25,7 +25,7 @@ CCOPTS = $(OPT) $(INCS) -c
 LDOPTS = $(OPT) $(INCS) $(LIBS)
 
 #USEFUL INFORMATION
-SOURCES=pc.cpp classes.cpp trees.cpp imagewriter.cpp scene.cpp renderable.cpp
+SOURCES=pc.cpp classes.cpp trees.cpp imagewriter.cpp scene.cpp renderable.cpp util.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=pc
 
