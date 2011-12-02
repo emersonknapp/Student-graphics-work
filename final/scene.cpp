@@ -83,36 +83,33 @@ void Scene::earClip(string line) {
 	int numVertices = polygonVertices.size();
 	vec3 prevVertex, nextVertex, curVertex;
 	int prevIndex, nextIndex;
-	cout << "numVertices: " << numVertices << endl;
-	for (int cur = 0; cur < numVertices ; cur++) {
+	int cur = 0;
+	while (numVertices > 3) {
+//	for (int cur = 0; cur < numVertices ; cur++) {
 		// initialize other points of possible ear (centered at curVertex)
 		// prev,nextVertex are indices into polygonVertices, which are in turn indices into the vertices vector
-		prevIndex = (cur-1) % numVertices;
+		prevIndex = (cur-1+numVertices) % numVertices;
 		nextIndex = (cur+1) % numVertices;
 
-		prevVertex = vertices [ polygonVertices[prevIndex] ];
-		nextVertex = vertices [ polygonVertices[nextIndex] ];
-		curVertex = vertices [ polygonVertices[cur] ] ;
+		prevVertex = getVertex(polygonVertices[prevIndex]);
+		nextVertex = getVertex(polygonVertices[nextIndex]);
+		curVertex = getVertex(polygonVertices[cur]) ;
 
-		cout << prevVertex << curVertex << nextVertex << endl;
-		
 		vec4 side1 = prevVertex - curVertex; 
 		vec4 side2 = nextVertex - curVertex;
 
 		float cosangle = side1.dehomogenize().normalize() * side2.dehomogenize().normalize();
 		// if angle < 180, then curVertex is a convex vertex
 		float sinangle = sqrt ( 1.0 - pow(cosangle,2.0f)  ) ;
-		if (sinangle < 0) { // sin < 0 means < 180degrees
+		if (sinangle > 0) { // sin < 0 means < 180degrees
 			// check no other vertex from triangle is inside this ear
-			//TODO: instead of pushing back, why not just do the calculations here and now?
-			
 			for (int tmp = 0; tmp <= numVertices ; tmp++) {
 				if (tmp != prevIndex and tmp != cur and tmp != nextIndex) {
 					vec3 tmpVertex = vertices[ polygonVertices[tmp] ];
 					vec3 tmpBary = barycentric(prevVertex, curVertex, nextVertex, tmpVertex);
 
 					// check if barycentric coordinate is outside triangle (any one of its elements > 1)
-					if (!(tmpBary[0] > 1 or tmpBary[1] > 1 or tmpBary[2] > 1)) {
+					if (tmpBary[0] <=1 and tmpBary[1] <= 1 and tmpBary[2] <=1) {
 						// add the current ear to the renderables as a triangle, parse the texture vertices and shit
 						// then delete the convex vertex!
 						vec4 a, b, c, d, e, f, x, y, z;
@@ -129,8 +126,6 @@ void Scene::earClip(string line) {
 						y = getVertexNormal(polygonVertexNormals[cur]);
 						z = getVertexNormal(polygonVertexNormals[nextIndex]);
 						
-						cout << a << " " << b << " " << c << " " << endl;
-
 						Triangle* tri = new Triangle(a, b, c, d, e, f, x, y, z);
 						tri->scale(scale);
 						tri->rotate(rotation);
@@ -138,19 +133,43 @@ void Scene::earClip(string line) {
 						tri->material = parseMaterial;
 
 						renderables.push_back(tri);
-						//TODO: add scale/rotation/material/etc
 						//delete convexVertex
 						polygonVertices.erase (polygonVertices.begin() + cur);
 						polygonTextureVertices.erase (polygonTextureVertices.begin() + cur);
 						polygonVertexNormals.erase (polygonVertexNormals.begin() + cur);
+						numVertices = polygonVertices.size();
 					}
 				}
 			}
 		}
-
+		cur = (cur+1) % numVertices;
 	}
 
-//TODO: earclipping!
+	prevIndex = (cur-1+numVertices) % numVertices;
+	nextIndex = (cur+1) % numVertices;
+
+	vec4 a, b, c, d, e, f, x, y, z;
+	
+	a = getVertex(polygonVertices[prevIndex]);
+	b = getVertex(polygonVertices[cur]);
+	c = getVertex(polygonVertices[nextIndex]);
+
+	d = getTextureVertex(polygonTextureVertices[prevIndex]);
+	e = getTextureVertex(polygonTextureVertices[cur]);
+	f = getTextureVertex(polygonTextureVertices[nextIndex]);
+
+	x = getVertexNormal(polygonVertexNormals[prevIndex]);
+	y = getVertexNormal(polygonVertexNormals[cur]);
+	z = getVertexNormal(polygonVertexNormals[nextIndex]);
+	
+	Triangle* tri = new Triangle(a, b, c, d, e, f, x, y, z);
+	tri->scale(scale);
+	tri->rotate(rotation);
+	tri->translate(translation);
+	tri->material = parseMaterial;
+
+	renderables.push_back(tri);
+// at this point, we have 3 points left...need to incorporate them into the triangle!
 // we loop around the vertices of the polygon. For every vertex V_i, we have
 // triangle V_(i-1), V_i, V_(i+1). if the interior angle (angle between V_(i-1) - V_i and
 // V_(i+1) - V_i ) is < 180, then V_i is a convex vertex. So for each of these triangles, if 
