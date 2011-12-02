@@ -224,11 +224,9 @@ bool Scene::parseLine(string line) {
 		string i, j, k, zz;
 		ss >> i >> j >> k;
 
-		if (ss >> zz) {
-			earClip(line);
-			return true;
-		}
-
+		earClip(line);
+		return true;
+/*
 		int l, m, n;
 		int vt1, vt2, vt3;
 		int vn1, vn2, vn3;
@@ -256,7 +254,7 @@ bool Scene::parseLine(string line) {
 		tri->translate(translation);
 		tri->material = parseMaterial;
 		renderables.push_back(tri);
-		if (DEBUG) cout << "Added triangle to scene. " << a << b << c << endl;
+		if (DEBUG) cout << "Added triangle to scene. " << a << b << c << endl;*/
 	} 
 	else if (op.compare("s")==0) { //Parse a sphere
 		float r;
