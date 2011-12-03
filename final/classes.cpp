@@ -100,23 +100,12 @@ void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots) {
 		xdir = cos(phi)*sin(theta);
 		ydir = sin(phi);
 		zdir = cos(phi)*sin(theta);
-		vec4 photonDir = vec4(xdir, ydir, zdir, 0);
-		
+		vec3 tmpDir = vec3(xdir, ydir, zdir).normalize();
+		vec4 photonDir = vec4(tmpDir,0)
+		Photon* photon = new Photon(pos, photonDir, intensity);
+		photonCloud.push_back(photon);
 	}
 	
-	//TODO: send out photons in random directions, currently iterating through spherical coordinates which leads to a bias towards the poles
-	float stepsize = 0.1;
-	//iterate through longitude and latitude of sphere around pointlight
-	for (float longi=0.0; longi<=2.0; longi+=stepsize) {
-		for (float lati=-0.5; lati<=0.5; lati+=stepsize) {
-			//forming a sphere of photons around the point light
-			float phi = longi*3.1415;
-			float theta = lati*3.1415;
-			vec4 photonDir = vec4(cos(phi)*sin(theta),sin(phi),cos(phi)*sin(theta),0);
-			Photon* photon = new Photon(v,photonDir,intensity);
-			photonCloud.push_back(photon);
-		}
-	}
 }
 
 vec4 DLight::lightVector(vec4 origin) {

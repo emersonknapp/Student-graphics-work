@@ -51,6 +51,7 @@ void Usage() {
 	<< "        -px: the size of the output image, in pixels (default 800x800)" << endl
 	<< "        -a: antialiasing, n-by-n rays per pixel, defaults to 1" << endl
 	<< "		-j: uses jittery antialiasing (still requires -a)" << endl;
+	<< "		-ph: how many photons to shoot out (in thousands) (if not specified, defaults to FUCKYOU)" << endl;
 	;
 	quitProgram(0);
 }
@@ -306,6 +307,8 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg.compare("-ja")==0 || arg.compare("-aj")==0) {
 			viewport.aliasing = atoi(argv[++i]);
 			viewport.jittery = true;
+		} else if (arg.compare("-ph")==0) {
+			scene.photonsPerLight = atoi(argv[++i]) * 1000;
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();
