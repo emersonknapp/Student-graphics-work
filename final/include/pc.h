@@ -20,8 +20,6 @@
 #include "algebra3.h"
 #include "FreeImage.h"
 
-#include "constants.h"
-
 #include "classes.h"
 #include "imagewriter.h"
 #include "trees.h"

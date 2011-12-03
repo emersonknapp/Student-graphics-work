@@ -13,7 +13,6 @@
 #include <time.h>
 #include <math.h>
 
-#include "constants.h"
 #include "util.h"
 #include "algebra3.h"
 #include "FreeImage.h"

@@ -225,36 +225,6 @@ bool Scene::parseLine(string line) {
 		ss >> i >> j >> k;
 
 		earClip(line);
-		return true;
-/*
-		int l, m, n;
-		int vt1, vt2, vt3;
-		int vn1, vn2, vn3;
-		vt1 = vt2 = vt3 = -1;
-		vn1 = vn2 = vn3 = -1;
-		l = extractVertex(i, vt1, vn1);
-		m = extractVertex(j, vt2, vn2);
-		n = extractVertex(k, vt3, vn3);
-		// check if we need to parse texture vertices
-		vec4 a, b, c;
-		a = getVertex(l);
-		b = getVertex(m);
-		c = getVertex(n);
-		vec3 d, e, f;
-		d = getTextureVertex(vt1);
-		e = getTextureVertex(vt2);
-		f = getTextureVertex(vt3);
-		vec4 x, y, z;
-		x = getVertexNormal(vn1);
-		y = getVertexNormal(vn2);
-		z = getVertexNormal(vn3);
-		Triangle* tri = new Triangle(a, b, c, d, e, f, x, y, z);
-		tri->scale(scale);
-		tri->rotate(rotation);
-		tri->translate(translation);
-		tri->material = parseMaterial;
-		renderables.push_back(tri);
-		if (DEBUG) cout << "Added triangle to scene. " << a << b << c << endl;*/
 	} 
 	else if (op.compare("s")==0) { //Parse a sphere
 		float r;
@@ -379,7 +349,8 @@ void Scene::parseScene(string filename) {
 	 while (inFile.good()) {
 		inFile.getline(line, 1023);
 		if(!parseLine(string(line))) {
-			Error("Bad line in input file.");
+			Error("Bad line in input file:" + string(line));
+			
 		}
 	}
 	inFile.close();
@@ -398,7 +369,7 @@ void Scene::parseMTL(string filename) {
 
 	while (inFile.good()) {
 		inFile.getline(line, 1023);
-		if(!getMTLLine(string(line))) Error("Bad line in input file.");
+		if(!getMTLLine(string(line))) Error("Bad line in material file.");
 	}
 	inFile.close();
 }
