@@ -101,7 +101,7 @@ void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots) {
 		ydir = sin(phi);
 		zdir = cos(phi)*sin(theta);
 		vec3 tmpDir = vec3(xdir, ydir, zdir).normalize();
-		vec4 photonDir = vec4(tmpDir,0)
+		vec4 photonDir = vec4(tmpDir,0);
 		Photon* photon = new Photon(pos, photonDir, intensity);
 		photonCloud.push_back(photon);
 	}
@@ -114,6 +114,7 @@ vec4 DLight::lightVector(vec4 origin) {
 
 void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots) {
 	//TODO: implement generatePhotons() for directional lights!!!
+	// what we probably want to do is have these photons come from oen side of the 'scene box'
 	
 }
 

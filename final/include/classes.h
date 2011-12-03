@@ -69,6 +69,7 @@ public:
 	int h;
 	int aliasing;
 	bool jittery; 
+	int photonsPerLight;
 };
 
 class Light {
