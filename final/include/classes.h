@@ -13,6 +13,8 @@
 #include <time.h>
 #include <math.h>
 
+#include "constants.h"
+#include "util.h"
 #include "algebra3.h"
 #include "FreeImage.h"
 
@@ -55,6 +57,7 @@ public:
 class Photon : public Ray {
 public:
 	vec3 color;
+	int age;
 	Photon();
 	Photon(vec4 a, vec4 b, vec3 c);
 };
@@ -72,23 +75,23 @@ public:
 class Light {
 public:
 	vec3 intensity;
-	vec4 v;
+	vec4 pos;
 	virtual vec4 lightVector(vec4) = 0;
-	virtual vector<Photon*> emitPhotons() = 0;
+	virtual void generatePhotons(vector<Photon*>&, int numPhotons) = 0;
 };
 
 class PLight: public Light {
 public:
 	PLight(vec4, vec3);
 	vec4 lightVector(vec4);
-	vector<Photon*> emitPhotons();
+	void generatePhotons(vector<Photon*>&, int numPhotons);
 };
 
 class DLight: public Light {
 public:
 	DLight(vec4 , vec3 );
 	vec4 lightVector(vec4);
-	vector<Photon*> emitPhotons();
+	void generatePhotons(vector<Photon*>&, int numPhotons);
 };
 
 class Texture {
