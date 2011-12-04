@@ -66,12 +66,14 @@ Viewport::Viewport () {
 	h = 0;
 	aliasing = 0;
 	jittery = false;
+	photoooooooons = false; 
 }
 Viewport::Viewport (int width, int height) {
 	w = width;
 	h = height;
 	aliasing = 0;
 	jittery = false;
+	photoooooooons = false;
 }
 
 PLight::PLight(vec4 p, vec3 i) {
@@ -88,7 +90,7 @@ vec4 PLight::lightVector(vec4 origin) {
 	return pos-origin;
 }
 
-void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots) {
+void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
 	double u, v, phi, theta;
 	double xdir, ydir, zdir;
 	
@@ -112,9 +114,36 @@ vec4 DLight::lightVector(vec4 origin) {
 	return -pos;
 }
 
-void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots) {
+void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
 	//TODO: implement generatePhotons() for directional lights!!!
-	// what we probably want to do is have these photons come from oen side of the 'scene box'
+	// photon direction is (-pos)
+	// photon intensity is: intensity
+	float u,v;
+	// centered at lower right corner of plane
+	vec3 lowerRight;
+	for (int i = 0; i < 3; i++) {
+		if (i<=0) lowerRight[i] = s->mins[i];
+		else if (i>0) lowerRight[i] = s->maxes[i];
+	}
+	vec4 vDir = vec4( max(1.0,abs(pos[0])) - abs(pos[0]),
+					  max(1.0,abs(pos[1])) - abs(pos[1]),
+					  max(1.0,abs(pos[2])) - abs(pos[2]),
+					  0
+					);
+	vec4 uDir = vec4( pos[0],
+					  pos[1],
+					  pos[2],
+					  0
+					);
+	for (int i=0; i<numPhots; i++) {
+		u = rand01();
+		v = rand01();
+		// want to do u * ("x" dir), v * ("y" dir) to get the origin of the photonCloud
+		vec4 photonPos = u*uDir + v*vDir;
+		vec4 photonDir = -pos.normalize();
+		Photon* photon = new Photon(photonPos, photonDir, intensity);
+		photonCloud.push_back(photon);
+	}
 	
 }
 

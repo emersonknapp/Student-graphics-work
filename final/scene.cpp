@@ -2,6 +2,7 @@
 using namespace std;
 
 Scene::Scene() {
+
 	translation = vec3(0,0,0);
 	scale = vec3(1,1,1);
 	rotation = vec3(0,0,0);
@@ -33,6 +34,7 @@ vec4 Scene::getVertexNormal(int i) {
 	}
 }
 
+//TODO (GABE): make it so w is an optional arg to vt
 int Scene::extractVertex(string s, int &vt, int &vn) {
 	string result = "";
 	string vtres = "";

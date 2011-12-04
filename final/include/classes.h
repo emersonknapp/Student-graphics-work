@@ -69,6 +69,7 @@ public:
 	int h;
 	int aliasing;
 	bool jittery; 
+	bool photoooooooons; 
 	int photonsPerLight;
 };
 
@@ -77,21 +78,21 @@ public:
 	vec3 intensity;
 	vec4 pos;
 	virtual vec4 lightVector(vec4) = 0;
-	virtual void generatePhotons(vector<Photon*>&, int numPhotons) = 0;
+	virtual void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s) = 0;
 };
 
 class PLight: public Light {
 public:
 	PLight(vec4, vec3);
 	vec4 lightVector(vec4);
-	void generatePhotons(vector<Photon*>&, int numPhotons);
+	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
 };
 
 class DLight: public Light {
 public:
 	DLight(vec4 , vec3 );
 	vec4 lightVector(vec4);
-	void generatePhotons(vector<Photon*>&, int numPhotons);
+	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
 };
 
 class Texture {

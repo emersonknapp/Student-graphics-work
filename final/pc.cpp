@@ -206,9 +206,9 @@ void photonCannon() {
 	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		currentLight->generatePhotons(photonCloud, scene->photonsPerLight);
+		currentLight->generatePhotons(photonCloud, scene->photonsPerLight, scene->renderables[0]->aabb);
 	}
-	
+	cout << photonCloud.size() << endl;	
 	//iterate through photonCloud, push photons that intersect onto scene->photons
 	for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
 		Photon* currentPhoton = *phot;
@@ -220,6 +220,7 @@ void photonCannon() {
 
 		hasHit = scene->rayIntersect(*currentPhoton, t, renderableIndex);
 		if (hasHit) {
+			cout << "photon hit" << endl;
 			scene->photons.push_back(currentPhoton);
 			//TODO: reflection photons
 		}
@@ -308,6 +309,7 @@ void processArgs(int argc, char* argv[]) {
 			viewport.aliasing = atoi(argv[++i]);
 			viewport.jittery = true;
 		} else if (arg.compare("-ph")==0) {
+			viewport.photoooooooons = true;
 			viewport.photonsPerLight = atoi(argv[++i]) * 1000;
 		} else {
 			Warning("Unrecognized command " + arg);
@@ -332,6 +334,7 @@ int main(int argc, char *argv[]) {
 	scene = new Scene();
 
 	processArgs(argc, argv);
+	if (viewport.photoooooooons)  photonCannon();
 	render();
 
   	return 0;

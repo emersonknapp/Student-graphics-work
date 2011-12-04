@@ -36,7 +36,7 @@ public:
 	KDTree* kdTree;
 	PhotonTree* photonTree;
 	int photonsPerLight;
-
+	
 	vec3 ambience; /* Ambient light color */
 	
 	//map<string, Material*> materials;
