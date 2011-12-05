@@ -233,14 +233,13 @@ void photonCannon() {
 // Function what actually draws to screen
 //***************************************************
 void render() {
-	
 	/*Logging output */
 	int onepercent = viewport.w/100;
 	int progress = 0.0;
 	int nextpercent = onepercent;
 	/*End*/
 	Camera* camera = scene->camera;
-	#pragma omp parallel for
+	#pragma omp parallel for shared(nextpercent)
 	for (int x = 0; x < viewport.w; x++) {
 		for (int y = 0; y < viewport.h; y++) {
 
