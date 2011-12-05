@@ -197,6 +197,39 @@ vec3 traceRay(Ray r, int depth) {
 	}
 }
 
+void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
+
+	if (photonDepth > MAXRECURSION) {
+		return;
+	}
+	
+	int renderableIndex=-1;
+	float t = T_MAX;
+	bool hasHit = false;
+
+	//hasHit = scene->rayIntersect(*reflectPhot, t, renderableIndex);
+
+	if (hasHit) {
+		Renderable* rend = scene->renderables[renderableIndex];
+		vec4 hitPoint = reflectPhot->pos + t*reflectPhot->dir;
+		vec4 normal = rend->normal(hitPoint);
+		
+		vec3 n = -normal.dehomogenize();
+		vec3 d = reflectPhot->dir.dehomogenize();
+		n.normalize();
+		d.normalize();
+		
+		vec3 refl = d - 2*(d*n)*n;
+		refl.normalize();
+
+		Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), reflectPhot->color);
+
+		scene->photons.push_back(newPhot);
+
+		traceReflectionPhoton(newPhot, photonDepth+1);
+	}
+}
+
 void photonCannon() {
 	Ray r;
 	int renderableIndex;
@@ -218,11 +251,13 @@ void photonCannon() {
 		t = T_MAX;
 		hasHit = false;
 
+		//incorporate this rayintersect check into tracereflectionphoton?
 		hasHit = scene->rayIntersect(*currentPhoton, t, renderableIndex);
 		if (hasHit) {
 			cout << "photon hit" << endl;
 			scene->photons.push_back(currentPhoton);
-			//TODO: reflection photons
+			//TODO: reflection photons, add photon reflection depth
+			traceReflectionPhoton(currentPhoton, 1);
 		}
 	}
 	//store photons that hit a renderable into kdtree
