@@ -239,9 +239,8 @@ void photonCannon() {
 	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		currentLight->generatePhotons(photonCloud, scene->photonsPerLight, scene->renderables[0]->aabb);
+		currentLight->generatePhotons(photonCloud, viewport.photonsPerLight, scene->renderables[0]->aabb);
 	}
-	cout << photonCloud.size() << endl;	
 	//iterate through photonCloud, push photons that intersect onto scene->photons
 	for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
 		Photon* currentPhoton = *phot;
@@ -254,9 +253,7 @@ void photonCannon() {
 		//incorporate this rayintersect check into tracereflectionphoton?
 		hasHit = scene->rayIntersect(*currentPhoton, t, renderableIndex);
 		if (hasHit) {
-			cout << "photon hit" << endl;
 			scene->photons.push_back(currentPhoton);
-			//TODO: reflection photons, add photon reflection depth
 			traceReflectionPhoton(currentPhoton, 1);
 		}
 	}

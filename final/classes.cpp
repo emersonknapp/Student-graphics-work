@@ -97,7 +97,10 @@ void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s
 	for (int i=0; i<numPhots; i++) {
 		u = rand01();
 		v = rand01();
-		phi = acos(2*v - 1);
+		double tmp = 2.0 * v - 1.0;
+		if (tmp < -1) tmp = tmp + PI;
+		else if (tmp > 1) tmp = tmp - PI;
+		phi = acos(tmp);
 		theta = 2 * PI * u;
 		xdir = cos(phi)*sin(theta);
 		ydir = sin(phi);
@@ -115,9 +118,6 @@ vec4 DLight::lightVector(vec4 origin) {
 }
 
 void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
-	//TODO: implement generatePhotons() for directional lights!!!
-	// photon direction is (-pos)
-	// photon intensity is: intensity
 	float u,v;
 	// centered at lower right corner of plane
 	vec3 lowerRight;
