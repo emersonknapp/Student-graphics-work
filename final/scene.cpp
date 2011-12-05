@@ -34,7 +34,6 @@ vec4 Scene::getVertexNormal(int i) {
 	}
 }
 
-//TODO (GABE): make it so w is an optional arg to vt
 int Scene::extractVertex(string s, int &vt, int &vn) {
 	string result = "";
 	string vtres = "";
@@ -65,6 +64,7 @@ int Scene::extractVertex(string s, int &vt, int &vn) {
 
 void Scene::earClip(string line) {
 
+
 	stringstream ss(stringstream::in | stringstream::out);
 	ss.str(line);
 	string v;
@@ -87,7 +87,6 @@ void Scene::earClip(string line) {
 	int prevIndex, nextIndex;
 	int cur = 0;
 	while (numVertices > 3) {
-//	for (int cur = 0; cur < numVertices ; cur++) {
 		// initialize other points of possible ear (centered at curVertex)
 		// prev,nextVertex are indices into polygonVertices, which are in turn indices into the vertices vector
 		prevIndex = (cur-1+numVertices) % numVertices;
@@ -109,9 +108,8 @@ void Scene::earClip(string line) {
 				if (tmp != prevIndex and tmp != cur and tmp != nextIndex) {
 					vec3 tmpVertex = vertices[ polygonVertices[tmp] ];
 					vec3 tmpBary = barycentric(prevVertex, curVertex, nextVertex, tmpVertex);
-
 					// check if barycentric coordinate is outside triangle (any one of its elements > 1)
-					if (tmpBary[0] <=1 and tmpBary[1] <= 1 and tmpBary[2] <=1) {
+					if (tmpBary[0] + tmpBary[1] + tmpBary[2] <=1) {
 						// add the current ear to the renderables as a triangle, parse the texture vertices and shit
 						// then delete the convex vertex!
 						vec4 a, b, c, d, e, f, x, y, z;
@@ -127,7 +125,7 @@ void Scene::earClip(string line) {
 						x = getVertexNormal(polygonVertexNormals[prevIndex]);
 						y = getVertexNormal(polygonVertexNormals[cur]);
 						z = getVertexNormal(polygonVertexNormals[nextIndex]);
-						
+
 						Triangle* tri = new Triangle(a, b, c, d, e, f, x, y, z);
 						tri->scale(scale);
 						tri->rotate(rotation);
@@ -135,12 +133,13 @@ void Scene::earClip(string line) {
 						tri->material = parseMaterial;
 
 						renderables.push_back(tri);
+
 						//delete convexVertex
 						polygonVertices.erase (polygonVertices.begin() + cur);
 						polygonTextureVertices.erase (polygonTextureVertices.begin() + cur);
 						polygonVertexNormals.erase (polygonVertexNormals.begin() + cur);
 						numVertices = polygonVertices.size();
-					}
+					} 
 				}
 			}
 		}
@@ -181,7 +180,6 @@ void Scene::earClip(string line) {
 }
 
 bool Scene::parseLine(string line) {
-	
 
 	string op;
 	
@@ -205,16 +203,13 @@ bool Scene::parseLine(string line) {
 	else if (op.compare("vt") == 0) { //texture vertex
 		double a,b,c;
 		ss >> a >> b;
-		try {
-			ss >> c;
-		} catch (int e) {
-			c = 0;
-		}
+		if ((ss>>c) == 0) c = 0; 
 //		if (abs(a) > 1) Error("Texture vertices must be between 0 and 1"); 
 //		if (abs(b) > 1) Error("Texture vertices must be between 0 and 1");
 //		if (abs(c) > 1) Error("Texture vertices must be between 0 and 1");
 		lastTextureVertex++;
 		textureVertices.push_back(vec3(a,b,c));
+		return true;
 	}
 	else if (op.compare("vn") == 0) { // vertex normals
 		double a,b,c;
