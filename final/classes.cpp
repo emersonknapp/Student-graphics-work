@@ -202,7 +202,7 @@ bool AABB::intersect(vec3 point) {
 	bool inside =
 		point[0] >= mins[0] && point[0] <= maxes[0] &&
 		point[1] >= mins[1] && point[1] <= maxes[1] &&
-		point[2] >= mins[0] && point[2] <= maxes[2];
+		point[2] >= mins[2] && point[2] <= maxes[2];
 	return inside;
 }
 

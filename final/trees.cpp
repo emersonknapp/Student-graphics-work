@@ -62,8 +62,11 @@ PhotonTree::PhotonTree(photIt begin, photIt end, int depth, Scene* s) {
 		median = pivot[axis];
 		
 		// Construct subtrees
+		#pragma omp parallel 
+		{
 		leftChild = new PhotonTree(begin, medianIterator, depth+1, s);
 		rightChild = new PhotonTree(medianIterator, end, depth+1, s);		
+		}
 	}
 	makeAABB();
 }
@@ -86,7 +89,6 @@ bool withinSphere(vec3 point, float radius, vec3 center) {
 
 
 bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
-	//TODO (EMERSON): it looks like when we run this on scene6, we only get intersections at the left corners (x ~ -10, y = -10/10)
 	if (aabb->intersect(hitPoint)) {
 		if (leafNode) {
 			float radius = (hitPoint->maxes[0] - hitPoint->mins[0])/2.0;
@@ -97,8 +99,11 @@ bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
 				}
 			}
 		} else {
+			#pragma omp parallel
+			{
 			leftChild->gatherPhotons(hitPoint, photons);
 			rightChild->gatherPhotons(hitPoint, photons);
+			}
 		}
 	}
 	return (photons.size() > 0);	

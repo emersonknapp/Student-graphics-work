@@ -41,7 +41,7 @@ void Error(string msg) {
 void Warning(string msg) {
 	cerr << "Warning: " << msg << endl;
 }
-
+//TODO: option where you can see where the photons landed
 void Usage() {
 	cout << "Photon Cannon v" << VERSION_NUMBER << endl
 	<< "Usage:" << endl
@@ -184,7 +184,6 @@ vec3 traceRay(Ray r, int depth) {
 
 			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-
 			AABB gatherBox = AABB(mins,maxes);	
 			vector<photIt> nearPhotons;
 			if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
@@ -318,6 +317,7 @@ void photonCannon() {
 	}
 	//store photons that hit a renderable into kdtree
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
+//	scene->photonTree->print(0);
 }
 
 //***************************************************
