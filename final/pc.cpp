@@ -128,8 +128,8 @@ vec3 diffuseRayColor(Ray r) {
 		vector<photIt> nearPhotons;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			for (size_t i=0; i< nearPhotons.size(); i++) {
-				//color += vec3(.2, 0, 0);
-				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
+				color += vec3(.05, 0, 0);
+				//color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
 			//color = color / nearPhotons.size();
 		}
@@ -171,9 +171,8 @@ vec3 traceRay(Ray r, int depth) {
 		if (viewport.photons) {
 			//****************
 			//INDIRECT ILLUMINATION
-			vec3 diffuseColor = vec3(0,0,0);
-			int numGatherRays = 50;
-			//#pragma omp parallel for
+			int numGatherRays = 100;
+			#pragma omp parallel for shared(color)
 			for (int i = 0; i < numGatherRays; i++) {
 				vec3 point = randomSpherePoint();
 				
@@ -187,7 +186,6 @@ vec3 traceRay(Ray r, int depth) {
 				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
 				color += diffuseRayColor(diffuseRay) / numGatherRays;
 			}
-			//color += diffuseColor / 100;
 
 			//*************
 			//DIRECT ILLUMINATION
