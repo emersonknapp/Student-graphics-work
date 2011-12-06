@@ -117,6 +117,9 @@ vec3 diffuseRayColor(Ray r) {
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	if (hasHit) {
+		//EMERSON: so, if we just do return vec3(1,0,0) here, we get red pixels everywhere, as we should
+		//BUT, if inside the for loop we do color+=vec3(1,0,0), we get red circles, which have radius
+		//gatherEpsilon or some shit
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
@@ -125,7 +128,7 @@ vec3 diffuseRayColor(Ray r) {
 		vector<photIt> nearPhotons;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			for (unsigned int i=0; i< nearPhotons.size(); i++) {
-				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
+				//color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
 			color = color / nearPhotons.size();
 		}
