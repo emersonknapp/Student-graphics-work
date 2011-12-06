@@ -184,13 +184,14 @@ vec3 traceRay(Ray r, int depth) {
 
 			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+
 			AABB gatherBox = AABB(mins,maxes);	
 			vector<photIt> nearPhotons;
 			if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-				cout << "hitPoint: " << hitPoint << endl;
 				for (unsigned int i=0; i< nearPhotons.size(); i++) {
 					color += prod(scene->renderables[renderableIndex]->material.kd, scene->photons[distance(scene->photons.begin(),nearPhotons[i])]->color);
 				}
+				color = color / nearPhotons.size();
 			}
 		}
 		color += shade(r, hitPoint, normal, renderableIndex);
@@ -309,7 +310,8 @@ void photonCannon() {
 		hasHit = false;
 		hasHit = scene->rayIntersect(*currentPhoton, t, renderableIndex);
 		if (hasHit) {
-			currentPhoton->color = scene->renderables[renderableIndex]->material.kd * currentPhoton->color;
+			currentPhoton->color = prod(scene->renderables[renderableIndex]->material.kd,currentPhoton->color);
+			currentPhoton->pos = currentPhoton->pos + t * currentPhoton->dir;
 			scene->photons.push_back(currentPhoton);
 			traceReflectionPhoton(currentPhoton, 1);
 		}

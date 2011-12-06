@@ -131,7 +131,6 @@ void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s
 		// want to do u * ("x" dir), v * ("y" dir) to get the origin of the photonCloud
 		vec4 photonPos = lowerRight+u*uDir + v*vDir;
 		photonPos = lowerRight + u * vec4(1,0,0,0) + v * vec4(0,1,0,0);
-		cout << photonPos << endl;
 		vec4 photonDir = pos.normalize();
 		Photon* photon = new Photon(photonPos, photonDir, intensity);
 		photonCloud.push_back(photon);

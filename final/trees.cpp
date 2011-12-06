@@ -86,7 +86,7 @@ bool withinSphere(vec3 point, float radius, vec3 center) {
 
 
 bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
-	//TODO: test photon tree intersection
+	//TODO (EMERSON): it looks like when we run this on scene6, we only get intersections at the left corners (x ~ -10, y = -10/10)
 	if (aabb->intersect(hitPoint)) {
 		if (leafNode) {
 			float radius = (hitPoint->maxes[0] - hitPoint->mins[0])/2.0;
