@@ -286,18 +286,22 @@ void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
 		vec3 refl = d - 2*(d*n)*n;
 		refl.normalize();
 
+		reflectPhot->color = prod(scene->renderables[renderableIndex]->material.kd,reflectPhot->color);
+		reflectPhot->pos = hitPoint;
+		scene->photons.push_back(reflectPhot);
+
 		Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), reflectPhot->color);
 
-		scene->photons.push_back(newPhot);
+		//scene->photons.push_back(newPhot);
 
 		traceReflectionPhoton(newPhot, photonDepth+1);
 	}
 }
 
 void photonCannon() {
-	int renderableIndex;
-	float t;
-	bool hasHit;
+	//int renderableIndex;
+	//float t;
+	//bool hasHit;
 	vector<Photon*> photonCloud;
 	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
@@ -307,6 +311,7 @@ void photonCannon() {
 	//iterate through photonCloud, push photons that intersect onto scene->photons
 	for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
 		Photon* currentPhoton = *phot;
+/*
 		renderableIndex=-1;
 		t = T_MAX;
 		hasHit = false;
@@ -317,6 +322,8 @@ void photonCannon() {
 			scene->photons.push_back(currentPhoton);
 			traceReflectionPhoton(currentPhoton, 1);
 		}
+*/
+		traceReflectionPhoton(currentPhoton, 1);
 	}
 	//store photons that hit a renderable into kdtree
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
