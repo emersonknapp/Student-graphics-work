@@ -23,4 +23,6 @@ vec3 barycentric(vec4, vec4, vec4, vec4);
 
 double rand01();
 
+vec3 randomSpherePoint();
+
 #endif

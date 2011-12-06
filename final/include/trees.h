@@ -36,9 +36,8 @@ public:
 	bool rayIntersect(Ray, float&, rendIt&);
 	void print(int);
 	void makeAABB();
-
-protected:
 	AABB* aabb;
+protected:
 	bool leafNode;
 	rendComp comparator;
 	Scene* scene;

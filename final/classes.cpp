@@ -91,23 +91,11 @@ vec4 PLight::lightVector(vec4 origin) {
 }
 
 void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
-	double u, v, phi, theta;
-	double xdir, ydir, zdir;
 	
 	for (int i=0; i<numPhots; i++) {
-		u = rand01();
-		v = rand01();
-		double tmp = 2.0 * v - 1.0;
-		if (tmp < -1) tmp = tmp + PI;
-		else if (tmp > 1) tmp = tmp - PI;
-		phi = acos(tmp);
-		theta = 2 * PI * u;
-		xdir = cos(phi)*sin(theta);
-		ydir = sin(phi);
-		zdir = cos(phi)*sin(theta);
-		vec3 tmpDir = vec3(xdir, ydir, zdir).normalize();
-		vec4 photonDir = vec4(tmpDir,0);
-		Photon* photon = new Photon(pos, photonDir, intensity);
+		vec3 photonDir = randomSpherePoint(); 
+//		cout << photonDir << endl;
+		Photon* photon = new Photon(pos, vec4(photonDir,0), intensity);
 		photonCloud.push_back(photon);
 	}
 	
@@ -120,11 +108,12 @@ vec4 DLight::lightVector(vec4 origin) {
 void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
 	float u,v;
 	// centered at lower right corner of plane
-	vec3 lowerRight;
+	vec4 lowerRight;
 	for (int i = 0; i < 3; i++) {
-		if (i<=0) lowerRight[i] = s->mins[i];
-		else if (i>0) lowerRight[i] = s->maxes[i];
+		if (pos[i]>=0) lowerRight[i] = s->mins[i];
+		else if (pos[i]<0) lowerRight[i] = s->maxes[i];
 	}
+	lowerRight[3] = 1;
 	vec4 vDir = vec4( max(1.0,abs(pos[0])) - abs(pos[0]),
 					  max(1.0,abs(pos[1])) - abs(pos[1]),
 					  max(1.0,abs(pos[2])) - abs(pos[2]),
@@ -135,12 +124,15 @@ void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s
 					  pos[2],
 					  0
 					);
+	float uScale, vScale; //TODO: scale u,v by these amounts
 	for (int i=0; i<numPhots; i++) {
 		u = rand01();
 		v = rand01();
 		// want to do u * ("x" dir), v * ("y" dir) to get the origin of the photonCloud
-		vec4 photonPos = u*uDir + v*vDir;
-		vec4 photonDir = -pos.normalize();
+		vec4 photonPos = lowerRight+u*uDir + v*vDir;
+		photonPos = lowerRight + u * vec4(1,0,0,0) + v * vec4(0,1,0,0);
+		cout << photonPos << endl;
+		vec4 photonDir = pos.normalize();
 		Photon* photon = new Photon(photonPos, photonDir, intensity);
 		photonCloud.push_back(photon);
 	}

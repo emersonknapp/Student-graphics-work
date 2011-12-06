@@ -51,8 +51,8 @@ void Usage() {
 	<< "        -px: the size of the output image, in pixels (default 800x800)" << endl
 	<< "        -a: antialiasing, n-by-n rays per pixel, defaults to 1" << endl
 	<< "		-j: uses jittery antialiasing (still requires -a)" << endl
-	<< "		-ph: how many photons to shoot out (in thousands) (if not specified, defaults to FUCKYOU)" << endl;
-	
+	<< "		-ph: how many photons to shoot out (in thousands) (if not specified, defaults to FUCKYOU)" << endl
+	<< "		-e: epsilon for photon gathering" << endl;	
 	quitProgram(0);
 }
 
@@ -97,7 +97,9 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			reflectionVector.normalize();
 			
 			//Diffuse term
-			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
+			if (!viewport.photoooooooons) {
+				color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
+			}
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
@@ -108,6 +110,30 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 	return color;
 }
 
+vec3 diffuseRayColor(Ray r) {
+	vec3 color = vec3(0,0,0);
+	// intersect w/ objet, get the gatherEpsilon aabb box and average those photon colors
+
+	int renderableIndex=-1;
+	float t = T_MAX;
+	bool hasHit = false;
+	
+	hasHit = scene->rayIntersect(r, t, renderableIndex);
+	if (hasHit) {
+		vec4 hitPoint = r.pos + t*r.dir;
+		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+		AABB gatherBox = AABB(mins,maxes);	
+		vector<photIt> nearPhotons;
+		vec3 normal = scene->renderables[renderableIndex]->normal(hitPoint).dehomogenize();
+		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
+			for (unsigned int i=0; i< nearPhotons.size(); i++) {
+				color += prod(scene->renderables[renderableIndex]->material.kd, scene->photons[distance(scene->photons.begin(),nearPhotons[i])]->color) * max (((r.dir).dehomogenize()*normal),0.0);
+			}
+		}
+	}
+	return color;
+}
 
 //Traces a ray out, collecting outputs from shading, reflections, etc.
 vec3 traceRay(Ray r, int depth) {
@@ -124,15 +150,49 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	
 	if (hasHit) {
-
-		if (depth==0) {
+		//TODO: here, we do the photon gather to get a base color on top of which we do the ray tracing
+		if (depth==0 and !(viewport.photoooooooons)) {
 			color += scene->ambience;
 		}
 			
 		Renderable* rend = scene->renderables[renderableIndex];
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
+
+		//HERE: instead of calculating diffuse like normal, we send out some number of diffuse rays, each of which
+		//do the average photon shit, then we average all of those to get the diffuse for *this* hitPoint
+		//create aabb box based on gatherEpsilon
+		//TODO: make this 100 a command line parameter
 		
+		// generating diffuse rays
+		if (viewport.photoooooooons) {
+	/*		float cosangle,sinangle;
+			vec3 diffuseColor = vec3(0,0,0);
+			for (int i = 0; i < 100; i++) {
+				vec3 point = randomSpherePoint();
+				cosangle = point * normal.dehomogenize();
+				sinangle = sqrt ( 1.0 - pow(cosangle,2.0f)  ) ;
+				if (sinangle < 0) point = -point;
+				vec4 diffuseRayDirection = vec4(point,0);
+				//generate diffuse ray
+				Ray diffuseRay = Ray(hitPoint, diffuseRayDirection);
+				
+				diffuseColor += diffuseRayColor(diffuseRay);
+			}
+			color += diffuseColor / 100;
+		}*/
+
+			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+			AABB gatherBox = AABB(mins,maxes);	
+			vector<photIt> nearPhotons;
+			if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
+				cout << "hitPoint: " << hitPoint << endl;
+				for (unsigned int i=0; i< nearPhotons.size(); i++) {
+					color += prod(scene->renderables[renderableIndex]->material.kd, scene->photons[distance(scene->photons.begin(),nearPhotons[i])]->color);
+				}
+			}
+		}
 		color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
@@ -197,6 +257,7 @@ vec3 traceRay(Ray r, int depth) {
 	}
 }
 
+
 void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
 
 	if (photonDepth > MAXRECURSION) {
@@ -207,7 +268,7 @@ void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
 	float t = T_MAX;
 	bool hasHit = false;
 
-	//hasHit = scene->rayIntersect(*reflectPhot, t, renderableIndex);
+	hasHit = scene->rayIntersect(*reflectPhot, t, renderableIndex);
 
 	if (hasHit) {
 		Renderable* rend = scene->renderables[renderableIndex];
@@ -231,7 +292,6 @@ void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
 }
 
 void photonCannon() {
-	Ray r;
 	int renderableIndex;
 	float t;
 	bool hasHit;
@@ -239,20 +299,17 @@ void photonCannon() {
 	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		currentLight->generatePhotons(photonCloud, viewport.photonsPerLight, scene->renderables[0]->aabb);
+		currentLight->generatePhotons(photonCloud, viewport.photonsPerLight, scene->kdTree->aabb);
 	}
 	//iterate through photonCloud, push photons that intersect onto scene->photons
 	for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
 		Photon* currentPhoton = *phot;
-		//r = Ray(currentPhoton->pos, currentPhoton->dir);
-
 		renderableIndex=-1;
 		t = T_MAX;
 		hasHit = false;
-
-		//incorporate this rayintersect check into tracereflectionphoton?
 		hasHit = scene->rayIntersect(*currentPhoton, t, renderableIndex);
 		if (hasHit) {
+			currentPhoton->color = scene->renderables[renderableIndex]->material.kd * currentPhoton->color;
 			scene->photons.push_back(currentPhoton);
 			traceReflectionPhoton(currentPhoton, 1);
 		}
@@ -342,6 +399,8 @@ void processArgs(int argc, char* argv[]) {
 		} else if (arg.compare("-ph")==0) {
 			viewport.photoooooooons = true;
 			viewport.photonsPerLight = atoi(argv[++i]) * 1000;
+		} else if (arg.compare("-e")==0) {
+			viewport.gatherEpsilon = atof(argv[++i]);
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();

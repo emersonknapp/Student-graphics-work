@@ -71,6 +71,7 @@ public:
 	bool jittery; 
 	bool photoooooooons; 
 	int photonsPerLight;
+	float gatherEpsilon;
 };
 
 class Light {

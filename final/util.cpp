@@ -19,5 +19,23 @@ vec3 barycentric(vec4 v1, vec4 v2, vec4 v3, vec4 hitPoint) {
 }
 
 double rand01() {
-	return ((double) rand() / (RAND_MAX+1)) ;
+	return ((double) rand() / (RAND_MAX)) ;
+
+
+}
+
+vec3 randomSpherePoint() {
+	double az,u,v,xdir,ydir,zdir,tmp;
+	u = 1.0 - (2.0 * rand01());
+	az = 2.0 * PI * rand01();
+
+	tmp = 1 - u*u;
+	v = sqrt(tmp);
+
+	xdir = v * cos(az);
+	ydir = v * sin(az);
+	zdir = u;
+	
+	return vec3(xdir,ydir,zdir).normalize();
+
 }
