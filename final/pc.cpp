@@ -127,10 +127,11 @@ vec3 diffuseRayColor(Ray r) {
 		AABB gatherBox = AABB(mins,maxes);	
 		vector<photIt> nearPhotons;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-			for (unsigned int i=0; i< nearPhotons.size(); i++) {
-				//color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
+			for (size_t i=0; i< nearPhotons.size(); i++) {
+				//color += vec3(.2, 0, 0);
+				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
-			color = color / nearPhotons.size();
+			//color = color / nearPhotons.size();
 		}
 	}
 	return color;
@@ -151,6 +152,8 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	
 	if (hasHit) {
+		//************************************
+		//AMBIENT HACK FOR DIRECT ILLUMINATION
 		if (depth==0 and !(viewport.photons)) {
 			color += scene->ambience;
 		}
@@ -169,17 +172,22 @@ vec3 traceRay(Ray r, int depth) {
 			//****************
 			//INDIRECT ILLUMINATION
 			vec3 diffuseColor = vec3(0,0,0);
-			#pragma omp parallel for
-			for (int i = 0; i < 100; i++) {
+			int numGatherRays = 50;
+			//#pragma omp parallel for
+			for (int i = 0; i < numGatherRays; i++) {
 				vec3 point = randomSpherePoint();
+				
 				float cosangle = normal * vec4(point,0);
-				if (cosangle < -1) point = -point;
+				if (cosangle < 0) {
+					i--;
+					continue;
+				}
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				diffuseColor += diffuseRayColor(diffuseRay);
+				color += diffuseRayColor(diffuseRay) / numGatherRays;
 			}
-			color += diffuseColor / 100;
+			//color += diffuseColor / 100;
 
 			//*************
 			//DIRECT ILLUMINATION
@@ -194,6 +202,10 @@ vec3 traceRay(Ray r, int depth) {
 				color = color / nearPhotons.size();
 			}*/
 		}
+		
+		return color;
+		
+		
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
 		//color += shade(r, hitPoint, normal, renderableIndex);
@@ -252,6 +264,7 @@ vec3 traceRay(Ray r, int depth) {
 		vec3 kr = rend->material.kr;
 		vec3 reflColor = traceRay(reflRay, depth+1);
 		color += prod(kr,reflColor);
+		
 		// *********************************
 		// COMPUTE TEXTURE MAPPING
 		if (rend->material.texture.exists) color += rend->textureColor(hitPoint);
@@ -419,7 +432,7 @@ int main(int argc, char *argv[]) {
 	scene = new Scene();
 
 	processArgs(argc, argv);
-	if (viewport.photons)  photonCannon();
+	if (viewport.photons) photonCannon();
 	render();
 
   	return 0;
