@@ -97,9 +97,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			reflectionVector.normalize();
 			
 			//Diffuse term
-			if (!viewport.photoooooooons) {
-				color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
-			}
+			if (!viewport.photoooooooons) color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
@@ -150,7 +148,6 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	
 	if (hasHit) {
-		//TODO: here, we do the photon gather to get a base color on top of which we do the ray tracing
 		if (depth==0 and !(viewport.photoooooooons)) {
 			color += scene->ambience;
 		}
@@ -166,7 +163,9 @@ vec3 traceRay(Ray r, int depth) {
 		
 		// generating diffuse rays
 		if (viewport.photoooooooons) {
-	/*		float cosangle,sinangle;
+			//****************
+			//INDIRECT ILLUMINATION
+			float cosangle,sinangle;
 			vec3 diffuseColor = vec3(0,0,0);
 			for (int i = 0; i < 100; i++) {
 				vec3 point = randomSpherePoint();
@@ -177,11 +176,12 @@ vec3 traceRay(Ray r, int depth) {
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint, diffuseRayDirection);
 				
-				diffuseColor += diffuseRayColor(diffuseRay);
+				diffuseColor += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection*normal)  ;
 			}
 			color += diffuseColor / 100;
-		}*/
 
+			//*************
+			//DIRECT ILLUMINATION
 			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
 			AABB gatherBox = AABB(mins,maxes);	
@@ -193,6 +193,8 @@ vec3 traceRay(Ray r, int depth) {
 				color = color / nearPhotons.size();
 			}
 		}
+		//*************
+		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
 		color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
