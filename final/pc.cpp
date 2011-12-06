@@ -167,6 +167,7 @@ vec3 traceRay(Ray r, int depth) {
 			//INDIRECT ILLUMINATION
 			float cosangle,sinangle;
 			vec3 diffuseColor = vec3(0,0,0);
+			#pragma omp parallel for
 			for (int i = 0; i < 100; i++) {
 				vec3 point = randomSpherePoint();
 				cosangle = point * normal.dehomogenize();
@@ -176,26 +177,26 @@ vec3 traceRay(Ray r, int depth) {
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint, diffuseRayDirection);
 				
-				diffuseColor += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection*normal)  ;
+				diffuseColor += diffuseRayColor(diffuseRay) * max(0.0, -diffuseRayDirection*normal)  ;
 			}
 			color += diffuseColor / 100;
 
 			//*************
 			//DIRECT ILLUMINATION
-			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+/*			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
 			AABB gatherBox = AABB(mins,maxes);	
 			vector<photIt> nearPhotons;
 			if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 				for (unsigned int i=0; i< nearPhotons.size(); i++) {
-					color += prod(scene->renderables[renderableIndex]->material.kd, scene->photons[distance(scene->photons.begin(),nearPhotons[i])]->color);
+					color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 				}
 				color = color / nearPhotons.size();
-			}
+			}*/
 		}
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
-		color += shade(r, hitPoint, normal, renderableIndex);
+	//	color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
 		vec3 d = r.dir.dehomogenize();
