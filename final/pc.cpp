@@ -128,10 +128,10 @@ vec3 diffuseRayColor(Ray r) {
 		vector<photIt> nearPhotons;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			for (size_t i=0; i< nearPhotons.size(); i++) {
-				color += vec3(.05, 0, 0);
-				//color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
+				//color += vec3(.05, 0, 0);
+				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
-			//color = color / nearPhotons.size();
+			//color = color / nearPhotons.size(); <-- we might need this? not sure
 		}
 	}
 	return color;
@@ -184,8 +184,9 @@ vec3 traceRay(Ray r, int depth) {
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				color += diffuseRayColor(diffuseRay) / numGatherRays;
+				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / numGatherRays;
 			}
+
 
 			//*************
 			//DIRECT ILLUMINATION
