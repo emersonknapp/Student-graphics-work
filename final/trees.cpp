@@ -62,11 +62,8 @@ PhotonTree::PhotonTree(photIt begin, photIt end, int depth, Scene* s) {
 		median = pivot[axis];
 		
 		// Construct subtrees
-		#pragma omp parallel 
-		{
 		leftChild = new PhotonTree(begin, medianIterator, depth+1, s);
 		rightChild = new PhotonTree(medianIterator, end, depth+1, s);		
-		}
 	}
 	makeAABB();
 }
@@ -99,11 +96,8 @@ bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
 				}
 			}
 		} else {
-			#pragma omp parallel
-			{
 			leftChild->gatherPhotons(hitPoint, photons);
 			rightChild->gatherPhotons(hitPoint, photons);
-			}
 		}
 	}
 	return (photons.size() > 0);	
