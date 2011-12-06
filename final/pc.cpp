@@ -119,15 +119,16 @@ vec3 diffuseRayColor(Ray r) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	if (hasHit) {
 		vec4 hitPoint = r.pos + t*r.dir;
+		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
 		AABB gatherBox = AABB(mins,maxes);	
 		vector<photIt> nearPhotons;
-		vec3 normal = scene->renderables[renderableIndex]->normal(hitPoint).dehomogenize();
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			for (unsigned int i=0; i< nearPhotons.size(); i++) {
-				color += prod(scene->renderables[renderableIndex]->material.kd, scene->photons[distance(scene->photons.begin(),nearPhotons[i])]->color) * max (((r.dir).dehomogenize()*normal),0.0);
+				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
+			color = color / nearPhotons.size();
 		}
 	}
 	return color;
@@ -165,19 +166,16 @@ vec3 traceRay(Ray r, int depth) {
 		if (viewport.photoooooooons) {
 			//****************
 			//INDIRECT ILLUMINATION
-			float cosangle,sinangle;
 			vec3 diffuseColor = vec3(0,0,0);
 			#pragma omp parallel for
 			for (int i = 0; i < 100; i++) {
 				vec3 point = randomSpherePoint();
-				cosangle = point * normal.dehomogenize();
-				sinangle = sqrt ( 1.0 - pow(cosangle,2.0f)  ) ;
-				if (sinangle < 0) point = -point;
+				float cosangle = normal * vec4(point,0);
+				if (cosangle < -1) point = -point;
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
-				Ray diffuseRay = Ray(hitPoint, diffuseRayDirection);
-				
-				diffuseColor += diffuseRayColor(diffuseRay) * max(0.0, -diffuseRayDirection*normal)  ;
+				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
+				diffuseColor += diffuseRayColor(diffuseRay);
 			}
 			color += diffuseColor / 100;
 
@@ -286,7 +284,7 @@ void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
 		vec3 refl = d - 2*(d*n)*n;
 		refl.normalize();
 
-		reflectPhot->color = prod(scene->renderables[renderableIndex]->material.kd,reflectPhot->color);
+		reflectPhot->color = prod(scene->renderables[renderableIndex]->material.kd,reflectPhot->color) * max(0.0, -reflectPhot->dir * normal);
 		reflectPhot->pos = hitPoint;
 		scene->photons.push_back(reflectPhot);
 
