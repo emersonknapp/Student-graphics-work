@@ -10,3 +10,7 @@ as4/out
 as5/as5
 as5/*.o
 as5/*.png
+
+final/pc
+final/*.o
+final/*.png
