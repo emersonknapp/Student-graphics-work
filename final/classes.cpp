@@ -66,14 +66,14 @@ Viewport::Viewport () {
 	h = 0;
 	aliasing = 0;
 	jittery = false;
-	photoooooooons = false; 
+	photons = false; 
 }
 Viewport::Viewport (int width, int height) {
 	w = width;
 	h = height;
 	aliasing = 0;
 	jittery = false;
-	photoooooooons = false;
+	photons = false;
 }
 
 PLight::PLight(vec4 p, vec3 i) {
@@ -124,7 +124,7 @@ void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s
 					  pos[2],
 					  0
 					);
-	float uScale, vScale; //TODO: scale u,v by these amounts
+	//float uScale, vScale; //TODO: scale u,v by these amounts
 	for (int i=0; i<numPhots; i++) {
 		u = rand01();
 		v = rand01();

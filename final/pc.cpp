@@ -83,7 +83,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		
 		//shadow ray
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
-		//Ask the scene for shadow intersect. Whoops, we were still checking linearly!
 		shadePixel = !(scene->rayIntersect(lightCheck, t, renderableIndex));
 		
 		if (shadePixel) {
@@ -97,7 +96,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			reflectionVector.normalize();
 			
 			//Diffuse term
-			if (!viewport.photoooooooons) color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
+			if (!viewport.photons) color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
@@ -149,7 +148,7 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	
 	if (hasHit) {
-		if (depth==0 and !(viewport.photoooooooons)) {
+		if (depth==0 and !(viewport.photons)) {
 			color += scene->ambience;
 		}
 			
@@ -163,7 +162,7 @@ vec3 traceRay(Ray r, int depth) {
 		//TODO: make this 100 a command line parameter
 		
 		// generating diffuse rays
-		if (viewport.photoooooooons) {
+		if (viewport.photons) {
 			//****************
 			//INDIRECT ILLUMINATION
 			vec3 diffuseColor = vec3(0,0,0);
@@ -194,7 +193,7 @@ vec3 traceRay(Ray r, int depth) {
 		}
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
-	//	color += shade(r, hitPoint, normal, renderableIndex);
+		//color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
 		vec3 d = r.dir.dehomogenize();
@@ -244,10 +243,11 @@ vec3 traceRay(Ray r, int depth) {
 			} 
 		}
 		
-		//calculate reflections
-		Ray newray = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
+		/// *******************************
+		// COMPUTE REFLECTION
+		Ray reflRay = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
 		vec3 kr = rend->material.kr;
-		vec3 reflColor = traceRay(newray, depth+1);
+		vec3 reflColor = traceRay(reflRay, depth+1);
 		color += prod(kr,reflColor);
 		// *********************************
 		// COMPUTE TEXTURE MAPPING
@@ -259,7 +259,7 @@ vec3 traceRay(Ray r, int depth) {
 }
 
 
-void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
+void tracePhoton(Photon* phot, int photonDepth) {
 
 	if (photonDepth > MAXRECURSION) {
 		return;
@@ -269,37 +269,32 @@ void traceReflectionPhoton(Photon* reflectPhot, int photonDepth) {
 	float t = T_MAX;
 	bool hasHit = false;
 
-	hasHit = scene->rayIntersect(*reflectPhot, t, renderableIndex);
+	hasHit = scene->rayIntersect(*phot, t, renderableIndex);
 
 	if (hasHit) {
 		Renderable* rend = scene->renderables[renderableIndex];
-		vec4 hitPoint = reflectPhot->pos + t*reflectPhot->dir;
+		vec4 hitPoint = phot->pos + t*phot->dir;
 		vec4 normal = rend->normal(hitPoint);
 		
 		vec3 n = -normal.dehomogenize();
-		vec3 d = reflectPhot->dir.dehomogenize();
+		vec3 d = phot->dir.dehomogenize();
 		n.normalize();
 		d.normalize();
 		
 		vec3 refl = d - 2*(d*n)*n;
 		refl.normalize();
 
-		reflectPhot->color = prod(scene->renderables[renderableIndex]->material.kd,reflectPhot->color) * max(0.0, -reflectPhot->dir * normal);
-		reflectPhot->pos = hitPoint;
-		scene->photons.push_back(reflectPhot);
+		phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal);
+		phot->pos = hitPoint;
+		scene->photons.push_back(phot);
 
-		Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), reflectPhot->color);
+		Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), phot->color);
 
-		//scene->photons.push_back(newPhot);
-
-		traceReflectionPhoton(newPhot, photonDepth+1);
+		tracePhoton(newPhot, photonDepth+1);
 	}
 }
 
 void photonCannon() {
-	//int renderableIndex;
-	//float t;
-	//bool hasHit;
 	vector<Photon*> photonCloud;
 	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
@@ -307,21 +302,8 @@ void photonCannon() {
 		currentLight->generatePhotons(photonCloud, viewport.photonsPerLight, scene->kdTree->aabb);
 	}
 	//iterate through photonCloud, push photons that intersect onto scene->photons
-	for (vector<Photon*>::iterator phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
-		Photon* currentPhoton = *phot;
-/*
-		renderableIndex=-1;
-		t = T_MAX;
-		hasHit = false;
-		hasHit = scene->rayIntersect(*currentPhoton, t, renderableIndex);
-		if (hasHit) {
-			currentPhoton->color = prod(scene->renderables[renderableIndex]->material.kd,currentPhoton->color);
-			currentPhoton->pos = currentPhoton->pos + t * currentPhoton->dir;
-			scene->photons.push_back(currentPhoton);
-			traceReflectionPhoton(currentPhoton, 1);
-		}
-*/
-		traceReflectionPhoton(currentPhoton, 1);
+	for (photIt phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
+		tracePhoton(*phot, 0);
 	}
 	//store photons that hit a renderable into kdtree
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
@@ -407,7 +389,7 @@ void processArgs(int argc, char* argv[]) {
 			viewport.aliasing = atoi(argv[++i]);
 			viewport.jittery = true;
 		} else if (arg.compare("-ph")==0) {
-			viewport.photoooooooons = true;
+			viewport.photons = true;
 			viewport.photonsPerLight = atoi(argv[++i]) * 1000;
 		} else if (arg.compare("-e")==0) {
 			viewport.gatherEpsilon = atof(argv[++i]);
@@ -434,7 +416,7 @@ int main(int argc, char *argv[]) {
 	scene = new Scene();
 
 	processArgs(argc, argv);
-	if (viewport.photoooooooons)  photonCannon();
+	if (viewport.photons)  photonCannon();
 	render();
 
   	return 0;

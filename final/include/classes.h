@@ -69,7 +69,7 @@ public:
 	int h;
 	int aliasing;
 	bool jittery; 
-	bool photoooooooons; 
+	bool photons; 
 	int photonsPerLight;
 	float gatherEpsilon;
 };
