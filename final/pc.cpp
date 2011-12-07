@@ -96,7 +96,8 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			reflectionVector.normalize();
 			
 			//Diffuse term
-			if (!viewport.photons) color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
+			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
+
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
@@ -130,6 +131,8 @@ vec3 diffuseRayColor(Ray r) {
 			for (size_t i=0; i< nearPhotons.size(); i++) {
 				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
+//			color = color / nearPhotons.size();
+			color = color / (PI*pow(viewport.gatherEpsilon, 2.0f));
 			//color = color / nearPhotons.size(); <-- we might need this? not sure
 		}
 	}
@@ -203,12 +206,10 @@ vec3 traceRay(Ray r, int depth) {
 			}*/
 		}
 		
-		return color;
-		
 		
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
-		//color += shade(r, hitPoint, normal, renderableIndex);
+		color += shade(r, hitPoint, normal, renderableIndex);
 		
 		vec3 n = -normal.dehomogenize();
 		vec3 d = r.dir.dehomogenize();
