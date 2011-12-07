@@ -297,16 +297,45 @@ void tracePhoton(Photon* phot, int photonDepth) {
 		n.normalize();
 		d.normalize();
 		
-		vec3 refl = d - 2*(d*n)*n;
-		refl.normalize();
-
-		phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal);
+		phot->color = prod(rend->material.kd,phot->color) * max(0.0, -phot->dir * normal);
 		phot->pos = hitPoint;
-		scene->photons.push_back(phot);
 
-		Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), phot->color);
+		//russian roulette
+		float Pre, Pri, Pd, Ps, ep;
 
-		tracePhoton(newPhot, photonDepth+1);
+		ep = rand01();
+
+		Pre = (rend->material.kr[0] + rend->material.kr[1] + rend->material.kr[2]) / 3;
+		Pd = (rend->material.kd[0] + rend->material.kd[1] + rend->material.kd[2]) / 3 * Pre;
+		Ps = (rend->material.ks[0] + rend->material.ks[1] + rend->material.ks[2]) / 3 * Pre;
+		Pri = rend->material.ri;
+
+		if (ep < Pd) { //diffuse reflection
+			scene->photons.push_back(phot);
+
+			vec3 diffusePhotonDir = randomSpherePoint();
+			if (diffusePhotonDir * n < 0) {
+				diffusePhotonDir *= -1;
+			}
+			
+			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(diffusePhotonDir,0), phot->color);
+			tracePhoton(newPhot, photonDepth+1);
+		}
+		else if (ep < Pd + Ps) { //specular reflection
+			vec3 refl = d - 2*(d*n)*n;
+			refl.normalize();
+			
+			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), phot->color);
+			tracePhoton(newPhot, photonDepth+1);
+		}
+		else if (ep < Pd + Ps + Pri) { //refraction
+			//TODO: deal with photon refraction
+		}
+		else { //absorption 
+			scene->photons.push_back(phot);
+		}
+
+
 	}
 }
 
