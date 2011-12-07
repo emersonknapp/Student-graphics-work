@@ -133,7 +133,8 @@ vec3 diffuseRayColor(Ray r) {
 				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
 			//color = color / nearPhotons.size();
-			color = (2/3) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
+			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
+			
 		}
 	}
 	return color;
@@ -164,11 +165,6 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
 
-		//HERE: instead of calculating diffuse like normal, we send out some number of diffuse rays, each of which
-		//do the average photon shit, then we average all of those to get the diffuse for *this* hitPoint
-		//create aabb box based on gatherEpsilon
-		//TODO: make this 100 a command line parameter
-		
 		// generating diffuse rays
 		if (viewport.photons) {
 			//****************
@@ -192,20 +188,6 @@ vec3 traceRay(Ray r, int depth) {
 			}
 
 
-			//*************
-			//DIRECT ILLUMINATION
-/*			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
-			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-			AABB gatherBox = AABB(mins,maxes);	
-			vector<photIt> nearPhotons;
-			if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-				for (unsigned int i=0; i< nearPhotons.size(); i++) {
-					color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
-				}
-				color = color / nearPhotons.size();
-			}*/
-			return color;
-			
 		}
 		
 		
