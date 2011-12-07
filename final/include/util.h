@@ -13,6 +13,7 @@
 #define EPSILON 0.001
 #define DEBUG false
 #define T_MAX 400
+#define GATHER_RAYS 10
 
 #define MAXRECURSION 4
 #define MAXLINE 255
@@ -24,5 +25,9 @@ vec3 barycentric(vec4, vec4, vec4, vec4);
 double rand01();
 
 vec3 randomSpherePoint();
+vec3 randomHemispherePoint(vec3);
+vec3 randomHemispherePoint(vec4);
+
+double sum(vec3);
 
 #endif

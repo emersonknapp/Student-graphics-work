@@ -34,3 +34,20 @@ vec3 randomSpherePoint() {
 	return vec3(x, y, z);
 
 }
+
+vec3 randomHemispherePoint(vec3 normal) {
+	vec3 point = randomSpherePoint();
+	float cosangle = normal * point;
+	if (cosangle < 0) {
+		return -point;
+	} 
+	return point;
+}
+
+vec3 randomHemispherePoint(vec4 normal) {
+	return randomHemispherePoint(normal.dehomogenize());
+}
+
+double sum(vec3 v) {
+	return v[0] + v[1] + v[2];
+}

@@ -132,9 +132,8 @@ vec3 diffuseRayColor(Ray r) {
 				//color += vec3(.05, 0, 0);
 				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
-//			color = color / nearPhotons.size();
-			color = color / (PI*pow(viewport.gatherEpsilon, 2.0f));
-			//color = color / nearPhotons.size(); <-- we might need this? not sure
+			//color = color / nearPhotons.size();
+			color = (2/3) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 		}
 	}
 	return color;
@@ -174,9 +173,9 @@ vec3 traceRay(Ray r, int depth) {
 		if (viewport.photons) {
 			//****************
 			//INDIRECT ILLUMINATION
-			int numGatherRays = 100;
+		
 			#pragma omp parallel for shared(color)
-			for (int i = 0; i < numGatherRays; i++) {
+			for (int i = 0; i < GATHER_RAYS; i++) {
 				vec3 point = randomSpherePoint();
 				
 				float cosangle = normal * vec4(point,0);
@@ -187,7 +186,9 @@ vec3 traceRay(Ray r, int depth) {
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / numGatherRays;
+				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / GATHER_RAYS;
+				//color += diffuseRayColor(diffuseRay) / numGatherRays;
+				
 			}
 
 
@@ -203,6 +204,8 @@ vec3 traceRay(Ray r, int depth) {
 				}
 				color = color / nearPhotons.size();
 			}*/
+			return color;
+			
 		}
 		
 		
@@ -287,42 +290,55 @@ void tracePhoton(Photon* phot, int photonDepth) {
 	hasHit = scene->rayIntersect(*phot, t, renderableIndex);
 
 	if (hasHit) {
+		vec4 hitPoint = phot->pos + t*phot->dir;
 		Renderable* rend = scene->renderables[renderableIndex];
 		Material mat = rend->material;
 		vec3 kd = mat.kd;
 		vec3 ks = mat.ks;
-		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
-		float probAbsorb = 1 - probReflect;
-		float randPick = rand01();
 		
-		vec4 hitPoint = phot->pos + t*phot->dir;
+		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
+		//float probAbsorb = 1 - probReflect;
+		float randPick = rand01();
 		
 		
 		if (randPick < probReflect) {
-			cout << probReflect << " reflecting photon from " << hitPoint << endl;
+			vec4 normal = rend->normal(hitPoint);
+			vec3 n = -normal.dehomogenize();
+			vec3 d = phot->dir.dehomogenize();
+			n.normalize();
+			d.normalize();
+
+			vec3 refl = d - 2*(d*n)*n;
+			refl.normalize();
+			Photon* reflPhoton;
+			
+			double probDiffuseReflect = sum(kd) / (sum(kd)+sum(ks));
+			phot->pos = hitPoint;
+			
+			if (randPick < probDiffuseReflect) {
+				cout << "Diffuse reflection from " << hitPoint << endl;
+				scene->photons.push_back(phot);
+				reflPhoton = new Photon(hitPoint + EPSILON*normal, randomHemispherePoint(normal), phot->color);
+			} else {
+				cout << "Specular reflection from " << hitPoint << endl;
+				phot->dir = vec4(refl, 0);
+				reflPhoton = phot;
+			}
+			
+			tracePhoton(reflPhoton, photonDepth+1);
+			/*
+
+
+			phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal);
+			
+
+			*/
 		} else {
-			cout << probAbsorb << " absorbing photon from " << hitPoint << endl;
+			cout << "Absorbed at " << hitPoint << endl;
+			phot->pos = hitPoint;
+			scene->photons.push_back(phot);
 		}
 		
-		
-		
-		vec4 normal = rend->normal(hitPoint);
-		
-		vec3 n = -normal.dehomogenize();
-		vec3 d = phot->dir.dehomogenize();
-		n.normalize();
-		d.normalize();
-		
-		vec3 refl = d - 2*(d*n)*n;
-		refl.normalize();
-
-		phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal);
-		phot->pos = hitPoint;
-		scene->photons.push_back(phot);
-
-		Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), phot->color);
-
-		tracePhoton(newPhot, photonDepth+1);
 	}
 }
 
