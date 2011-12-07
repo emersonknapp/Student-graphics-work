@@ -275,7 +275,6 @@ vec3 traceRay(Ray r, int depth) {
 
 
 void tracePhoton(Photon* phot, int photonDepth) {
-
 	if (photonDepth > MAXRECURSION) {
 		return;
 	}
@@ -288,7 +287,24 @@ void tracePhoton(Photon* phot, int photonDepth) {
 
 	if (hasHit) {
 		Renderable* rend = scene->renderables[renderableIndex];
+		Material mat = rend->material;
+		vec3 kd = mat.kd;
+		vec3 ks = mat.ks;
+		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
+		float probAbsorb = 1 - probReflect;
+		float randPick = rand01();
+		
 		vec4 hitPoint = phot->pos + t*phot->dir;
+		
+		
+		if (randPick < probReflect) {
+			cout << probReflect << " reflecting photon from " << hitPoint << endl;
+		} else {
+			cout << probAbsorb << " absorbing photon from " << hitPoint << endl;
+		}
+		
+		
+		
 		vec4 normal = rend->normal(hitPoint);
 		
 		vec3 n = -normal.dehomogenize();
@@ -322,7 +338,7 @@ void photonCannon() {
 	}
 	//store photons that hit a renderable into kdtree
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
-//	scene->photonTree->print(0);
+
 }
 
 //***************************************************
