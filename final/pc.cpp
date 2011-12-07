@@ -129,11 +129,11 @@ vec3 diffuseRayColor(Ray r) {
 		vector<photIt> nearPhotons;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			for (size_t i=0; i< nearPhotons.size(); i++) {
+				//color += vec3(.05, 0, 0);
 				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
-//			color = color / nearPhotons.size();
-			color = color / (PI*pow(viewport.gatherEpsilon, 2.0f));
-			//color = color / nearPhotons.size(); <-- we might need this? not sure
+			//color = color / nearPhotons.size();
+			color = (2/3) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 		}
 	}
 	return color;
@@ -173,10 +173,9 @@ vec3 traceRay(Ray r, int depth) {
 		if (viewport.photons) {
 			//****************
 			//INDIRECT ILLUMINATION
-			vec3 diffuseColor = vec3(0,0,0);
-			int numGatherRays = 50;
-			//#pragma omp parallel for
-			for (int i = 0; i < numGatherRays; i++) {
+		
+			#pragma omp parallel for shared(color)
+			for (int i = 0; i < GATHER_RAYS; i++) {
 				vec3 point = randomSpherePoint();
 				
 				float cosangle = normal * vec4(point,0);
@@ -187,10 +186,11 @@ vec3 traceRay(Ray r, int depth) {
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				diffuseColor += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal);
+				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / GATHER_RAYS;
+				//color += diffuseRayColor(diffuseRay) / numGatherRays;
+				
 			}
-			color += diffuseColor / numGatherRays;
-			//color += diffuseColor / 100;
+
 
 			//*************
 			//DIRECT ILLUMINATION
@@ -204,6 +204,8 @@ vec3 traceRay(Ray r, int depth) {
 				}
 				color = color / nearPhotons.size();
 			}*/
+			return color;
+			
 		}
 		
 		
@@ -277,7 +279,6 @@ vec3 traceRay(Ray r, int depth) {
 
 
 void tracePhoton(Photon* phot, int photonDepth) {
-
 	if (photonDepth > MAXRECURSION) {
 		return;
 	}
@@ -289,15 +290,57 @@ void tracePhoton(Photon* phot, int photonDepth) {
 	hasHit = scene->rayIntersect(*phot, t, renderableIndex);
 
 	if (hasHit) {
-		Renderable* rend = scene->renderables[renderableIndex];
 		vec4 hitPoint = phot->pos + t*phot->dir;
-		vec4 normal = rend->normal(hitPoint);
+		Renderable* rend = scene->renderables[renderableIndex];
+		Material mat = rend->material;
+		vec3 kd = mat.kd;
+		vec3 ks = mat.ks;
 		
-		vec3 n = -normal.dehomogenize();
-		vec3 d = phot->dir.dehomogenize();
-		n.normalize();
-		d.normalize();
+		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
+		//float probAbsorb = 1 - probReflect;
+		float randPick = rand01();
 		
+<<<<<<< HEAD
+		
+		if (randPick < probReflect) {
+			vec4 normal = rend->normal(hitPoint);
+			vec3 n = -normal.dehomogenize();
+			vec3 d = phot->dir.dehomogenize();
+			n.normalize();
+			d.normalize();
+
+			vec3 refl = d - 2*(d*n)*n;
+			refl.normalize();
+			Photon* reflPhoton;
+			
+			double probDiffuseReflect = sum(kd) / (sum(kd)+sum(ks));
+			phot->pos = hitPoint;
+			
+			if (randPick < probDiffuseReflect) {
+				cout << "Diffuse reflection from " << hitPoint << endl;
+				scene->photons.push_back(phot);
+				reflPhoton = new Photon(hitPoint + EPSILON*normal, randomHemispherePoint(normal), phot->color);
+			} else {
+				cout << "Specular reflection from " << hitPoint << endl;
+				phot->dir = vec4(refl, 0);
+				reflPhoton = phot;
+			}
+			
+			tracePhoton(reflPhoton, photonDepth+1);
+			/*
+
+
+			phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal);
+			
+
+			*/
+		} else {
+			cout << "Absorbed at " << hitPoint << endl;
+			phot->pos = hitPoint;
+			scene->photons.push_back(phot);
+		}
+		
+		/*
 		phot->color = prod(rend->material.kd,phot->color) * max(0.0, -phot->dir * normal);
 		phot->pos = hitPoint;
 
@@ -335,7 +378,7 @@ void tracePhoton(Photon* phot, int photonDepth) {
 		else { //absorption 
 			scene->photons.push_back(phot);
 		}
-
+		*/
 
 	}
 }
@@ -353,7 +396,7 @@ void photonCannon() {
 	}
 	//store photons that hit a renderable into kdtree
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
-//	scene->photonTree->print(0);
+
 }
 
 //***************************************************
