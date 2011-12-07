@@ -61,7 +61,6 @@ public:
 	bool gatherPhotons(AABB*, vector<photIt>&);
 	void print(int);
 	void makeAABB();
-
 protected:
 	PhotonTree* leftChild;
 	PhotonTree* rightChild;
