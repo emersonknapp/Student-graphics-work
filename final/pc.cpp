@@ -80,7 +80,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		float t = T_MAX;
 		int renderableIndex=-1;
 
-		
 		//shadow ray
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
 		shadePixel = !(scene->rayIntersect(lightCheck, t, renderableIndex));
@@ -118,9 +117,6 @@ vec3 diffuseRayColor(Ray r) {
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	if (hasHit) {
-		//EMERSON: so, if we just do return vec3(1,0,0) here, we get red pixels everywhere, as we should
-		//BUT, if inside the for loop we do color+=vec3(1,0,0), we get red circles, which have radius
-		//gatherEpsilon or some shit
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
@@ -132,7 +128,6 @@ vec3 diffuseRayColor(Ray r) {
 				//color += vec3(.05, 0, 0);
 				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
 			}
-			//color = color / nearPhotons.size();
 			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 			
 		}
@@ -169,27 +164,21 @@ vec3 traceRay(Ray r, int depth) {
 		if (viewport.photons) {
 			//****************
 			//INDIRECT ILLUMINATION
-		
+			int gather_rays = 50;
 			#pragma omp parallel for shared(color)
-			for (int i = 0; i < GATHER_RAYS; i++) {
-				vec3 point = randomSpherePoint();
+			for (int i = 0; i < gather_rays; i++) {
+				vec3 point = randomHemispherePoint(normal);
 				
-				float cosangle = normal * vec4(point,0);
-				if (cosangle < 0) {
-					i--;
-					continue;
-				}
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / GATHER_RAYS;
+				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)gather_rays;
 				//color += diffuseRayColor(diffuseRay) / numGatherRays;
 				
 			}
-
-
 		}
-		
+		//cout << color << endl;
+		return color;
 		
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
@@ -282,7 +271,6 @@ void tracePhoton(Photon* phot, int photonDepth) {
 		//float probAbsorb = 1 - probReflect;
 		float randPick = rand01();
 		
-<<<<<<< HEAD
 		
 		if (randPick < probReflect) {
 			vec4 normal = rend->normal(hitPoint);
@@ -299,30 +287,25 @@ void tracePhoton(Photon* phot, int photonDepth) {
 			phot->pos = hitPoint;
 			
 			if (randPick < probDiffuseReflect) {
-				cout << "Diffuse reflection from " << hitPoint << endl;
+				//Diffuse reflection
 				scene->photons.push_back(phot);
 				reflPhoton = new Photon(hitPoint + EPSILON*normal, randomHemispherePoint(normal), phot->color);
 			} else {
-				cout << "Specular reflection from " << hitPoint << endl;
+				//Specular reflection
 				phot->dir = vec4(refl, 0);
 				reflPhoton = phot;
 			}
-			
 			tracePhoton(reflPhoton, photonDepth+1);
-			/*
-
-
-			phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal);
-			
-
-			*/
+			/* phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal); */
 		} else {
-			cout << "Absorbed at " << hitPoint << endl;
-			phot->pos = hitPoint;
-			scene->photons.push_back(phot);
+			//Absorbed
+			//Absorbed light dies
+			//phot->pos = hitPoint;
+			//scene->photons.push_back(phot);
 		}
 		
-		/*
+		/* Harry's russian roulette
+		{
 		phot->color = prod(rend->material.kd,phot->color) * max(0.0, -phot->dir * normal);
 		phot->pos = hitPoint;
 
@@ -359,6 +342,7 @@ void tracePhoton(Photon* phot, int photonDepth) {
 		}
 		else { //absorption 
 			scene->photons.push_back(phot);
+		}
 		}
 		*/
 
