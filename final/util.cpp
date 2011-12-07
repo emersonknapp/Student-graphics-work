@@ -48,6 +48,19 @@ vec3 randomHemispherePoint(vec4 normal) {
 	return randomHemispherePoint(normal.dehomogenize());
 }
 
+vec3 randomCirclePoint(vec3 normal) {
+	//generate random sphere points and then change the z components so that the
+	//points are perpendicular to the normal
+	normal.normalize();
+	vec3 point = randomSpherePoint();
+	point[2] = -(point[0]*normal[0] + point[1]*normal[1]) / normal[2];
+	return point;
+}
+
+vec4 randomCirclePoint(vec4 normal) {
+	return randomCirclePoint(normal.dehomogenize());
+}
+
 double sum(vec3 v) {
 	return v[0] + v[1] + v[2];
 }

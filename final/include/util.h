@@ -27,6 +27,8 @@ double rand01();
 vec3 randomSpherePoint();
 vec3 randomHemispherePoint(vec3);
 vec3 randomHemispherePoint(vec4);
+vec3 randomCirclePoint(vec3);
+vec4 randomCirclePoint(vec4);
 
 double sum(vec3);
 

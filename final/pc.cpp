@@ -176,9 +176,9 @@ vec3 traceRay(Ray r, int depth) {
 				//color += diffuseRayColor(diffuseRay) / numGatherRays;
 				
 			}
+			return color;
 		}
 		//cout << color << endl;
-		return color;
 		
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
