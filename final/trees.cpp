@@ -80,14 +80,14 @@ void PhotonTree::makeAABB() {
 	}
 }
 
-bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
+bool PhotonTree::gatherPhotons(AABB* hitPoint, priority_queue<photIt,vector<photIt>,distCompare>& photons) {
 	if (aabb->intersect(hitPoint)) {
 		if (leafNode) {
 			float radius = (hitPoint->maxes[0] - hitPoint->mins[0])/2.0;
 			vec3 center = hitPoint->maxes - vec3(radius, radius, radius);
 			for (photIt it = myBegin; it != myEnd; ++it) {
-				if ((((*it)->pos.dehomogenize())-center).length() <= radius) {
-					photons.push_back(it);
+				if ((((*it)->pos.dehomogenize())-center).length2() <= radius*radius) {
+					photons.push(it);
 				}
 			}
 		} else {

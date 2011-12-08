@@ -123,11 +123,13 @@ vec3 diffuseRayColor(Ray r) {
 		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-		AABB gatherBox = AABB(mins,maxes);	
-		vector<photIt> nearPhotons;
+		AABB gatherBox = AABB(mins,maxes);
+		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
+		
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-			for (size_t i=0; i< nearPhotons.size(); i++) {
-				color += (*nearPhotons[i])->color;
+			while (!nearPhotons.empty()) {
+				color += (*(nearPhotons.top()))->color;
+				nearPhotons.pop();
 			}
 			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 			
@@ -181,8 +183,8 @@ vec3 traceRay(Ray r, int depth) {
 				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
 				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
 			}
-			diffuseRay = Ray(hitPoint+EPSILON*normal, -normal);
-			color += diffuseRayColor(diffuseRay);
+			//diffuseRay = Ray(hitPoint+EPSILON*normal, -normal);
+			//color += diffuseRayColor(diffuseRay);
 		}
 		return color;	
 		//*************
