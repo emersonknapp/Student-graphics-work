@@ -81,12 +81,26 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		bool shadePixel = true;
 		float t = T_MAX;
 		int renderableIndex=-1;
+		vec3 shadColor = vec3(0,0,0);
 
 		//shadow ray
-		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
-		(scene->rayIntersect(lightCheck, t, renderableIndex));
-		shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
-
+		if (!viewport.photons) {
+			Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
+			(scene->rayIntersect(lightCheck, t, renderableIndex));
+			shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
+		} else {
+			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+			AABB gatherBox = AABB(mins,maxes);	
+			priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
+			scene->shadowHedge->gatherPhotons(&gatherBox,nearPhotons);
+			int numShadowPhotons = nearPhotons.size();
+			while (!nearPhotons.empty()) {
+				shadColor -= (*nearPhotons.top())->color;
+				nearPhotons.pop();
+			}
+		}
+		
 		if (shadePixel) {
 			material = scene->renderables[index]->material;
 			vec3 lightColor = currentLight->intensity;
@@ -96,25 +110,31 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			viewVector.normalize();
 			vec3 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			reflectionVector.normalize();
-			
+		
 			//Diffuse term
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
-			
+		
 		}
+		
+		shadColor = shadColor / ((2.0/3.0)*(PI*pow(viewport.gatherEpsilon, 3.0f)));
+		//shadColor =  shadColor / (2.0*PI*pow(viewport.gatherEpsilon, 2.0f));
+		
+		color -= shadColor;
+		color[0] = max(color[0], 0.0);
+		color[1] = max(color[1], 0.0);
+		color[2] = max(color[2], 0.0);
+		
+
 		
 	}
 	//cout << color << endl;
+
 	
-	vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
-	vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-	AABB gatherBox = AABB(mins,maxes);	
-	priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
-	scene->shadowHedge->gatherPhotons(&gatherBox,nearPhotons);
-	int numShadowPhotons = nearPhotons.size();
+	
 	return color;
 }
 
@@ -195,6 +215,7 @@ vec3 traceRay(Ray r, int depth) {
 			//****************
 			//INDIRECT ILLUMINATION
 			Ray diffuseRay;
+			
 			#pragma omp parallel for shared(color)
 			for (int i = 0; i < GATHER_RAYS; i++) {
 				vec3 point = randomHemispherePoint(normal);
@@ -204,6 +225,7 @@ vec3 traceRay(Ray r, int depth) {
 				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
 				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
 			}
+			
 			
 			//calculate causticsss
 			if (viewport.causticPhotonsPerLight > 0) {
@@ -351,18 +373,19 @@ void tracePhoton(Photon* phot, int reflDepth) {
 		vec3 ks = mat.ks;
 		//******
 		// Shadow Photons
-		
-		Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, -phot->color);
-		float shadowT = T_MAX;
-		int tmpRenderable = -1;
-		if (scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable)) {
-			if (tmpRenderable == renderableIndex) {
-				shadowPhoton->pos = shadowPhoton->pos + (shadowT+EPSILON) * shadowPhoton->dir;
-				shadowT = T_MAX;
-				scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable);
+		if (reflDepth == 0) {
+			Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, -phot->color);
+			float shadowT = T_MAX;
+			int tmpRenderable = -1;
+			if (scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable)) {
+				if (tmpRenderable == renderableIndex) {
+					shadowPhoton->pos = shadowPhoton->pos + (shadowT+EPSILON) * shadowPhoton->dir;
+					shadowT = T_MAX;
+					scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable);
+				}
+				shadowPhoton->pos = shadowPhoton->pos + shadowT * shadowPhoton->dir;
+				scene->shadowPhotons.push_back(shadowPhoton);
 			}
-			shadowPhoton->pos = shadowPhoton->pos + shadowT * shadowPhoton->dir;
-			scene->shadowPhotons.push_back(shadowPhoton);
 		}
 		
 		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
