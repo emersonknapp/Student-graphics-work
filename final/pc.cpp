@@ -290,22 +290,28 @@ void tracePhoton(Photon* phot, int reflDepth) {
 			vec3 refl = d - 2*(d*n)*n;
 			refl.normalize();
 						
-			double probDiffuseReflect = sum(kd) / (sum(kd)+sum(ks));
+			double probDiffuseReflect = sum(kd) / (sum(kd)+sum(ks)) * probReflect;
+			double probSpecularReflect = probReflect - probDiffuseReflect;
 			phot->pos = hitPoint;
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
-				vec3 newColor = prod(kd, phot->color)*max((d*n), 0.0);
+				
+				vec3 newColor = prod(kd, phot->color)/probDiffuseReflect;
 				scene->photons.push_back(phot);
 				vec3 newDir = randomHemispherePoint(normal);
-				//cout << normal << newDir << endl;
 				Photon* reflPhoton = new Photon(phot->pos, newDir, newColor);
 				tracePhoton(reflPhoton, reflDepth+1);
 				
 			} else {
-				//Specular reflection
-				phot->dir = vec4(refl, 0);
-				tracePhoton(phot, reflDepth+1);
-				
+				if (mat.ri > 0) {
+					//Refraction
+					
+				} else {
+					//Specular reflection
+					phot->dir = vec4(refl, 0);
+					phot->color = prod(ks, phot->color)/probSpecularReflect;
+					tracePhoton(phot, reflDepth+1);
+				}
 			}
 		} else {
 			//Absorboloth.
