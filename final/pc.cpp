@@ -202,6 +202,30 @@ vec3 traceRay(Ray r, int depth) {
 		
 		// *******************************
 		// COMPUTE REFRACTION
+		/*
+		float cosTheta = r.dir * normal;
+		float riOld, riNew;
+		vec4 refracted;
+		vec3 norm = normal.dehomogenize();
+		if (cosTheta < 0) { 
+			//Ray hits outside of object
+			riOld = 1.0;
+			riNew = rend->material.ri;
+		} else {
+			//Ray hits inside of object
+			riOld = rend->material.ri;
+			riNew = 1.0;
+		}
+		float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
+		if (cos2Phi > 0) {
+			//not totally internally reflected
+			refracted = (riOld * (r.dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+			Ray refractedRay = Ray(hitPoint + EPSILON*normal, refracted);
+			traceRay(refractedRay, depth+1);
+		} else; //Totally internally reflected
+		*/
+		
+		/* {			
 		if (rend->material.ri > 0) {
 
 			float c1 = (n*d);
@@ -239,6 +263,7 @@ vec3 traceRay(Ray r, int depth) {
 				color += refractedColor;
 			} 
 		}
+		}*/
 		
 		/// *******************************
 		// COMPUTE REFLECTION
@@ -306,7 +331,6 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				
 			} else {
 				if (mat.ri > 0) {
-					//cout << "r ";
 					//Refraction
 					float cosTheta = phot->dir * normal;
 					float riOld, riNew;
@@ -329,8 +353,6 @@ void tracePhoton(Photon* phot, int reflDepth) {
 						phot->pos = hitPoint;
 						tracePhoton(phot, reflDepth+1);
 					} else; //Totally internally reflected
-						
-					
 				} else {
 					//Specular reflection
 					phot->dir = vec4(refl, 0);
@@ -338,9 +360,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 					tracePhoton(phot, reflDepth+1);
 				}
 			}
-		} else {
-			//Absorboloth. <-- I like that!
-		}
+		} else; //Absorboloth. <-- I like that!
 	}
 }
 
