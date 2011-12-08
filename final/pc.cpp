@@ -352,7 +352,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 		//******
 		// Shadow Photons
 		
-		Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, vec3(1,0,0));
+		Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, -phot->color);
 		float shadowT = T_MAX;
 		int tmpRenderable = -1;
 		if (scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable)) {
