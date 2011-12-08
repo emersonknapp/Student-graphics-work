@@ -30,11 +30,14 @@ public:
 	int lastTextureVertex;
 	int lastVertexNormal;
 	vector<Renderable*> renderables;
+	vector<Renderable*> caustics;
 	vector<Light*> lights;
 	vector<Photon*> photons;
+	vector<Photon*> causticPhotons;
 	Camera * camera;
 	KDTree* kdTree;
 	PhotonTree* photonTree;
+	PhotonTree* causticBush;
 	int photonsPerLight;
 	
 	vec3 ambience; /* Ambient light color */

@@ -52,7 +52,8 @@ void Usage() {
 	<< "        -a: antialiasing, n-by-n rays per pixel, defaults to 1" << endl
 	<< "		-j: uses jittery antialiasing (still requires -a)" << endl
 	<< "		-ph: how many photons to shoot out (in thousands) (if not specified, defaults to FUCKYOU)" << endl
-	<< "		-e: epsilon for photon gathering" << endl;	
+	<< "		-e: epsilon for photon gathering" << endl
+	<< "		-c: number of caustic photons (in thousands) (defaults to 0)" << endl;
 	quitProgram(0);
 }
 
@@ -295,11 +296,12 @@ void tracePhoton(Photon* phot, int reflDepth) {
 			phot->pos = hitPoint;
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
-				
 				vec3 newColor = prod(kd, phot->color)/probDiffuseReflect;
-				scene->photons.push_back(phot);
+				if (phot->caustic) scene->photons.push_back(phot);
+				else scene->photons.push_back(phot);
 				vec3 newDir = randomHemispherePoint(normal);
 				Photon* reflPhoton = new Photon(phot->pos, newDir, newColor);
+
 				tracePhoton(reflPhoton, reflDepth+1);
 				
 			} else {
@@ -337,9 +339,8 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				}
 			}
 		} else {
-			//Absorboloth.
+			//Absorboloth. <-- I like that!
 		}
-
 	}
 }
 
@@ -360,6 +361,33 @@ void photonCannon() {
 	cout << scene->photons.size() << endl;
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
 
+}
+
+void causticPistol() {
+	if (viewport.causticPhotonsPerLight == 0) return;
+	// shoot photons at the caustic thingies
+	// don't want these to bounce...but how?
+	vector<Photon*> causticAura;
+	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
+		Light* currentLight = *it;
+		for (vector<Renderable*>::iterator ct = scene->caustics.begin(); ct != scene->caustics.end(); ++ ct) {
+			Renderable* currentCaustic = *ct;
+			vec3 photensity = (currentLight->power * currentLight->intensity) / viewport.causticPhotonsPerLight;
+			for (int i = 0 ; i < viewport.causticPhotonsPerLight; i++) {
+				vec4 photonDir = currentCaustic->randomSurfacePoint() - currentLight->pos;
+				Photon* photon = new Photon(currentLight->pos, photonDir, photensity);
+				photon->color = vec3(1,0,0);
+				photon->caustic = true;
+				causticAura.push_back(photon);
+			}
+		}
+	}
+	for (photIt phot = causticAura.begin(); phot != causticAura.end(); ++phot) {
+		tracePhoton(*phot, max(PHOTCURSION-1,0));
+	}
+
+	// construct tree
+	scene->causticBush = new PhotonTree(scene->causticPhotons.begin(), scene->causticPhotons.end(), 0, scene);
 }
 
 //***************************************************
@@ -445,6 +473,8 @@ void processArgs(int argc, char* argv[]) {
 			viewport.photonsPerLight = atof(argv[++i]) * 1000;
 		} else if (arg.compare("-e")==0) {
 			viewport.gatherEpsilon = atof(argv[++i]);
+		} else if (arg.compare("-c")==0) {
+			viewport.causticPhotonsPerLight = atof(argv[++i]) * 1000;
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();
@@ -468,7 +498,10 @@ int main(int argc, char *argv[]) {
 	scene = new Scene();
 
 	processArgs(argc, argv);
-	if (viewport.photons) photonCannon();
+	if (viewport.photons) {
+		photonCannon();
+		causticPistol();
+	}
 	render();
 
   	return 0;
