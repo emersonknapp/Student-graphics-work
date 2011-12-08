@@ -114,9 +114,22 @@ void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s
 		else if (pos[i]<0) center[i] = s->maxes[i];
 	}
 	center[3] = 1;
+	
+	// find max distance between min/max in aabb tree
+	
+	float max = INT_MIN;
+	float tmp;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			tmp = (s->maxes[i] - s->mins[j]).length();
+			if (tmp > max) max = tmp;
+		}
+	}
+
+
 	for (int i=0; i<numPhots; i++) {
-		scale = rand01();
-		vec4 photonPos = center + vec4(randomCirclePoint(center),0);
+		scale = max * rand01();
+		vec4 photonPos = center + scale * vec4(randomCirclePoint(center),0);
 		vec4 photonDir = pos;
 		Photon* photon = new Photon(photonPos, photonDir, intensity);
 		photonCloud.push_back(photon);
