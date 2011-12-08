@@ -54,7 +54,7 @@
 			<key>filename</key>
 			<string>classes.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-12-03T08:50:29Z</date>
+			<date>2011-12-08T09:05:04Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -430,11 +430,7 @@
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
-	<key>showFileHierarchyPanel</key>
-	<true/>
-	<key>treeState</key>
-	<dict/>
 	<key>windowFrame</key>
-	<string>{{0, 0}, {1276, 778}}</string>
+	<string>{{0, 4}, {1276, 774}}</string>
 </dict>
 </plist>

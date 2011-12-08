@@ -1,4 +1,4 @@
-dl 0 0 -1 1 1 1
+dl 0 0 -1 1 1 1 100
 
 translate 0 0 18
 cam
