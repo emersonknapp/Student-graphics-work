@@ -31,10 +31,12 @@ Ray::Ray(vec4 a, vec4 b) {
 }	
 
 Photon::Photon() : Ray() {
+	caustic = false;
 	color = vec3(0,0,0);
 }
 
 Photon::Photon(vec4 a, vec4 b, vec3 c) : Ray(a, b) {
+	caustic = false;
 	color = c;
 }
 
@@ -67,7 +69,9 @@ Viewport::Viewport () {
 	aliasing = 0;
 	jittery = false;
 	photons = false; 
+	rawPhotons = false;
 	causticPhotonsPerLight = 0;
+	gatherEpsilon = .1;
 }
 Viewport::Viewport (int width, int height) {
 	w = width;
@@ -75,7 +79,9 @@ Viewport::Viewport (int width, int height) {
 	aliasing = 0;
 	jittery = false;
 	photons = false;
+	rawPhotons = false;
 	causticPhotonsPerLight = 0;
+	gatherEpsilon = .1;
 }
 
 PLight::PLight(vec4 p, vec3 i) {
@@ -100,7 +106,6 @@ vec4 PLight::lightVector(vec4 origin) {
 
 void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
 	vec3 photensity = (power*intensity)/numPhots;
-	cout << photensity << endl;
 	for (int i=0; i<numPhots; i++) {
 		vec3 photonDir = randomSpherePoint(); 
 		Photon* photon = new Photon(pos, vec4(photonDir,0), photensity);

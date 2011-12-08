@@ -78,7 +78,7 @@ void Scene::earClip(string line) {
 		int l, vt, vn;
 		vt = vn = -1;
 		l = extractVertex(v, vt, vn);
-		polygonVertices.push_back( l );
+		polygonVertices.push_back( l + objFileIndex);
 		polygonTextureVertices.push_back( vt );
 		polygonVertexNormals.push_back( vn );
 	}
@@ -332,6 +332,8 @@ bool Scene::parseLine(string line) {
 }
 
 void Scene::parseScene(string filename) {
+	objFileIndex = lastVertex;
+
 	ifstream inFile(filename.c_str(), ifstream::in);
 	char line[1024];
 

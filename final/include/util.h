@@ -31,6 +31,8 @@ vec3 randomHemispherePoint(vec4);
 vec3 randomCirclePoint(vec3);
 vec4 randomCirclePoint(vec4);
 
+
+
 double sum(vec3);
 
 #endif

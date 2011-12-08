@@ -56,6 +56,7 @@ public:
 class Photon : public Ray {
 public:
 	vec3 color;
+	bool caustic;
 	Photon();
 	Photon(vec4 a, vec4 b, vec3 c);
 };
@@ -72,6 +73,7 @@ public:
 	int photonsPerLight;
 	float gatherEpsilon;
 	int causticPhotonsPerLight;
+	bool rawPhotons;
 };
 
 class Light {
@@ -153,7 +155,7 @@ public:
 	virtual vec4 normal(vec4)=0;
 	virtual vec3 textureColor(vec4)=0;
 	virtual vec4 randomSurfacePoint()=0;
-	
+	virtual float minorArea()=0;	
 	mat3 dehomogenize(mat4 t);
 	
 	virtual float rayIntersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
@@ -175,6 +177,7 @@ public:
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);	
 	vec4 randomSurfacePoint();
+	float minorArea();
 };
 
 class Sphere : public Renderable {
@@ -187,6 +190,7 @@ public:
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);
 	vec4 randomSurfacePoint();
+	float minorArea();
 };
 
 class Triangle : public Renderable {
@@ -203,6 +207,7 @@ public:
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);
 	vec4 randomSurfacePoint();
+	float minorArea();
 };
 
 

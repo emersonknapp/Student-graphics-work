@@ -166,6 +166,10 @@ vec4 Sphere::randomSurfacePoint() {
 	return tmat * point;
 }
 
+float Sphere::minorArea() {
+	return (scalemat*vec4(0,0,1,0)).length2() * PI;
+}
+
 AABB* Sphere::makeAABB() {
 	aabb = new AABB();
 	aabb->mins = vec3(-1,-1,-1);
@@ -313,6 +317,10 @@ vec4 Triangle::randomSurfacePoint() {
 	return v1*a + v2*b + v3*c;
 }
 
+float Triangle::minorArea() {
+	return 0.5 * ( (v3-v1) ^ (v2-v1) ).length();
+}
+
 AABB* Triangle::makeAABB() {
 	//For triangle, just compute bounding box around transformed vertices, easy.
 	vec4 tv1 = tmat*v1;
@@ -337,6 +345,10 @@ Camera::Camera() {
 //shouldn't ever use this
 vec4 Camera::randomSurfacePoint() {
 	return vec4(-1,-1,-1,-1);
+}
+
+float Camera::minorArea() {
+	return -1;
 }
 
 float Camera::rayIntersect (Ray r) {

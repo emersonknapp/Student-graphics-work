@@ -53,7 +53,8 @@ void Usage() {
 	<< "		-j: uses jittery antialiasing (still requires -a)" << endl
 	<< "		-ph: how many photons to shoot out (in thousands) (if not specified, defaults to FUCKYOU)" << endl
 	<< "		-e: epsilon for photon gathering" << endl
-	<< "		-c: number of caustic photons (in thousands) (defaults to 0)" << endl;
+	<< "		-c: number of caustic photons (in thousands) (defaults to 0)" << endl
+	<<"			-r: displays raw photons" << endl;
 	quitProgram(0);
 }
 
@@ -83,8 +84,8 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 
 		//shadow ray
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
-		shadePixel = !(scene->rayIntersect(lightCheck, t, renderableIndex));
-		
+		(scene->rayIntersect(lightCheck, t, renderableIndex));
+		shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
 		if (shadePixel) {
 			material = scene->renderables[index]->material;
 			vec3 lightColor = currentLight->intensity;
@@ -105,6 +106,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		}
 		
 	}
+	//cout << color << endl;
 	return color;
 }
 
@@ -122,11 +124,13 @@ vec3 diffuseRayColor(Ray r) {
 		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-		AABB gatherBox = AABB(mins,maxes);	
-		vector<photIt> nearPhotons;
+		AABB gatherBox = AABB(mins,maxes);
+		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
+		
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-			for (size_t i=0; i< nearPhotons.size(); i++) {
-				color += (*nearPhotons[i])->color;
+			while (!nearPhotons.empty()) {
+				color += (*(nearPhotons.top()))->color;
+				nearPhotons.pop();
 			}
 			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 			
@@ -163,28 +167,42 @@ vec3 traceRay(Ray r, int depth) {
 		// generating diffuse rays
 		if (viewport.photons) {
 			
-			bool rawPhotons = true;
-			if (rawPhotons) {
+			if (viewport.rawPhotons) {
 				Ray photCheck = Ray(r.pos, r.dir);
 				color = diffuseRayColor(photCheck);
 				return color;
 			}
-			return color;
 			//****************
 			//INDIRECT ILLUMINATION
-			int gather_rays = 50;
+			Ray diffuseRay;
 			#pragma omp parallel for shared(color)
-			for (int i = 0; i < gather_rays; i++) {
+			for (int i = 0; i < GATHER_RAYS; i++) {
 				vec3 point = randomHemispherePoint(normal);
 				
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
-				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)gather_rays;
+				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
+				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
 			}
-			return color;
+			//calculate causticsss
+
+			if (viewport.causticPhotonsPerLight > 0) {
+				vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+				vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+				AABB gatherBox = AABB(mins,maxes);	
+				priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
+				if (scene->causticBush->gatherPhotons(&gatherBox,nearPhotons)) {
+					while (!nearPhotons.empty()) {
+						color += (*nearPhotons.top())->color;
+						nearPhotons.pop();
+					}
+					color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
+					
+				}
+			}
+
 		}
-		
+		//return color;	
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
 		color += shade(r, hitPoint, normal, renderableIndex);
@@ -199,28 +217,83 @@ vec3 traceRay(Ray r, int depth) {
 		
 		// *******************************
 		// COMPUTE REFRACTION
-		
-		float cosTheta = r.dir * normal;
-		float riOld, riNew;
-		vec4 refracted;
-		vec3 norm = normal.dehomogenize();
-		if (cosTheta < 0) { 
-			//Ray hits outside of object
-			riOld = 1.0;
-			riNew = rend->material.ri;
-		} else {
-			//Ray hits inside of object
-			riOld = rend->material.ri;
-			riNew = 1.0;
+		if (rend->material.ri > 0) {
+			
+			float c1 = (n*d);
+			float nn;
+			float curRI = 1.0;
+			float newRI = 1.0;
+			// top of the stack is the RI of the material the ray is in. we set curRI to the top(), then push the renderable's RI onto the stack bc that's where the ray is now
+			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
+
+				if (r.ristack.empty()) r.ristack.push_back(1.0);
+				curRI = r.ristack.back();
+				
+				nn = rend->material.ri / curRI;
+				
+				r.ristack.push_back(rend->material.ri);
+				n=-normal.dehomogenize().normalize();
+			} else { // ray hits inside of object, then we know we're going to what we had before (oldRI)
+				curRI = rend->material.ri;
+				if (!r.ristack.empty()) r.ristack.pop_back();
+				if (r.ristack.empty()) newRI = 1.0;
+				else newRI = r.ristack[r.ristack.size()-1];
+				nn = newRI / curRI;
+				n=normal.dehomogenize().normalize();
+			}
+			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
+			if (c2 >= 0.0) {
+				vec3 tmp1 = (nn*d);
+				vec3 tmp2 = (nn*c1-sqrt(c2))*(n);
+				vec3 tmp3 = tmp1 + tmp2;
+				tmp3.normalize();
+				vec4 rayDirection = vec4(tmp3,0);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection);
+				refractedRay.ristack.swap(r.ristack);
+				vec3 refractedColor = traceRay(refractedRay, depth+1);
+				color += refractedColor;
+			} 
 		}
-		float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
-		if (cos2Phi > 0) {
-			//not totally internally reflected
-			refracted = (riOld * (r.dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
-			Ray refractedRay = Ray(hitPoint + EPSILON*normal, refracted);
-			color += traceRay(refractedRay, depth+1);
-		} else; //Totally internally reflected
 		
+		/* 			
+		if (rend->material.ri > 0) {
+
+			float c1 = (n*d);
+			float nn;
+			float curRI = 1.0;
+			float newRI = 1.0;
+			// top of the stack is the RI of the material the ray is in. we set curRI to the top(), then push the renderable's RI onto the stack bc that's where the ray is now
+			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
+
+				if (r.ristack.empty()) r.ristack.push_back(1.0);
+				curRI = r.ristack.back();
+				
+				nn = rend->material.ri / curRI;
+				
+				r.ristack.push_back(rend->material.ri);
+				n=-normal.dehomogenize().normalize();
+			} else { // ray hits inside of object, then we know we're going to what we had before (oldRI)
+				curRI = rend->material.ri;
+				if (!r.ristack.empty()) r.ristack.pop_back();
+				if (r.ristack.empty()) newRI = 1.0;
+				else newRI = r.ristack[r.ristack.size()-1];
+				nn = newRI / curRI;
+				n=normal.dehomogenize().normalize();
+			}
+			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
+			if (c2 >= 0.0) {
+				vec3 tmp1 = (nn*d);
+				vec3 tmp2 = (nn*c1-sqrt(c2))*(n);
+				vec3 tmp3 = tmp1 + tmp2;
+				tmp3.normalize();
+				vec4 rayDirection = vec4(tmp3,0);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection);
+				refractedRay.ristack.swap(r.ristack);
+				vec3 refractedColor = traceRay(refractedRay, depth+1);
+				color += refractedColor;
+			} 
+		}
+		*/
 		
 		/// *******************************
 		// COMPUTE REFLECTION
@@ -279,7 +352,8 @@ void tracePhoton(Photon* phot, int reflDepth) {
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
 				vec3 newColor = prod(kd, phot->color)/probDiffuseReflect;
-				scene->photons.push_back(phot);
+				if (phot->caustic) scene->causticPhotons.push_back(phot);
+				else scene->photons.push_back(phot);
 				vec3 newDir = randomHemispherePoint(normal);
 				Photon* reflPhoton = new Photon(phot->pos, newDir, newColor);
 
@@ -287,6 +361,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				
 			} else {
 				if (mat.ri > 0) {
+					//cout << "r ";
 					//Refraction
 					float cosTheta = phot->dir * normal;
 					float riOld, riNew;
@@ -309,6 +384,8 @@ void tracePhoton(Photon* phot, int reflDepth) {
 						phot->pos = hitPoint;
 						tracePhoton(phot, reflDepth+1);
 					} else; //Totally internally reflected
+						
+					
 				} else {
 					//Specular reflection
 					phot->dir = vec4(refl, 0);
@@ -316,7 +393,9 @@ void tracePhoton(Photon* phot, int reflDepth) {
 					tracePhoton(phot, reflDepth+1);
 				}
 			}
-		} else; //Absorboloth. <-- I like that!
+		} else {
+			//Absorboloth. <-- I like that!
+		}
 	}
 }
 
@@ -325,18 +404,14 @@ void photonCannon() {
 	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		currentLight->generatePhotons(photonCloud, viewport.photonsPerLight, scene->kdTree->aabb);
+		currentLight->generatePhotons(photonCloud, viewport.causticPhotonsPerLight + viewport.photonsPerLight, scene->kdTree->aabb);
 	}
 	//iterate through photonCloud, push photons that intersect onto scene->photons
 	for (photIt phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
 		tracePhoton(*phot, 0);
 	}
 	//store photons that hit a renderable into kdtree
-	cout << photonCloud.size() << endl;
-	cout << viewport.photonsPerLight << endl;
-	cout << scene->photons.size() << endl;
-	if (viewport.causticPhotonsPerLight == 0) scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
-
+	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
 }
 
 void causticPistol() {
@@ -348,10 +423,14 @@ void causticPistol() {
 		Light* currentLight = *it;
 		for (vector<Renderable*>::iterator ct = scene->caustics.begin(); ct != scene->caustics.end(); ++ ct) {
 			Renderable* currentCaustic = *ct;
-			vec3 photensity = (currentLight->power * currentLight->intensity) / viewport.causticPhotonsPerLight;
+			float greatRadius = (currentLight->pos - vec4(currentCaustic->center,0)).length2();
+			float ratio = currentCaustic->minorArea() / (4 * PI * greatRadius);
+			vec3 photensity = ratio * (currentLight->power * currentLight->intensity) / (viewport.causticPhotonsPerLight+viewport.photonsPerLight);
+			// scale photensity by ratio
 			for (int i = 0 ; i < viewport.causticPhotonsPerLight; i++) {
 				vec4 photonDir = currentCaustic->randomSurfacePoint() - currentLight->pos;
 				Photon* photon = new Photon(currentLight->pos, photonDir, photensity);
+				photon->caustic = true;
 				causticAura.push_back(photon);
 			}
 		}
@@ -360,7 +439,7 @@ void causticPistol() {
 		tracePhoton(*phot, max(PHOTCURSION-1,0));
 	}
 
-	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
+	scene->causticBush = new PhotonTree(scene->causticPhotons.begin(), scene->causticPhotons.end(), 0, scene);
 
 }
 
@@ -422,11 +501,11 @@ void processArgs(int argc, char* argv[]) {
 	}
 	
 	string arg;
-	string sceneFile = "";
+	vector<string> sceneFiles;
 	for (int i=1; i<argc; i++) {
 		arg = argv[i];
 		if (arg.compare("-s") == 0 || arg.compare("--scene") == 0) {
-			sceneFile = argv[++i];
+			sceneFiles.push_back(argv[++i]);
 		} else if (arg.compare("-pr")==0 || arg.compare("--print")==0) {
 			imageWriter->fileName = argv[++i];
 		} else if (arg.compare("-px") == 0 || arg.compare("--pixels")==0) {
@@ -449,15 +528,16 @@ void processArgs(int argc, char* argv[]) {
 			viewport.gatherEpsilon = atof(argv[++i]);
 		} else if (arg.compare("-c")==0) {
 			viewport.causticPhotonsPerLight = atof(argv[++i]) * 1000;
+		} else if (arg.compare("-r")==0) {
+			viewport.rawPhotons=true;
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();
 		}
 	}
-	if (sceneFile.length()>0) {
-		scene->parseScene(sceneFile);	
+	for (unsigned int i=0; i<sceneFiles.size(); i++) {
+		scene->parseScene(sceneFiles[i]);	
 	}
-	
 }
 
 //****************************************************
