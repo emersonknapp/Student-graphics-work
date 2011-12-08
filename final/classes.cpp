@@ -31,10 +31,12 @@ Ray::Ray(vec4 a, vec4 b) {
 }	
 
 Photon::Photon() : Ray() {
+	caustic = false;
 	color = vec3(0,0,0);
 }
 
 Photon::Photon(vec4 a, vec4 b, vec3 c) : Ray(a, b) {
+	caustic = false;
 	color = c;
 }
 
