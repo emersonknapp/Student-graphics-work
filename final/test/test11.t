@@ -1,6 +1,6 @@
 #room with a glass slab
 
-pl 5 5 5 1 1 1 100
+pl 0 0 10 1 1 1 100
 
 translate 0 0 20
 rotate 0 0 0
@@ -62,23 +62,27 @@ f 7 8 4
 
 #faces of glass slab
 kd 0 0 0
-ks 0 0 0
-ri 1.3
-f 9 11 12
-f 9 10 11
+ks 1 1 1
+sp 50
+kr 0 0 0
+ri 1.5
 
-f 13 15 16
-f 13 14 15
+translate 0 0 0
+rotate -.5 .5 0
+
+f 9 10 11 12
 
 #sides of glass slab
-f 14 11 15
-f 14 10 11
+#f 14 11 15
+#f 14 10 11
 
-f 15 12 16
-f 15 11 12
+#f 15 12 16
+#f 15 11 12
 
-f 16 9 13
-f 16 12 9
+#f 16 9 13
+#f 16 12 9
 
-f 13 10 14
-f 13 9 10
+#f 13 10 14
+#f 13 9 10
+
+ct
