@@ -72,6 +72,7 @@ public:
 	int photonsPerLight;
 	float gatherEpsilon;
 	int causticPhotonsPerLight;
+	bool rawPhotons;
 };
 
 class Light {

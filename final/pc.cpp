@@ -53,7 +53,8 @@ void Usage() {
 	<< "		-j: uses jittery antialiasing (still requires -a)" << endl
 	<< "		-ph: how many photons to shoot out (in thousands) (if not specified, defaults to FUCKYOU)" << endl
 	<< "		-e: epsilon for photon gathering" << endl
-	<< "		-c: number of caustic photons (in thousands) (defaults to 0)" << endl;
+	<< "		-c: number of caustic photons (in thousands) (defaults to 0)" << endl
+	<<"			-r: displays raw photons" << endl;
 	quitProgram(0);
 }
 
@@ -163,28 +164,27 @@ vec3 traceRay(Ray r, int depth) {
 		// generating diffuse rays
 		if (viewport.photons) {
 			
-			bool rawPhotons = true;
-			if (rawPhotons) {
+			if (viewport.rawPhotons) {
 				Ray photCheck = Ray(r.pos, r.dir);
 				color = diffuseRayColor(photCheck);
 				return color;
 			}
-			return color;
 			//****************
 			//INDIRECT ILLUMINATION
-			int gather_rays = 50;
+			Ray diffuseRay;
 			#pragma omp parallel for shared(color)
-			for (int i = 0; i < gather_rays; i++) {
+			for (int i = 0; i < GATHER_RAYS; i++) {
 				vec3 point = randomHemispherePoint(normal);
 				
 				vec4 diffuseRayDirection = vec4(point,0);
 				//generate diffuse ray
-				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)gather_rays;
+				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
+				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
 			}
-			return color;
+			diffuseRay = Ray(hitPoint+EPSILON*normal, -normal);
+			color += diffuseRayColor(diffuseRay);
 		}
-		
+		return color;	
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
 		color += shade(r, hitPoint, normal, renderableIndex);
@@ -365,7 +365,7 @@ void photonCannon() {
 	
 	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
 		Light* currentLight = *it;
-		currentLight->generatePhotons(photonCloud, viewport.photonsPerLight, scene->kdTree->aabb);
+		currentLight->generatePhotons(photonCloud, viewport.causticPhotonsPerLight + viewport.photonsPerLight, scene->kdTree->aabb);
 	}
 	//iterate through photonCloud, push photons that intersect onto scene->photons
 	for (photIt phot = photonCloud.begin(); phot != photonCloud.end(); ++phot) {
@@ -385,7 +385,7 @@ void causticPistol() {
 		Light* currentLight = *it;
 		for (vector<Renderable*>::iterator ct = scene->caustics.begin(); ct != scene->caustics.end(); ++ ct) {
 			Renderable* currentCaustic = *ct;
-			vec3 photensity = (currentLight->power * currentLight->intensity) / viewport.causticPhotonsPerLight;
+			vec3 photensity = (currentLight->power * currentLight->intensity) / (viewport.causticPhotonsPerLight+viewport.photonsPerLight);
 			for (int i = 0 ; i < viewport.causticPhotonsPerLight; i++) {
 				vec4 photonDir = currentCaustic->randomSurfacePoint() - currentLight->pos;
 				Photon* photon = new Photon(currentLight->pos, photonDir, photensity);
@@ -486,6 +486,8 @@ void processArgs(int argc, char* argv[]) {
 			viewport.gatherEpsilon = atof(argv[++i]);
 		} else if (arg.compare("-c")==0) {
 			viewport.causticPhotonsPerLight = atof(argv[++i]) * 1000;
+		} else if (arg.compare("-r")==0) {
+			viewport.rawPhotons=true;
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();
