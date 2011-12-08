@@ -215,7 +215,7 @@ vec3 traceRay(Ray r, int depth) {
 			//****************
 			//INDIRECT ILLUMINATION
 			Ray diffuseRay;
-			/*
+			
 			#pragma omp parallel for shared(color)
 			for (int i = 0; i < GATHER_RAYS; i++) {
 				vec3 point = randomHemispherePoint(normal);
@@ -225,7 +225,7 @@ vec3 traceRay(Ray r, int depth) {
 				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
 				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
 			}
-			*/
+			
 			
 			//calculate causticsss
 			if (viewport.causticPhotonsPerLight > 0) {
