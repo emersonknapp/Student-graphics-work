@@ -181,12 +181,9 @@ vec3 traceRay(Ray r, int depth) {
 				//generate diffuse ray
 				Ray diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
 				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)gather_rays;
-				//color += diffuseRayColor(diffuseRay) / numGatherRays;
-				
 			}
 			return color;
 		}
-		//cout << color << endl;
 		
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
@@ -322,8 +319,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
 				vec3 newColor = prod(kd, phot->color)/probDiffuseReflect;
-				if (phot->caustic) scene->photons.push_back(phot);
-				else scene->photons.push_back(phot);
+				scene->photons.push_back(phot);
 				vec3 newDir = randomHemispherePoint(normal);
 				Photon* reflPhoton = new Photon(phot->pos, newDir, newColor);
 
@@ -379,7 +375,7 @@ void photonCannon() {
 	cout << photonCloud.size() << endl;
 	cout << viewport.photonsPerLight << endl;
 	cout << scene->photons.size() << endl;
-	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
+	if (viewport.causticPhotonsPerLight == 0) scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
 
 }
 
@@ -396,8 +392,6 @@ void causticPistol() {
 			for (int i = 0 ; i < viewport.causticPhotonsPerLight; i++) {
 				vec4 photonDir = currentCaustic->randomSurfacePoint() - currentLight->pos;
 				Photon* photon = new Photon(currentLight->pos, photonDir, photensity);
-				photon->color = vec3(1,0,0);
-				photon->caustic = true;
 				causticAura.push_back(photon);
 			}
 		}
@@ -406,8 +400,8 @@ void causticPistol() {
 		tracePhoton(*phot, max(PHOTCURSION-1,0));
 	}
 
-	// construct tree
-	scene->causticBush = new PhotonTree(scene->causticPhotons.begin(), scene->causticPhotons.end(), 0, scene);
+	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
+
 }
 
 //***************************************************

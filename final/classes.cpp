@@ -32,12 +32,10 @@ Ray::Ray(vec4 a, vec4 b) {
 
 Photon::Photon() : Ray() {
 	color = vec3(0,0,0);
-	caustic = false;
 }
 
 Photon::Photon(vec4 a, vec4 b, vec3 c) : Ray(a, b) {
 	color = c;
-	caustic = false;
 }
 
 Texture::Texture() {
