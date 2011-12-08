@@ -91,7 +91,8 @@ bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
 			float radius = (hitPoint->maxes[0] - hitPoint->mins[0])/2.0;
 			vec3 center = hitPoint->maxes - vec3(radius, radius, radius);
 			for (photIt it = myBegin; it != myEnd; ++it) {
-				if (withinSphere((*it)->pos, radius, center)) {
+				if ((((*it)->pos.dehomogenize())-center).length() <= radius) {
+				//if (withinSphere((*it)->pos, radius, center)) {
 					photons.push_back(it);
 				}
 			}
