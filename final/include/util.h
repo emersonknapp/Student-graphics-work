@@ -13,7 +13,7 @@
 #define EPSILON 0.001
 #define DEBUG false
 #define T_MAX 400
-#define GATHER_RAYS 100
+#define GATHER_RAYS 10
 
 #define MAXRECURSION 4
 #define PHOTCURSION 4
@@ -30,6 +30,8 @@ vec3 randomHemispherePoint(vec3);
 vec3 randomHemispherePoint(vec4);
 vec3 randomCirclePoint(vec3);
 vec4 randomCirclePoint(vec4);
+
+
 
 double sum(vec3);
 

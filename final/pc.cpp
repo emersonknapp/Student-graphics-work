@@ -124,11 +124,13 @@ vec3 diffuseRayColor(Ray r) {
 		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-		AABB gatherBox = AABB(mins,maxes);	
-		vector<photIt> nearPhotons;
+		AABB gatherBox = AABB(mins,maxes);
+		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
+		
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-			for (size_t i=0; i< nearPhotons.size(); i++) {
-				color += (*nearPhotons[i])->color;
+			while (!nearPhotons.empty()) {
+				color += (*(nearPhotons.top()))->color;
+				nearPhotons.pop();
 			}
 			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 			
@@ -197,6 +199,7 @@ vec3 traceRay(Ray r, int depth) {
 					
 				}
 			}
+
 		}
 		//return color;	
 		//*************
@@ -250,6 +253,46 @@ vec3 traceRay(Ray r, int depth) {
 				color += refractedColor;
 			} 
 		}
+		
+		/* 			
+		if (rend->material.ri > 0) {
+
+			float c1 = (n*d);
+			float nn;
+			float curRI = 1.0;
+			float newRI = 1.0;
+			// top of the stack is the RI of the material the ray is in. we set curRI to the top(), then push the renderable's RI onto the stack bc that's where the ray is now
+			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
+
+				if (r.ristack.empty()) r.ristack.push_back(1.0);
+				curRI = r.ristack.back();
+				
+				nn = rend->material.ri / curRI;
+				
+				r.ristack.push_back(rend->material.ri);
+				n=-normal.dehomogenize().normalize();
+			} else { // ray hits inside of object, then we know we're going to what we had before (oldRI)
+				curRI = rend->material.ri;
+				if (!r.ristack.empty()) r.ristack.pop_back();
+				if (r.ristack.empty()) newRI = 1.0;
+				else newRI = r.ristack[r.ristack.size()-1];
+				nn = newRI / curRI;
+				n=normal.dehomogenize().normalize();
+			}
+			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
+			if (c2 >= 0.0) {
+				vec3 tmp1 = (nn*d);
+				vec3 tmp2 = (nn*c1-sqrt(c2))*(n);
+				vec3 tmp3 = tmp1 + tmp2;
+				tmp3.normalize();
+				vec4 rayDirection = vec4(tmp3,0);
+				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection);
+				refractedRay.ristack.swap(r.ristack);
+				vec3 refractedColor = traceRay(refractedRay, depth+1);
+				color += refractedColor;
+			} 
+		}
+		*/
 		
 		/// *******************************
 		// COMPUTE REFLECTION
@@ -367,11 +410,7 @@ void photonCannon() {
 		tracePhoton(*phot, 0);
 	}
 	//store photons that hit a renderable into kdtree
-	cout << photonCloud.size() << endl;
-	cout << viewport.photonsPerLight << endl;
-	cout << scene->photons.size() << endl;
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
-
 }
 
 void causticPistol() {
