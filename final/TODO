@@ -1,17 +1,12 @@
 TODO:
 subsurface scattering
-full obj support
-	vertex normals, interp on tri for smoother shading
+
 final gather
 	option for # of diffuse rays
-photon raw output for debug
-photon cannon
-	point lights
-	directional lights
+
 spot lights
 area lights
-photon tree
-	intersection
+
 
 DONE:
 simple antialiasing
@@ -27,3 +22,15 @@ earclipping
 vertex normals
 Usage for unrecognized command line options
 long-name options
+photon tree
+	shadows
+	caustics
+	intersection
+full obj support
+	vertex normals, interp on tri for smoother shading	
+photon cannon
+	point lights
+	directional lights
+	
+photon raw output for debug
+
