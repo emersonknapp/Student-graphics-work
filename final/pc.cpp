@@ -125,8 +125,7 @@ vec3 diffuseRayColor(Ray r) {
 		vector<photIt> nearPhotons;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			for (size_t i=0; i< nearPhotons.size(); i++) {
-				//color += vec3(.05, 0, 0);
-				color += prod(scene->renderables[renderableIndex]->material.kd, (*nearPhotons[i])->color) * max(0.0, -(*nearPhotons[i])->dir * normal);
+				color += (*nearPhotons[i])->color;
 			}
 			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 			
@@ -162,6 +161,14 @@ vec3 traceRay(Ray r, int depth) {
 
 		// generating diffuse rays
 		if (viewport.photons) {
+			
+			bool rawPhotons = true;
+			if (rawPhotons) {
+				Ray photCheck = Ray(r.pos, r.dir);
+				color = diffuseRayColor(photCheck);
+				return color;
+			}
+			return color;
 			//****************
 			//INDIRECT ILLUMINATION
 			int gather_rays = 50;
@@ -288,6 +295,7 @@ void tracePhoton(Photon* phot, int photonDepth) {
 			
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
+				phot->color = prod(kd, phot->color)*max((-(phot)->dir*normal), 0.0);								
 				scene->photons.push_back(phot);
 				reflPhoton = new Photon(hitPoint + EPSILON*normal, randomHemispherePoint(normal), phot->color);
 			} else {
@@ -296,12 +304,8 @@ void tracePhoton(Photon* phot, int photonDepth) {
 				reflPhoton = phot;
 			}
 			tracePhoton(reflPhoton, photonDepth+1);
-			/* phot->color = prod(scene->renderables[renderableIndex]->material.kd,phot->color) * max(0.0, -phot->dir * normal); */
 		} else {
-			//Absorbed
-			//Absorbed light dies
-			//phot->pos = hitPoint;
-			//scene->photons.push_back(phot);
+			//Absorboloth.
 		}
 		
 		/* Harry's russian roulette

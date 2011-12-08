@@ -77,6 +77,7 @@ class Light {
 public:
 	vec3 intensity;
 	vec4 pos;
+	float power;
 	virtual vec4 lightVector(vec4) = 0;
 	virtual void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s) = 0;
 };
