@@ -42,6 +42,7 @@ public:
 	PhotonTree* causticBush;
 	PhotonTree* shadowHedge;
 	int photonsPerLight;
+	int nextFileIndex;
 	
 	vec3 ambience; /* Ambient light color */
 	
