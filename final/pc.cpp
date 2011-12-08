@@ -209,7 +209,7 @@ vec3 traceRay(Ray r, int depth) {
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
 
 				if (r.ristack.empty()) r.ristack.push_back(1.0);
-				curRI = r.ristack[r.ristack.size()-1];
+				curRI = r.ristack.back();
 				
 				nn = rend->material.ri / curRI;
 				
@@ -302,7 +302,30 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				
 			} else {
 				if (mat.ri > 0) {
+					//cout << "r ";
 					//Refraction
+					float cosTheta = phot->dir * normal;
+					float riOld, riNew;
+					vec4 refracted;
+					vec3 norm = normal.dehomogenize();
+					if (cosTheta < 0) { 
+						//Ray hits outside of object
+						riOld = 1.0;
+						riNew = mat.ri;
+					} else {
+						//Ray hits inside of object
+						riOld = mat.ri;
+						riNew = 1.0;
+					}
+					float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
+					if (cos2Phi > 0) {
+						//not totally internally reflected
+						refracted = (riOld * (phot->dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+						phot->dir = refracted;
+						phot->pos = hitPoint;
+						tracePhoton(phot, reflDepth+1);
+					} else; //Totally internally reflected
+						
 					
 				} else {
 					//Specular reflection
