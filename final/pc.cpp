@@ -135,12 +135,22 @@ vec3 diffuseRayColor(Ray r) {
 		AABB gatherBox = AABB(mins,maxes);
 		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
 		
+		int maxNeighbors = viewport.photonsPerLight * .0005;
+		
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-			while (!nearPhotons.empty()) {
-				color += (*(nearPhotons.top()))->color;
+			int neighborsSoFar = 0;
+			photIt neighbor;
+			while (neighborsSoFar < maxNeighbors && !nearPhotons.empty()) {
+				neighbor = nearPhotons.top();
+				color += (*neighbor)->color;
 				nearPhotons.pop();
+				neighborsSoFar++;
 			}
-			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
+			float radius = ((*neighbor)->pos - hitPoint).length();	
+				
+			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
+				
+			color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
 			
 		}
 	}
@@ -194,8 +204,8 @@ vec3 traceRay(Ray r, int depth) {
 				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
 				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
 			}
+			
 			//calculate causticsss
-
 			if (viewport.causticPhotonsPerLight > 0) {
 				vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 				vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);

@@ -61,7 +61,7 @@ public:
 	distCompare(const vec3& c=vec3(0,0,0), const int& r=0) { center = c; radius = r;}
 
 	bool operator() (const photIt& lhs, const photIt& rhs) const { 
-		return  (((*lhs)->pos).dehomogenize()-center).length2() < (((*rhs)->pos).dehomogenize()-center).length2();
+		return  (((*lhs)->pos).dehomogenize()-center).length2() > (((*rhs)->pos).dehomogenize()-center).length2();
 	}
 };
 
