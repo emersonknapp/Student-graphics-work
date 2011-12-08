@@ -42,6 +42,6 @@ ct
 translate -.5 0 -1
 kd 1 0 1
 ks .6 .6 .6
-kr .2 .2 .2
+kr .1 .1 .1
 #ri 0
 s .5
