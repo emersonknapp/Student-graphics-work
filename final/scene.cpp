@@ -134,6 +134,8 @@ void Scene::earClip(string line) {
 
 						renderables.push_back(tri);
 
+						if (parseMaterial.ri > 0) caustics.push_back(tri);		
+
 						//delete convexVertex
 						polygonVertices.erase (polygonVertices.begin() + cur);
 						polygonTextureVertices.erase (polygonTextureVertices.begin() + cur);
@@ -170,12 +172,7 @@ void Scene::earClip(string line) {
 	tri->material = parseMaterial;
 
 	renderables.push_back(tri);
-// at this point, we have 3 points left...need to incorporate them into the triangle!
-// we loop around the vertices of the polygon. For every vertex V_i, we have
-// triangle V_(i-1), V_i, V_(i+1). if the interior angle (angle between V_(i-1) - V_i and
-// V_(i+1) - V_i ) is < 180, then V_i is a convex vertex. So for each of these triangles, if 
-// V_i is a convex vertex and for the triangle no other vertex lies inside, then the triangle is
-// an ear
+	if (parseMaterial.ri > 0) caustics.push_back(tri);	
 
 }
 
@@ -232,6 +229,7 @@ bool Scene::parseLine(string line) {
 		sph->translate(translation);
 		sph->material = parseMaterial;
 		renderables.push_back(sph);
+		if (parseMaterial.ri > 0) caustics.push_back(sph);		
 		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
 		//cout << translation << rotation << scale << endl;
 	}

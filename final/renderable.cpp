@@ -161,6 +161,11 @@ vec3 Sphere::textureColor(vec4 hitPoint) {
 	return color;
 }
 
+vec4 Sphere::randomSurfacePoint() {
+	vec4 point = randomSpherePoint();
+	return tmat * point;
+}
+
 AABB* Sphere::makeAABB() {
 	aabb = new AABB();
 	aabb->mins = vec3(-1,-1,-1);
@@ -297,6 +302,17 @@ vec3 Triangle::textureColor(vec4 hitPoint) {
 	return color;
 }
 
+vec4 Triangle::randomSurfacePoint() {
+	float a = rand01();
+	float b = rand01();
+	if (a+b > 1) {
+		a = 1.0f-a;
+		b = 1.0f-b;
+	}
+	float c = 1-a-b;
+	return v1*a + v2*b + v3*c;
+}
+
 AABB* Triangle::makeAABB() {
 	//For triangle, just compute bounding box around transformed vertices, easy.
 	vec4 tv1 = tmat*v1;
@@ -318,6 +334,10 @@ Camera::Camera() {
 	LL = vec4(-1,-1, -3,1);
 	LR = vec4(1,-1,-3,1);
 
+}
+//shouldn't ever use this
+vec4 Camera::randomSurfacePoint() {
+	return vec4(-1,-1,-1,-1);
 }
 
 float Camera::rayIntersect (Ray r) {

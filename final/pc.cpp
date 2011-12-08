@@ -52,7 +52,8 @@ void Usage() {
 	<< "        -a: antialiasing, n-by-n rays per pixel, defaults to 1" << endl
 	<< "		-j: uses jittery antialiasing (still requires -a)" << endl
 	<< "		-ph: how many photons to shoot out (in thousands) (if not specified, defaults to FUCKYOU)" << endl
-	<< "		-e: epsilon for photon gathering" << endl;	
+	<< "		-e: epsilon for photon gathering" << endl
+	<< "		-c: number of caustic photons (in thousands) (defaults to 0)" << endl;
 	quitProgram(0);
 }
 
@@ -295,10 +296,12 @@ void tracePhoton(Photon* phot, int reflDepth) {
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
 				vec3 newColor = prod(kd, phot->color)*max((d*n), 0.0);
-				scene->photons.push_back(phot);
+				if (phot->caustic) scene->causticPhotons.push_back(phot);
+				else scene->photons.push_back(phot);
 				vec3 newDir = randomHemispherePoint(normal);
 				//cout << normal << newDir << endl;
 				Photon* reflPhoton = new Photon(phot->pos, newDir, newColor);
+
 				tracePhoton(reflPhoton, reflDepth+1);
 				
 			} else {
@@ -308,48 +311,8 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				
 			}
 		} else {
-			//Absorboloth.
+			//Absorboloth. <-- I like that!
 		}
-		
-		/* Harry's russian roulette
-		{
-		phot->color = prod(rend->material.kd,phot->color) * max(0.0, -phot->dir * normal);
-		phot->pos = hitPoint;
-
-		//russian roulette
-		float Pre, Pri, Pd, Ps, ep;
-
-		ep = rand01();
-
-		Pre = sum(rend->material.kr) / 3;
-		Pd = sum(rend->material.kd) / (sum(rend->material.kd) + sum(rend->material.ks)) * Pre;
-		Ps = sum(rend->material.ks) / (sum(rend->material.kd) + sum(rend->material.ks)) * Pre;
-		Pri = rend->material.ri - 1.0;
-
-		if (ep < Pd) { //diffuse reflection
-			scene->photons.push_back(phot);
-
-			vec3 diffusePhotonDir = randomHemispherePoint(normal);
-			
-			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(diffusePhotonDir,0), phot->color);
-			tracePhoton(newPhot, reflDepth+1);
-		}
-		else if (ep < (Pd + Ps)) { //specular reflection
-			vec3 refl = d - 2*(d*n)*n;
-			refl.normalize();
-			
-			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), phot->color);
-			tracePhoton(newPhot, reflDepth+1);
-		}
-		else if (ep < (Pd + Ps + Pri)) { //refraction
-			//TODO: deal with photon refraction
-		}
-		else { //absorption 
-			scene->photons.push_back(phot);
-		}
-		}
-		*/
-
 	}
 }
 
@@ -370,6 +333,31 @@ void photonCannon() {
 	cout << scene->photons.size() << endl;
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
 
+}
+
+void causticPistol() {
+	// shoot photons at the caustic thingies
+	// don't want these to bounce...but how?
+	vector<Photon*> causticAura;
+	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
+		Light* currentLight = *it;
+		for (vector<Renderable*>::iterator ct = scene->caustics.begin(); ct != scene->caustics.end(); ++ ct) {
+			Renderable* currentCaustic = *ct;
+			vec3 photensity = (currentLight->power * currentLight->intensity) / viewport.causticPhotonsPerLight;
+			#pragma omp parallel for
+			for (int i = 0 ; i < viewport.causticPhotonsPerLight; i++) {
+				vec4 photonDir = currentCaustic->randomSurfacePoint() - currentLight->pos;
+				Photon* photon = new Photon(currentLight->pos, photonDir, photensity);
+				photon->caustic = true;
+				causticAura.push_back(photon);
+			}
+		}
+	}
+	for (photIt phot = causticAura.begin(); phot != causticAura.end(); ++phot) {
+		tracePhoton(*phot, max(PHOTCURSION-1,0));
+	}
+
+	// construct tree
 }
 
 //***************************************************
@@ -455,6 +443,8 @@ void processArgs(int argc, char* argv[]) {
 			viewport.photonsPerLight = atof(argv[++i]) * 1000;
 		} else if (arg.compare("-e")==0) {
 			viewport.gatherEpsilon = atof(argv[++i]);
+		} else if (arg.compare("-c")==0) {
+			viewport.causticPhotonsPerLight = atof(argv[++i]) * 1000;
 		} else {
 			Warning("Unrecognized command " + arg);
 			Usage();
@@ -478,7 +468,10 @@ int main(int argc, char *argv[]) {
 	scene = new Scene();
 
 	processArgs(argc, argv);
-	if (viewport.photons) photonCannon();
+	if (viewport.photons) {
+		photonCannon();
+		causticPistol();
+	}
 	render();
 
   	return 0;

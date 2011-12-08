@@ -56,6 +56,7 @@ public:
 class Photon : public Ray {
 public:
 	vec3 color;
+	bool caustic;
 	Photon();
 	Photon(vec4 a, vec4 b, vec3 c);
 };
@@ -71,6 +72,7 @@ public:
 	bool photons; 
 	int photonsPerLight;
 	float gatherEpsilon;
+	int causticPhotonsPerLight;
 };
 
 class Light {
@@ -151,6 +153,7 @@ public:
 	void scale(vec3 s);
 	virtual vec4 normal(vec4)=0;
 	virtual vec3 textureColor(vec4)=0;
+	virtual vec4 randomSurfacePoint()=0;
 	
 	mat3 dehomogenize(mat4 t);
 	
@@ -172,6 +175,7 @@ public:
 	Ray generate_ray(float x, float y);
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);	
+	vec4 randomSurfacePoint();
 };
 
 class Sphere : public Renderable {
@@ -183,6 +187,7 @@ public:
 	AABB* makeAABB();
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);
+	vec4 randomSurfacePoint();
 };
 
 class Triangle : public Renderable {
@@ -198,6 +203,7 @@ public:
 	AABB* makeAABB();
 	vec4 normal(vec4);
 	vec3 textureColor(vec4);
+	vec4 randomSurfacePoint();
 };
 
 
