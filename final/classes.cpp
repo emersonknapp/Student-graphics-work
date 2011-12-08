@@ -67,7 +67,9 @@ Viewport::Viewport () {
 	aliasing = 0;
 	jittery = false;
 	photons = false; 
+	rawPhotons = false;
 	causticPhotonsPerLight = 0;
+	gatherEpsilon = .1;
 }
 Viewport::Viewport (int width, int height) {
 	w = width;
@@ -75,7 +77,9 @@ Viewport::Viewport (int width, int height) {
 	aliasing = 0;
 	jittery = false;
 	photons = false;
+	rawPhotons = false;
 	causticPhotonsPerLight = 0;
+	gatherEpsilon = .1;
 }
 
 PLight::PLight(vec4 p, vec3 i) {
