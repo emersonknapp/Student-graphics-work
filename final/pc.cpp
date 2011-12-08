@@ -190,10 +190,11 @@ vec3 traceRay(Ray r, int depth) {
 				vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 				vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
 				AABB gatherBox = AABB(mins,maxes);	
-				vector<photIt> nearPhotons;
+				priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
 				if (scene->causticBush->gatherPhotons(&gatherBox,nearPhotons)) {
-					for (size_t i=0; i< nearPhotons.size(); i++) {
-						color += (*nearPhotons[i])->color;
+					while (!nearPhotons.empty()) {
+						color += (*nearPhotons.top())->color;
+						nearPhotons.pop();
 					}
 					color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 					
