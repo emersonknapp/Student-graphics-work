@@ -37,8 +37,8 @@ vec3 randomSpherePoint() {
 
 vec3 randomHemispherePoint(vec3 normal) {
 	vec3 point = randomSpherePoint();
-	float cosangle = normal * point;
-	if (cosangle < 0) {
+	float cosangle = -normal * point;
+	if (cosangle > 0) {
 		return -point;
 	} 
 	return point;

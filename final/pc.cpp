@@ -256,8 +256,8 @@ vec3 traceRay(Ray r, int depth) {
 }
 
 
-void tracePhoton(Photon* phot, int photonDepth) {
-	if (photonDepth > PHOTCURSION) {
+void tracePhoton(Photon* phot, int reflDepth) {
+	if (reflDepth > PHOTCURSION) {
 		return;
 	}
 	
@@ -275,12 +275,13 @@ void tracePhoton(Photon* phot, int photonDepth) {
 		vec3 ks = mat.ks;
 		
 		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
-		//float probAbsorb = 1 - probReflect;
 		float randPick = rand01();
-		
 		
 		if (randPick < probReflect) {
 			vec4 normal = rend->normal(hitPoint);
+			hitPoint = hitPoint + EPSILON*normal;
+			hitPoint[3] = 1;			
+			
 			vec3 n = -normal.dehomogenize();
 			vec3 d = phot->dir.dehomogenize();
 			n.normalize();
@@ -288,22 +289,24 @@ void tracePhoton(Photon* phot, int photonDepth) {
 
 			vec3 refl = d - 2*(d*n)*n;
 			refl.normalize();
-			Photon* reflPhoton;
-			
+						
 			double probDiffuseReflect = sum(kd) / (sum(kd)+sum(ks));
 			phot->pos = hitPoint;
-			
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
-				phot->color = prod(kd, phot->color)*max((-(phot)->dir*normal), 0.0);								
+				vec3 newColor = prod(kd, phot->color)*max((d*n), 0.0);
 				scene->photons.push_back(phot);
-				reflPhoton = new Photon(hitPoint + EPSILON*normal, randomHemispherePoint(normal), phot->color);
+				vec3 newDir = randomHemispherePoint(normal);
+				//cout << normal << newDir << endl;
+				Photon* reflPhoton = new Photon(phot->pos, newDir, newColor);
+				tracePhoton(reflPhoton, reflDepth+1);
+				
 			} else {
 				//Specular reflection
 				phot->dir = vec4(refl, 0);
-				reflPhoton = phot;
+				tracePhoton(phot, reflDepth+1);
+				
 			}
-			tracePhoton(reflPhoton, photonDepth+1);
 		} else {
 			//Absorboloth.
 		}
@@ -329,14 +332,14 @@ void tracePhoton(Photon* phot, int photonDepth) {
 			vec3 diffusePhotonDir = randomHemispherePoint(normal);
 			
 			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(diffusePhotonDir,0), phot->color);
-			tracePhoton(newPhot, photonDepth+1);
+			tracePhoton(newPhot, reflDepth+1);
 		}
 		else if (ep < (Pd + Ps)) { //specular reflection
 			vec3 refl = d - 2*(d*n)*n;
 			refl.normalize();
 			
 			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), phot->color);
-			tracePhoton(newPhot, photonDepth+1);
+			tracePhoton(newPhot, reflDepth+1);
 		}
 		else if (ep < (Pd + Ps + Pri)) { //refraction
 			//TODO: deal with photon refraction
@@ -362,6 +365,9 @@ void photonCannon() {
 		tracePhoton(*phot, 0);
 	}
 	//store photons that hit a renderable into kdtree
+	cout << photonCloud.size() << endl;
+	cout << viewport.photonsPerLight << endl;
+	cout << scene->photons.size() << endl;
 	scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
 
 }
@@ -446,7 +452,7 @@ void processArgs(int argc, char* argv[]) {
 			viewport.jittery = true;
 		} else if (arg.compare("-ph")==0) {
 			viewport.photons = true;
-			viewport.photonsPerLight = atoi(argv[++i]) * 1000;
+			viewport.photonsPerLight = atof(argv[++i]) * 1000;
 		} else if (arg.compare("-e")==0) {
 			viewport.gatherEpsilon = atof(argv[++i]);
 		} else {
