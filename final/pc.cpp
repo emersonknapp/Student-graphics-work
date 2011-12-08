@@ -211,7 +211,7 @@ vec3 traceRay(Ray r, int depth) {
 			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
 
 				if (r.ristack.empty()) r.ristack.push_back(1.0);
-				curRI = r.ristack[r.ristack.size()-1];
+				curRI = r.ristack.back();
 				
 				nn = rend->material.ri / curRI;
 				
@@ -304,7 +304,30 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				
 			} else {
 				if (mat.ri > 0) {
+					//cout << "r ";
 					//Refraction
+					float cosTheta = phot->dir * normal;
+					float riOld, riNew;
+					vec4 refracted;
+					vec3 norm = normal.dehomogenize();
+					if (cosTheta < 0) { 
+						//Ray hits outside of object
+						riOld = 1.0;
+						riNew = mat.ri;
+					} else {
+						//Ray hits inside of object
+						riOld = mat.ri;
+						riNew = 1.0;
+					}
+					float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
+					if (cos2Phi > 0) {
+						//not totally internally reflected
+						refracted = (riOld * (phot->dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+						phot->dir = refracted;
+						phot->pos = hitPoint;
+						tracePhoton(phot, reflDepth+1);
+					} else; //Totally internally reflected
+						
 					
 				} else {
 					//Specular reflection
@@ -316,45 +339,6 @@ void tracePhoton(Photon* phot, int reflDepth) {
 		} else {
 			//Absorboloth.
 		}
-		
-		/* Harry's russian roulette
-		{
-		phot->color = prod(rend->material.kd,phot->color) * max(0.0, -phot->dir * normal);
-		phot->pos = hitPoint;
-
-		//russian roulette
-		float Pre, Pri, Pd, Ps, ep;
-
-		ep = rand01();
-
-		Pre = sum(rend->material.kr) / 3;
-		Pd = sum(rend->material.kd) / (sum(rend->material.kd) + sum(rend->material.ks)) * Pre;
-		Ps = sum(rend->material.ks) / (sum(rend->material.kd) + sum(rend->material.ks)) * Pre;
-		Pri = rend->material.ri - 1.0;
-
-		if (ep < Pd) { //diffuse reflection
-			scene->photons.push_back(phot);
-
-			vec3 diffusePhotonDir = randomHemispherePoint(normal);
-			
-			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(diffusePhotonDir,0), phot->color);
-			tracePhoton(newPhot, reflDepth+1);
-		}
-		else if (ep < (Pd + Ps)) { //specular reflection
-			vec3 refl = d - 2*(d*n)*n;
-			refl.normalize();
-			
-			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(refl,0), phot->color);
-			tracePhoton(newPhot, reflDepth+1);
-		}
-		else if (ep < (Pd + Ps + Pri)) { //refraction
-			//TODO: deal with photon refraction
-		}
-		else { //absorption 
-			scene->photons.push_back(phot);
-		}
-		}
-		*/
 
 	}
 }

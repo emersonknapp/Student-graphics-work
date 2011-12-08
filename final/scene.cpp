@@ -110,7 +110,7 @@ void Scene::earClip(string line) {
 					vec3 tmpBary = barycentric(prevVertex, curVertex, nextVertex, tmpVertex);
 					// check if barycentric coordinate is outside triangle (any one of its elements > 1)
 					if (tmpBary[0] + tmpBary[1] + tmpBary[2] <=1) {
-						// add the current ear to the renderables as a triangle, parse the texture vertices and shit
+						// add the current ear to the renderables as a triangle, parse the texture vertices
 						// then delete the convex vertex!
 						vec4 a, b, c, d, e, f, x, y, z;
 						
