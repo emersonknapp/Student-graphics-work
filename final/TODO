@@ -1,11 +1,10 @@
+TODO:
 area lights
 separate epsilons for shadows and gathers
 more gather rays
 consider local gather
 gather photons disc
 
-
-TODO:
 subsurface scattering
 
 final gather

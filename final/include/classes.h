@@ -77,30 +77,6 @@ public:
 	bool rawPhotons;
 };
 
-class Light {
-public:
-	vec3 intensity;
-	vec4 pos;
-	float power;
-	virtual vec4 lightVector(vec4) = 0;
-	virtual void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s) = 0;
-};
-
-class PLight: public Light {
-public:
-	PLight(vec4, vec3);
-	PLight(vec4, vec3, float);
-	vec4 lightVector(vec4);
-	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
-};
-
-class DLight: public Light {
-public:
-	DLight(vec4 , vec3 );
-	vec4 lightVector(vec4);
-	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
-};
-
 class Texture {
 // class for texture maps
 public:
@@ -161,6 +137,47 @@ public:
 	
 	virtual float rayIntersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
 
+};
+
+class Light : public Renderable {
+public:
+	vec3 intensity;
+	vec4 pos;
+	float power;
+	virtual vec4 lightVector(vec4) = 0;
+	virtual void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s) = 0;
+	
+	/* Renderable virtual methods */
+	vec4 normal(vec4);
+	vec3 textureColor(vec4);
+	vec4 randomSurfacePoint();
+	float minorArea();
+	float rayIntersect(Ray); 
+};
+
+class PLight: public Light {
+public:
+	PLight(vec4, vec3);
+	PLight(vec4, vec3, float);
+	vec4 lightVector(vec4);
+	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
+	
+};
+
+class DLight: public Light {
+public:
+	DLight(vec4 , vec3 );
+	DLight(vec4, vec3, float);
+	vec4 lightVector(vec4);
+	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
+};
+
+class TriLight : public Light {
+public:
+	vec3 v1, v2, v3;
+	TriLight(vec4, vec3, float);
+	vec4 lightVector(vec4);
+	void generatePhotons(vector<Photon*>&, int, AABB*);
 };
 
 class Camera : public Renderable {
