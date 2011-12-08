@@ -85,6 +85,7 @@ public:
 class PLight: public Light {
 public:
 	PLight(vec4, vec3);
+	PLight(vec4, vec3, float);
 	vec4 lightVector(vec4);
 	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
 };

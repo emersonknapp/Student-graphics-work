@@ -81,6 +81,12 @@ PLight::PLight(vec4 p, vec3 i) {
 	intensity = i;
 }
 
+PLight::PLight(vec4 p, vec3 i, float _pow) {
+	pos = p;
+	intensity = i;
+	power = _pow;
+}
+
 DLight::DLight(vec4 d, vec3 i) {
 	pos = d;
 	intensity = i;
@@ -91,11 +97,10 @@ vec4 PLight::lightVector(vec4 origin) {
 }
 
 void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
-	
+	vec3 photensity = (power*intensity)/numPhots;
 	for (int i=0; i<numPhots; i++) {
 		vec3 photonDir = randomSpherePoint(); 
-//		cout << photonDir << endl;
-		Photon* photon = new Photon(pos, vec4(photonDir,0), intensity);
+		Photon* photon = new Photon(pos, vec4(photonDir,0), photensity);
 		photonCloud.push_back(photon);
 	}
 	

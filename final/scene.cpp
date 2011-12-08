@@ -301,9 +301,9 @@ bool Scene::parseLine(string line) {
 		scale = vec3(x,y,z);
 	} 
 	else if (op.compare("pl")==0) { //pointlight x y z r g b
-		float x,y,z,r,g,b;
-		ss >> x >> y >> z >> r >> g >> b;
-		PLight* p = new PLight(vec4(x,y,z,1), vec3(r,g,b));
+		float x,y,z,r,g,b,power;
+		ss >> x >> y >> z >> r >> g >> b >> power;
+		PLight* p = new PLight(vec4(x,y,z,1), vec3(r,g,b), power);
 		lights.push_back(p);
 	} 
 	else if (op.compare("dl")==0) { //directionalight x y z r g 

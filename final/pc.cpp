@@ -257,7 +257,7 @@ vec3 traceRay(Ray r, int depth) {
 
 
 void tracePhoton(Photon* phot, int photonDepth) {
-	if (photonDepth > MAXRECURSION) {
+	if (photonDepth > PHOTCURSION) {
 		return;
 	}
 	
