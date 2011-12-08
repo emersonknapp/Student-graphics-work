@@ -314,18 +314,15 @@ void tracePhoton(Photon* phot, int photonDepth) {
 
 		ep = rand01();
 
-		Pre = (rend->material.kr[0] + rend->material.kr[1] + rend->material.kr[2]) / 3;
-		Pd = (rend->material.kd[0] + rend->material.kd[1] + rend->material.kd[2]) / 3 * Pre;
-		Ps = (rend->material.ks[0] + rend->material.ks[1] + rend->material.ks[2]) / 3 * Pre;
+		Pre = sum(rend->material.kr) / 3;
+		Pd = sum(rend->material.kd) / (sum(rend->material.kd) + sum(rend->material.ks)) * Pre;
+		Ps = sum(rend->material.ks) / (sum(rend->material.kd) + sum(rend->material.ks)) * Pre;
 		Pri = rend->material.ri - 1.0;
 
 		if (ep < Pd) { //diffuse reflection
 			scene->photons.push_back(phot);
 
-			vec3 diffusePhotonDir = randomSpherePoint();
-			if (diffusePhotonDir * n < 0.0) {
-				diffusePhotonDir *= -1.0;
-			}
+			vec3 diffusePhotonDir = randomHemispherePoint(normal);
 			
 			Photon* newPhot = new Photon(hitPoint+EPSILON*normal, vec4(diffusePhotonDir,0), phot->color);
 			tracePhoton(newPhot, photonDepth+1);
