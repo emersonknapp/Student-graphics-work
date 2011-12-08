@@ -31,13 +31,16 @@ public:
 	int lastVertexNormal;
 	vector<Renderable*> renderables;
 	vector<Renderable*> caustics;
+	vector<Renderable*> shadows;
 	vector<Light*> lights;
 	vector<Photon*> photons;
 	vector<Photon*> causticPhotons;
+	vector<Photon*> shadowPhotons;
 	Camera * camera;
 	KDTree* kdTree;
 	PhotonTree* photonTree;
 	PhotonTree* causticBush;
+	PhotonTree* shadowHedge;
 	int photonsPerLight;
 	int objFileIndex;
 	

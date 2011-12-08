@@ -86,6 +86,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
 		(scene->rayIntersect(lightCheck, t, renderableIndex));
 		shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
+
 		if (shadePixel) {
 			material = scene->renderables[index]->material;
 			vec3 lightColor = currentLight->intensity;
@@ -107,6 +108,13 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 		
 	}
 	//cout << color << endl;
+	
+	vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+	vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+	AABB gatherBox = AABB(mins,maxes);	
+	priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
+	scene->shadowHedge->gatherPhotons(&gatherBox,nearPhotons);
+	int numShadowPhotons = nearPhotons.size();
 	return color;
 }
 
@@ -127,12 +135,22 @@ vec3 diffuseRayColor(Ray r) {
 		AABB gatherBox = AABB(mins,maxes);
 		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
 		
+		int maxNeighbors = viewport.photonsPerLight * .0005;
+		
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-			while (!nearPhotons.empty()) {
-				color += (*(nearPhotons.top()))->color;
+			int neighborsSoFar = 0;
+			photIt neighbor;
+			while (neighborsSoFar < maxNeighbors && !nearPhotons.empty()) {
+				neighbor = nearPhotons.top();
+				color += (*neighbor)->color;
 				nearPhotons.pop();
+				neighborsSoFar++;
 			}
-			color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
+			float radius = ((*neighbor)->pos - hitPoint).length();	
+				
+			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
+				
+			color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
 			
 		}
 	}
@@ -167,11 +185,13 @@ vec3 traceRay(Ray r, int depth) {
 		// generating diffuse rays
 		if (viewport.photons) {
 			
+
 			if (viewport.rawPhotons) {
 				Ray photCheck = Ray(r.pos, r.dir);
 				color = diffuseRayColor(photCheck);
 				return color;
 			}
+
 			//****************
 			//INDIRECT ILLUMINATION
 			Ray diffuseRay;
@@ -184,8 +204,8 @@ vec3 traceRay(Ray r, int depth) {
 				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
 				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
 			}
+			
 			//calculate causticsss
-
 			if (viewport.causticPhotonsPerLight > 0) {
 				vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 				vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
@@ -199,10 +219,9 @@ vec3 traceRay(Ray r, int depth) {
 					color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
 					
 				}
-			}
-
+			} 
 		}
-		//return color;	
+//		return color;	
 		//*************
 		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
 		color += shade(r, hitPoint, normal, renderableIndex);
@@ -327,8 +346,24 @@ void tracePhoton(Photon* phot, int reflDepth) {
 		vec4 hitPoint = phot->pos + t*phot->dir;
 		Renderable* rend = scene->renderables[renderableIndex];
 		Material mat = rend->material;
+		vec4 normal = rend->normal(hitPoint);
 		vec3 kd = mat.kd;
 		vec3 ks = mat.ks;
+		//******
+		// Shadow Photons
+		
+		Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, -phot->color);
+		float shadowT = T_MAX;
+		int tmpRenderable = -1;
+		if (scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable)) {
+			if (tmpRenderable == renderableIndex) {
+				shadowPhoton->pos = shadowPhoton->pos + (shadowT+EPSILON) * shadowPhoton->dir;
+				shadowT = T_MAX;
+				scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable);
+			}
+			shadowPhoton->pos = shadowPhoton->pos + shadowT * shadowPhoton->dir;
+			scene->shadowPhotons.push_back(shadowPhoton);
+		}
 		
 		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
 		float randPick = rand01();
@@ -555,6 +590,7 @@ int main(int argc, char *argv[]) {
 	if (viewport.photons) {
 		photonCannon();
 		causticPistol();
+		scene->shadowHedge = new PhotonTree(scene->shadowPhotons.begin(), scene->shadowPhotons.end(), 0, scene);
 	}
 	render();
 
