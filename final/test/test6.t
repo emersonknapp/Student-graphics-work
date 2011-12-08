@@ -59,6 +59,6 @@ s 3
 kd 0 0 0
 ks 0 0 0
 kr 0 0 0
-ri 1.33
-translate 2 -8 -11
+ri 1.6
+translate 6 -8 -11
 s 2

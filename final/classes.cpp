@@ -106,36 +106,21 @@ vec4 DLight::lightVector(vec4 origin) {
 }
 
 void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
-	float u,v;
 	// centered at lower right corner of plane
-	vec4 lowerRight;
+	vec4 center;
+	float scale;
 	for (int i = 0; i < 3; i++) {
-		if (pos[i]>=0) lowerRight[i] = s->mins[i];
-		else if (pos[i]<0) lowerRight[i] = s->maxes[i];
+		if (pos[i]>=0) center[i] = s->mins[i];
+		else if (pos[i]<0) center[i] = s->maxes[i];
 	}
-	lowerRight[3] = 1;
-	vec4 vDir = vec4( max(1.0,abs(pos[0])) - abs(pos[0]),
-					  max(1.0,abs(pos[1])) - abs(pos[1]),
-					  max(1.0,abs(pos[2])) - abs(pos[2]),
-					  0
-					);
-	vec4 uDir = vec4( pos[0],
-					  pos[1],
-					  pos[2],
-					  0
-					);
-	//float uScale, vScale; //TODO: scale u,v by these amounts
+	center[3] = 1;
 	for (int i=0; i<numPhots; i++) {
-		u = rand01();
-		v = rand01();
-		// want to do u * ("x" dir), v * ("y" dir) to get the origin of the photonCloud
-		vec4 photonPos = lowerRight+u*uDir + v*vDir;
-		photonPos = lowerRight + u * vec4(1,0,0,0) + v * vec4(0,1,0,0);
-		vec4 photonDir = pos.normalize();
+		scale = rand01();
+		vec4 photonPos = center + vec4(randomCirclePoint(center),0);
+		vec4 photonDir = pos;
 		Photon* photon = new Photon(photonPos, photonDir, intensity);
 		photonCloud.push_back(photon);
 	}
-	
 }
 
 AABB::AABB() {
