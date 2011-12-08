@@ -10,7 +10,7 @@ class PhotonTree;
 class Scene {
 public:
 	Scene();
-	void parseScene(string);
+	void parseScene();
 	bool getMTLLine(string);
 	void parseMTL(string);
 	bool parseLine(string);
@@ -43,6 +43,7 @@ public:
 	PhotonTree* shadowHedge;
 	int photonsPerLight;
 	int nextFileIndex;
+	vector<string> filesToParse;
 	
 	vec3 ambience; /* Ambient light color */
 	

@@ -323,6 +323,11 @@ bool Scene::parseLine(string line) {
 	else if (op.compare("ctex")==0) { //clear texture map
 		parseMaterial.texture = Texture();
 	}
+	else if (op.compare("load")==0) { //push scene name onto filesToParse
+		string tmp;
+		ss >> tmp;
+		filesToParse.push_back(tmp);
+	}
 	else{
 		cout << "Warning: unrecognized command " << op << endl;
 	}
@@ -331,24 +336,27 @@ bool Scene::parseLine(string line) {
 	return true;
 }
 
-void Scene::parseScene(string filename) {
-	nextFileIndex = lastVertex;
-
-	ifstream inFile(filename.c_str(), ifstream::in);
-	char line[1024];
-
-	if (!inFile) {
-		Error("Could not open file " + filename);
-	}
+void Scene::parseScene() {
+	for (unsigned int i=0; i<filesToParse.size(); i++) {
+		string filename = filesToParse[i];
+		nextFileIndex = lastVertex;
 	
-	 while (inFile.good()) {
-		inFile.getline(line, 1023);
-		if(!parseLine(string(line))) {
-			Error("Bad line in input file:" + string(line));
-			
+		ifstream inFile(filename.c_str(), ifstream::in);
+		char line[1024];
+
+		if (!inFile) {
+			Error("Could not open file " + filename);
 		}
+		
+		 while (inFile.good()) {
+			inFile.getline(line, 1023);
+			if(!parseLine(string(line))) {
+				Error("Bad line in input file:" + string(line));
+				
+			}
+		}
+		inFile.close();
 	}
-	inFile.close();
 	/*Contruct kdtree for this scene*/
 	//delete kdTree;
 	kdTree = new KDTree(renderables.begin(), renderables.end(), 0, this);

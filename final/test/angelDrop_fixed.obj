@@ -1,15 +1,16 @@
-kd .7 .7 .7
-ks .1 .1 .5
-kr .1 .1 .1
+kd 0 0 0
+ks .1 .1 .1
+kr 0 0 0
 sp 2
-#ri 1.33
-pl 5 1 4 1 1 1
-translate 0 2 4
-cam
+ri 1.5
+#pl 0 0 -1 1 1 1 500
+#translate 0 2 4
+#cam
 
 
-ct
-translate 0 1.2 0
+#ct
+scale 6 6 6
+translate 0 -2 -8
 
 v -0.054998 0.814701 -0.434016
 v -0.050338 0.788623 -0.439784
