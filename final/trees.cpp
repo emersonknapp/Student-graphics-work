@@ -80,11 +80,6 @@ void PhotonTree::makeAABB() {
 	}
 }
 
-bool withinSphere(vec3 point, float radius, vec3 center) {
-	return (point-center).length() <= radius;
-}
-
-
 bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
 	if (aabb->intersect(hitPoint)) {
 		if (leafNode) {
@@ -92,7 +87,6 @@ bool PhotonTree::gatherPhotons(AABB* hitPoint, vector<photIt>& photons) {
 			vec3 center = hitPoint->maxes - vec3(radius, radius, radius);
 			for (photIt it = myBegin; it != myEnd; ++it) {
 				if ((((*it)->pos.dehomogenize())-center).length() <= radius) {
-				//if (withinSphere((*it)->pos, radius, center)) {
 					photons.push_back(it);
 				}
 			}

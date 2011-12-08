@@ -372,9 +372,6 @@ void photonCannon() {
 		tracePhoton(*phot, 0);
 	}
 	//store photons that hit a renderable into kdtree
-	cout << photonCloud.size() << endl;
-	cout << viewport.photonsPerLight << endl;
-	cout << scene->photons.size() << endl;
 	if (viewport.causticPhotonsPerLight == 0) scene->photonTree = new PhotonTree(scene->photons.begin(), scene->photons.end(), 0, scene);
 
 }

@@ -100,7 +100,6 @@ vec4 PLight::lightVector(vec4 origin) {
 
 void PLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
 	vec3 photensity = (power*intensity)/numPhots;
-	cout << photensity << endl;
 	for (int i=0; i<numPhots; i++) {
 		vec3 photonDir = randomSpherePoint(); 
 		Photon* photon = new Photon(pos, vec4(photonDir,0), photensity);
