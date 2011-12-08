@@ -133,7 +133,7 @@ void Scene::earClip(string line) {
 						tri->material = parseMaterial;
 
 						renderables.push_back(tri);
-
+						if (parseMaterial.ri > 0) caustics.push_back(tri);
 						//delete convexVertex
 						polygonVertices.erase (polygonVertices.begin() + cur);
 						polygonTextureVertices.erase (polygonTextureVertices.begin() + cur);
@@ -227,6 +227,7 @@ bool Scene::parseLine(string line) {
 		sph->translate(translation);
 		sph->material = parseMaterial;
 		renderables.push_back(sph);
+		if (parseMaterial.ri >0) caustics.push_back(sph);
 		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
 		//cout << translation << rotation << scale << endl;
 	}
