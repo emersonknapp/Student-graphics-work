@@ -559,11 +559,11 @@ void processArgs(int argc, char* argv[]) {
 	}
 	
 	string arg;
-	vector<string> sceneFiles;
+	//vector<string> sceneFiles;
 	for (int i=1; i<argc; i++) {
 		arg = argv[i];
 		if (arg.compare("-s") == 0 || arg.compare("--scene") == 0) {
-			sceneFiles.push_back(argv[++i]);
+			scene->filesToParse.push_back(argv[++i]);
 		} else if (arg.compare("-pr")==0 || arg.compare("--print")==0) {
 			imageWriter->fileName = argv[++i];
 		} else if (arg.compare("-px") == 0 || arg.compare("--pixels")==0) {
@@ -593,9 +593,7 @@ void processArgs(int argc, char* argv[]) {
 			Usage();
 		}
 	}
-	for (unsigned int i=0; i<sceneFiles.size(); i++) {
-		scene->parseScene(sceneFiles[i]);	
-	}
+	scene->parseScene();
 }
 
 //****************************************************

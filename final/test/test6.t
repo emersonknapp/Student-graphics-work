@@ -1,3 +1,5 @@
+load test/chippchair-fixed.obj
+
 pl 0 5 -16 .7 .7 .7 1000
 
 #dl 0 0 -1 1 1 1
