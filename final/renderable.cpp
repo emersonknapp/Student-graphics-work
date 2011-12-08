@@ -333,7 +333,6 @@ Camera::Camera() {
 	UR = vec4(1,1,-3,1);
 	LL = vec4(-1,-1, -3,1);
 	LR = vec4(1,-1,-3,1);
-
 }
 //shouldn't ever use this
 vec4 Camera::randomSurfacePoint() {

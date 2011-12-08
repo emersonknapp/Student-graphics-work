@@ -341,6 +341,7 @@ void photonCannon() {
 }
 
 void causticPistol() {
+	if (viewport.causticPhotonsPerLight == 0) return;
 	// shoot photons at the caustic thingies
 	// don't want these to bounce...but how?
 	vector<Photon*> causticAura;
@@ -349,10 +350,10 @@ void causticPistol() {
 		for (vector<Renderable*>::iterator ct = scene->caustics.begin(); ct != scene->caustics.end(); ++ ct) {
 			Renderable* currentCaustic = *ct;
 			vec3 photensity = (currentLight->power * currentLight->intensity) / viewport.causticPhotonsPerLight;
-			#pragma omp parallel for
 			for (int i = 0 ; i < viewport.causticPhotonsPerLight; i++) {
 				vec4 photonDir = currentCaustic->randomSurfacePoint() - currentLight->pos;
 				Photon* photon = new Photon(currentLight->pos, photonDir, photensity);
+				photon->color = vec3(1,0,0);
 				photon->caustic = true;
 				causticAura.push_back(photon);
 			}
@@ -363,6 +364,7 @@ void causticPistol() {
 	}
 
 	// construct tree
+	scene->causticBush = new PhotonTree(scene->causticPhotons.begin(), scene->causticPhotons.end(), 0, scene);
 }
 
 //***************************************************
