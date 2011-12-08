@@ -115,15 +115,18 @@ void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s
 	vec4 center;
 	float scale;
 	for (int i = 0; i < 3; i++) {
-		if (pos[i]>=0) center[i] = s->mins[i];
+		if (pos[i]>0) center[i] = s->mins[i];
 		else if (pos[i]<0) center[i] = s->maxes[i];
+		else if (pos[i]==0) center[i] = 0;
 	}
 	center[3] = 1;
+	
+
+	float max = (s->mins - s->maxes).length() / 2; 
 	for (int i=0; i<numPhots; i++) {
-		scale = rand01();
-		vec4 photonPos = center + vec4(randomCirclePoint(center),0);
-		vec4 photonDir = pos;
-		Photon* photon = new Photon(photonPos, photonDir, intensity);
+		scale = max * rand01();
+		vec4 photonPos = center + scale * vec4(randomCirclePoint(pos),0);
+		Photon* photon = new Photon(photonPos, pos, intensity);
 		photonCloud.push_back(photon);
 	}
 }
