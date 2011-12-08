@@ -56,7 +56,6 @@ public:
 class Photon : public Ray {
 public:
 	vec3 color;
-	bool caustic;
 	Photon();
 	Photon(vec4 a, vec4 b, vec3 c);
 };
