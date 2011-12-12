@@ -64,9 +64,9 @@ void Usage() {
 //***************************************************
 vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 	vec3 normal = norm.dehomogenize();
+	//return vec3(fabs(norm[0]), fabs(norm[1]), fabs(norm[2]));
 
 	vec3 color = vec3(0,0,0); //Default black
-	
 	//Color =
 		//Direct Illumination
 		//Specular Reflection
@@ -133,6 +133,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
 		bool hasHit = scene->rayIntersect(lightCheck, t, renderableIndex);
 		if (hasHit && depth > 0) {
+			
 
 			int q = renderableIndex;
 			//return lightCheck.dir.dehomogenize();
@@ -145,6 +146,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 		//TODO: there is something wrong with shadows of spheres in reflections on spheres...! what.
 		
 		if (shadePixel) {
+			
 			//if (depth > 0) return vec3(0,1,0);
 			
 			material = scene->renderables[index]->material;
@@ -228,6 +230,12 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 		
 	if (hasHit) {
+		
+		if (viewport.rawPhotons) {
+			Ray photCheck = Ray(r.pos, r.dir);
+			return diffuseRayColor(photCheck).dehomogenize();
+		}
+		
 		//************************************
 		//AMBIENT TERM FOR NON-PHOTON RENDERS
 		if (depth==0 and !(viewport.photons)) {
@@ -288,10 +296,12 @@ vec3 traceRay(Ray r, int depth) {
 		// COMPUTE REFLECTION
 		vec3 kr = mat.kr;
 		if (kr.length2() > 0) {
+			
 			Ray reflRay = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
 			vec3 reflColor = traceRay(reflRay, depth+1);
 			color += prod(kr,reflColor);
-		}
+			color = reflColor;
+		}		
 		
 		// *********************************
 		// COMPUTE TEXTURE MAPPING

@@ -136,13 +136,13 @@ float Sphere::rayIntersect (Ray r) {
 
 vec4 Sphere::normal(vec4 surface) {
 	//TODO: figure this shit out, what the fuck
-	return surface-vec4(center,1);
+	//return (surface-vec4(center,1)).normalize();
 	//return vec4(0, 0, -1, 0).normalize();
-	vec3 hit = (imat*surface).dehomogenize();
-	vec4 norm =  tmat.inverse().transpose() *  vec4(hit,0);
-	norm.normalize();
-	
-	return norm;
+	surface = vec4(surface.dehomogenize(), 1);
+	vec4 hit = imat*surface;
+	vec4 norm =  tmat.inverse().transpose() * vec4(hit.dehomogenize(), 0);
+		
+	return norm.normalize();
 }
 
 vec3 Sphere::textureColor(vec4 hitPoint) {
