@@ -61,8 +61,8 @@ void Usage() {
 
 vec4 diffuseRayColor(Ray r) {
 	vec3 color = vec3(0,0,0);
-	float percent = 0;
-	// intersect w/ objet, get the gatherEpsilon aabb box and average those photon colors
+	//float percent = 0;
+	// intersect w/ object, get the gatherEpsilon aabb box and average those photon colors
 
 	int renderableIndex=-1;
 	float t = T_MAX;
@@ -70,8 +70,9 @@ vec4 diffuseRayColor(Ray r) {
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	if (hasHit) {
+		
 		vec4 hitPoint = r.pos + t*r.dir;
-		float distance = (hitPoint - r.pos).length();
+		//float distance = (hitPoint - r.pos).length();
 		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
@@ -79,29 +80,32 @@ vec4 diffuseRayColor(Ray r) {
 		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
 		
 		int maxNeighbors = max(viewport.photonsPerLight * .0005, 1.0);
+		//maxNeighbors = 100;
 		float radius = viewport.gatherEpsilon;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			int neighborsSoFar = 0;
 			photIt neighbor;
-			while (neighborsSoFar < maxNeighbors && !nearPhotons.empty()) {
+			while (neighborsSoFar <= maxNeighbors && !nearPhotons.empty()) {
 				neighbor = nearPhotons.top();
+				//color += vec3(.1, 0, 0);
 				color += (*neighbor)->color;
 				nearPhotons.pop();
 				neighborsSoFar++;
-				radius = ((*neighbor)->pos - hitPoint).length();
 			}
+			radius = ((*neighbor)->pos - hitPoint).length();
 				
 			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
 				
-			//color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
+			color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
 			//color = color / (r.pos-hitPoint).length2();
+			//color = color / PI*radius*radius;
+			
 			
 		}
-		float steradius = atan(radius / distance);
-		percent = (steradius * steradius) / (2 * distance * distance);
-		//color /= PI*radius*radius;
+		//float steradius = atan(radius / distance);
+		//percent = (steradius * steradius) / (2 * distance * distance);
 	}
-	return vec4(color, percent); 
+	return vec4(color, 0); 
 }
 
 
@@ -121,13 +125,8 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 	
 	//***************
 	//PHOTON MAPPING
-	
-	if (viewport.photons) {
-		if (viewport.rawPhotons) {
-			Ray photCheck = Ray(r.pos, r.dir);
-			color = diffuseRayColor(photCheck);
-			return color;
-		}
+	//if (viewport.photons) {
+	if (false) {
 
 		//
 		//INDIRECT ILLUMINATION
@@ -142,7 +141,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			diffuseRay = Ray(hitPoint+EPSILON*norm, diffuseRayDirection);
 			diffuseColor += diffuseRayColor(diffuseRay);
 		}
-		float percent = diffuseColor[3] > 0 ? diffuseColor[3] : 1;
+		//float percent = diffuseColor[3] > 0 ? diffuseColor[3] : 1;
 		color += diffuseColor.dehomogenize();// * (1/percent);		
 		
 		//
@@ -173,26 +172,13 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 		int renderableIndex=-1;
 		
 		//Check for shadowing
-		
 		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
-		bool hasHit = scene->rayIntersect(lightCheck, t, renderableIndex);
-		if (hasHit && depth > 0) {
-			
+		scene->rayIntersect(lightCheck, t, renderableIndex);
 
-			int q = renderableIndex;
-			//return lightCheck.dir.dehomogenize();
-			//if (depth > 0) 	
-			//return vec3(q%2, 0, 0);
-			//return vec3(q%2,(q>>1)%2, (q>>2)%2);
-		}
 		shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
 	
-		//TODO: there is something wrong with shadows of spheres in reflections on spheres...! what.
 		
-		if (shadePixel) {
-			
-			//if (depth > 0) return vec3(0,1,0);
-			
+		if (shadePixel) {			
 			material = scene->renderables[index]->material;
 			vec3 lightColor = currentLight->intensity;
 			vec3 lightVector = currentLight->lightVector(hitPoint+EPSILON*norm).dehomogenize();
@@ -208,7 +194,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
-			} else return vec3(1,0,0);
+			} else ;
 
 	}
 	
@@ -230,11 +216,6 @@ vec3 traceRay(Ray r, int depth) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);	
 		
 	if (hasHit) {
-		
-		if (viewport.rawPhotons) {
-			Ray photCheck = Ray(r.pos, r.dir);
-			return diffuseRayColor(photCheck).dehomogenize();
-		}
 		
 		//************************************
 		//AMBIENT TERM FOR NON-PHOTON RENDERS
@@ -335,8 +316,9 @@ void tracePhoton(Photon* phot, int reflDepth) {
 		vec3 ks = mat.ks;
 		//******
 		// Shadow Photons
+		/*
 		if (reflDepth == 0) {
-			Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, -phot->color);
+			Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, vec3(0,0,0));
 			float shadowT = T_MAX;
 			int tmpRenderable = -1;
 			if (scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable)) {
@@ -349,14 +331,13 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				scene->shadowPhotons.push_back(shadowPhoton);
 			}
 		}
+		*/
 		
 		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
 		float randPick = rand01();
 		
 		if (randPick < probReflect) {
 			vec4 normal = rend->normal(hitPoint);
-			hitPoint = hitPoint + EPSILON*normal;
-			hitPoint[3] = 1;			
 			
 			vec3 n = -normal.dehomogenize();
 			vec3 d = phot->dir.dehomogenize();
@@ -371,18 +352,16 @@ void tracePhoton(Photon* phot, int reflDepth) {
 			phot->pos = hitPoint;
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
-				phot->color = prod(kd, phot->color)/probDiffuseReflect;
 				if (phot->caustic) scene->causticPhotons.push_back(phot);
 				else scene->photons.push_back(phot);
-				vec3 newDir = randomHemispherePoint(normal);
-				Photon* reflPhoton = new Photon(phot->pos, newDir, phot->color);
+				vec4 newDir = vec4(randomHemispherePoint(normal), 0);
+				//hitPoint = phot->pos + EPSILON*vec4(newDir, 0);
+				Photon* reflPhoton = new Photon(phot->pos+EPSILON*newDir, newDir, prod(kd, phot->color)/probDiffuseReflect);
 
 				tracePhoton(reflPhoton, reflDepth+1);
 				
 			} else {
 				if (mat.ri > 0) {
-					//cout << "r ";
-					//Refraction
 					float cosTheta = phot->dir * normal;
 					float riOld, riNew;
 					vec4 refracted;
@@ -396,15 +375,21 @@ void tracePhoton(Photon* phot, int reflDepth) {
 						riOld = mat.ri;
 						riNew = 1.0;
 					}
-					float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
-					if (cos2Phi > 0) {
-						//not totally internally reflected
-						refracted = (riOld * (phot->dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
-						phot->dir = refracted;
-						phot->pos = hitPoint;
+					if (riOld == riNew) { 
+						phot->pos = hitPoint+EPSILON*phot->dir;
 						tracePhoton(phot, reflDepth+1);
-					} else; //Totally internally reflected
-				} else {
+					} else {
+						float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
+						if (cos2Phi > 0) {
+							//not totally internally reflected
+							refracted = (riOld * (phot->dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+							phot->dir = refracted;
+							phot->pos = hitPoint+EPSILON*refracted;
+							tracePhoton(phot, reflDepth+1);
+						} else ; //Totally internally reflected
+					}
+				}
+				else {
 					//Specular reflection
 					phot->dir = vec4(refl, 0);
 					phot->color = prod(ks, phot->color)/probSpecularReflect;
@@ -412,7 +397,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				}
 			}
 		} else {
-			//Absorboloth. <-- I like that!
+			//scene->photons.push_back(phot);
 		}
 	}
 }
@@ -490,7 +475,11 @@ void render() {
 					float tmpX = (x+ax+randX)/viewport.w;
 					float tmpY = (y+ay+randY)/viewport.h;
 					camRay = camera->generate_ray(tmpX,tmpY);
-					color += traceRay(camRay, 0);
+					if (viewport.rawPhotons) {
+						color += diffuseRayColor(camRay).dehomogenize();
+					} else {
+						color += traceRay(camRay, 0);
+					}
 				}
 			}
 			color = (1.0 / pow(max(1,viewport.aliasing),2.0)) * color;
