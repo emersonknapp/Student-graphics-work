@@ -132,7 +132,9 @@ public:
 	virtual vec4 normal(vec4)=0;
 	virtual vec3 textureColor(vec4)=0;
 	virtual vec4 randomSurfacePoint()=0;
-	virtual float minorArea()=0;	
+	virtual float minorArea()=0;
+	virtual bool isLight() {return false;}
+	virtual bool isSphere() {return false;}
 	mat3 dehomogenize(mat4 t);
 	
 	virtual float rayIntersect (Ray)=0; // returns whether ray intersects this object, sets t to proper value
@@ -153,6 +155,7 @@ public:
 	vec4 randomSurfacePoint();
 	float minorArea();
 	float rayIntersect(Ray); 
+	bool isLight() {return true;}
 };
 
 class PLight: public Light {
@@ -174,10 +177,15 @@ public:
 
 class TriLight : public Light {
 public:
-	vec3 v1, v2, v3;
+	vec4 v1, v2, v3;
 	TriLight(vec4, vec3, float);
 	vec4 lightVector(vec4);
 	void generatePhotons(vector<Photon*>&, int, AABB*);
+	vec4 normal(vec4);
+	vec3 textureColor(vec4);
+	vec4 randomSurfacePoint();
+	float minorArea();
+	float rayIntersect(Ray);
 };
 
 class Camera : public Renderable {
@@ -209,6 +217,7 @@ public:
 	vec3 textureColor(vec4);
 	vec4 randomSurfacePoint();
 	float minorArea();
+	bool isSphere() {return true;}
 };
 
 class Triangle : public Renderable {

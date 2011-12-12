@@ -1,6 +1,6 @@
 pl 0 9.9 -20 .4 .4 .4 300
 
-translate 0 0 0
+translate 0 0 5
 load test/chippchair-fixed.obj
 
 

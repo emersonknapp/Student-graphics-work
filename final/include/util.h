@@ -15,7 +15,7 @@
 #define T_MAX 400
 #define GATHER_RAYS 10
 
-#define MAXRECURSION 4
+#define MAXRECURSION 6
 #define PHOTCURSION 4
 #define MAXLINE 255
 

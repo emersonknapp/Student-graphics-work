@@ -19,6 +19,7 @@ public:
 	vec4 getVertexNormal(int);
 	int extractVertex(string, int&, int&);
 	bool rayIntersect(Ray, float&, int&);
+	bool rayIntersect(Ray, float&, int&, int);
 	void earClip(string);	
 	
 	vec3 rotation, translation, scale;

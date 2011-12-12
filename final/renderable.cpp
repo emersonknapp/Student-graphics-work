@@ -122,7 +122,7 @@ float Sphere::rayIntersect (Ray r) {
 		float x1 = ((-1*b) - sqrt(discrim))/2;
 		float x2 = ((-1*b) + sqrt(discrim))/2;
 		float t = min(x1,x2);
-		if ((t*raydir) * (raydir) < 0) { //if the ray folds back on itself. We always want ot move *forward*, so we check if the dot product is negative
+		if ((t*raydir) * (raydir) < 0) {
 			t = max(x1,x2);
 		}
 		vec4 intersection = raypos + t * raydir;
@@ -135,8 +135,11 @@ float Sphere::rayIntersect (Ray r) {
 }
 
 vec4 Sphere::normal(vec4 surface) {
+	//TODO: figure this shit out, what the fuck
+	return surface-vec4(center,1);
+	//return vec4(0, 0, -1, 0).normalize();
 	vec3 hit = (imat*surface).dehomogenize();
-	vec4 norm = imat.transpose()*vec4(hit,0);
+	vec4 norm =  tmat.inverse().transpose() *  vec4(hit,0);
 	norm.normalize();
 	
 	return norm;

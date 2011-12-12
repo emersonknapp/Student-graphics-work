@@ -212,12 +212,16 @@ bool Scene::parseLine(string line) {
 		lastVertexNormal++;
 		vertexNormals.push_back(vec4(a,b,c,0));
 	}
-	else if (op.compare("f") == 0) { //face, for now just a triangle TODO: earclipping
+	else if (op.compare("f") == 0) { //face, TODO: enable earclipping
 		string i, j, k, zz;
 		ss >> i >> j >> k;
-
 		earClip(line);
-	} 
+	}
+	else if (op.compare("tlight")==0) { //triangle light
+		string i, j, k;
+		ss >> i >> j >> k;
+		earClip(line);
+	}
 	else if (op.compare("s")==0) { //Parse a sphere
 		float r;
 		ss >> r;
@@ -436,5 +440,10 @@ bool Scene::rayIntersect(Ray r, float& t, int& index) {
 		index = distance(renderables.begin(), rend);
 	}
 	return hasHit;
-	
 }
+
+bool Scene::rayIntersect(Ray r, float& t, int& index, int depth) {
+	if (depth > 0) return false;
+	else return rayIntersect(r, t, index);
+}
+

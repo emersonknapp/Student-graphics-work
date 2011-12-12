@@ -41,7 +41,7 @@ void Error(string msg) {
 void Warning(string msg) {
 	cerr << "Warning: " << msg << endl;
 }
-//TODO: option where you can see where the photons landed
+
 void Usage() {
 	cout << "Photon Cannon v" << VERSION_NUMBER << endl
 	<< "Usage:" << endl
@@ -62,46 +62,91 @@ void Usage() {
 //***************************************************
 // Do phong shading on a point
 //***************************************************
-vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
+vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 	vec3 normal = norm.dehomogenize();
 
 	vec3 color = vec3(0,0,0); //Default black
-
-	//Process:
-	//draw ray from the intersection point to each of the point lights (define direction as pointLight.pos - intersection).
-	// Find the intersection point t.  If t < 1, then there's something in the way, so just skip that point light. 
-	// If t=1, then we're good, so run Phong Shading to get the color of the pixel. Reflect this, with shade() recursive calls
-	// don't forget to increase recursionDepth!
 	
-	//Loop through lights
-	for (vector<Light*>::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
-		Light* currentLight = *it;
-		
-		Material material;
-		bool shadePixel = true;
-		float t = T_MAX;
-		int renderableIndex=-1;
-		vec3 shadColor = vec3(0,0,0);
+	//Color =
+		//Direct Illumination
+		//Specular Reflection
+		//Caustics
+		//Diffuse Reflection
+	
+	//***************
+	//PHOTON MAPPING
+	/*
+	if (viewport.photons) {
+		if (viewport.rawPhotons) {
+			Ray photCheck = Ray(r.pos, r.dir);
+			color = diffuseRayColor(photCheck);
+			return color;
+		}
 
-		//shadow ray
-		if (!viewport.photons) {
-			Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
-			(scene->rayIntersect(lightCheck, t, renderableIndex));
-			shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
-		} else {
+		//
+		//INDIRECT ILLUMINATION
+		Ray diffuseRay;
+		int gather_rays = 1;
+		//#pragma omp parallel for shared(color)
+		vec4 diffuseColor = vec4(0,0,0,0);
+		for (int i = 0; i < gather_rays; i++) {
+			vec3 point = randomHemispherePoint(normal);
+			vec4 diffuseRayDirection = vec4(point,0);
+			//generate diffuse ray
+			diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
+			diffuseColor += diffuseRayColor(diffuseRay);
+		}
+		float percent = diffuseColor[3] > 0 ? diffuseColor[3] : 1;
+		color += diffuseColor.dehomogenize();// * (1/percent);
+		return color;
+		
+		
+		//
+		// CAUSTICS
+		if (viewport.causticPhotonsPerLight > 0) {
 			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
 			AABB gatherBox = AABB(mins,maxes);	
 			priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
-			scene->shadowHedge->gatherPhotons(&gatherBox,nearPhotons);
-			int numShadowPhotons = nearPhotons.size();
-			while (!nearPhotons.empty()) {
-				shadColor -= (*nearPhotons.top())->color;
-				nearPhotons.pop();
+			if (scene->causticBush->gatherPhotons(&gatherBox,nearPhotons)) {
+				while (!nearPhotons.empty()) {
+					color += (*nearPhotons.top())->color;
+					nearPhotons.pop();
+				}
+				color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
+				
 			}
+		} 
+	}
+	*/
+	//Loop through lights
+	for (size_t i=0; i < scene->lights.size(); ++i) {
+		Light* currentLight = scene->lights[i];
+		
+		Material material;
+		bool shadePixel = false;
+		float t = T_MAX;
+		int renderableIndex=-1;
+		
+		//Check for shadowing
+		
+		Ray lightCheck = Ray(hitPoint+EPSILON*norm, currentLight->lightVector(hitPoint));
+		bool hasHit = scene->rayIntersect(lightCheck, t, renderableIndex);
+		if (hasHit && depth > 0) {
+
+			int q = renderableIndex;
+			//return lightCheck.dir.dehomogenize();
+			//if (depth > 0) 	
+			//return vec3(q%2, 0, 0);
+			//return vec3(q%2,(q>>1)%2, (q>>2)%2);
 		}
+		shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
+	
+		//TODO: there is something wrong with shadows of spheres in reflections on spheres...! what.
 		
 		if (shadePixel) {
+			//if (depth > 0) return vec3(0,1,0);
+			
 			material = scene->renderables[index]->material;
 			vec3 lightColor = currentLight->intensity;
 			vec3 lightVector = currentLight->lightVector(hitPoint+EPSILON*norm).dehomogenize();
@@ -117,29 +162,16 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index) {
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
-		
 		}
-		
-		shadColor = shadColor / ((2.0/3.0)*(PI*pow(viewport.gatherEpsilon, 3.0f)));
-		//shadColor =  shadColor / (2.0*PI*pow(viewport.gatherEpsilon, 2.0f));
-		
-		color -= shadColor;
-		color[0] = max(color[0], 0.0);
-		color[1] = max(color[1], 0.0);
-		color[2] = max(color[2], 0.0);
-		
 
-		
 	}
-	//cout << color << endl;
-
-	
 	
 	return color;
 }
 
-vec3 diffuseRayColor(Ray r) {
+vec4 diffuseRayColor(Ray r) {
 	vec3 color = vec3(0,0,0);
+	float percent = 0;
 	// intersect w/ objet, get the gatherEpsilon aabb box and average those photon colors
 
 	int renderableIndex=-1;
@@ -149,6 +181,7 @@ vec3 diffuseRayColor(Ray r) {
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
 	if (hasHit) {
 		vec4 hitPoint = r.pos + t*r.dir;
+		float distance = (hitPoint - r.pos).length();
 		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
 		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
 		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
@@ -156,7 +189,7 @@ vec3 diffuseRayColor(Ray r) {
 		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
 		
 		int maxNeighbors = viewport.photonsPerLight * .0005;
-		
+		float radius = viewport.gatherEpsilon;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			int neighborsSoFar = 0;
 			photIt neighbor;
@@ -166,15 +199,18 @@ vec3 diffuseRayColor(Ray r) {
 				nearPhotons.pop();
 				neighborsSoFar++;
 			}
-			float radius = ((*neighbor)->pos - hitPoint).length();	
+			radius = ((*neighbor)->pos - hitPoint).length();	
 				
 			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
 				
-			color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
+			//color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
+			//color = color / (r.pos-hitPoint).length2();
 			
 		}
+		float steradius = atan(radius / distance);
+		percent = (steradius * steradius) / (2 * distance * distance);
 	}
-	return color;
+	return vec4(color, percent); 
 }
 
 //Traces a ray out, collecting outputs from shading, reflections, etc.
@@ -190,7 +226,7 @@ vec3 traceRay(Ray r, int depth) {
 	vec3 color = vec3(0,0,0);
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);
-	
+		
 	if (hasHit) {
 		//************************************
 		//AMBIENT TERM FOR NON-PHOTON RENDERS
@@ -199,117 +235,70 @@ vec3 traceRay(Ray r, int depth) {
 		}
 			
 		Renderable* rend = scene->renderables[renderableIndex];
+
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
+	
 
-		//***************
-		//DIFFUSE GATHER
-		if (viewport.photons) {
-			if (viewport.rawPhotons) {
-				Ray photCheck = Ray(r.pos, r.dir);
-				color = diffuseRayColor(photCheck);
-				return color;
-			}
-
-			//****************
-			//INDIRECT ILLUMINATION
-			Ray diffuseRay;
-			
-			/*
-			#pragma omp parallel for shared(color)
-			for (int i = 0; i < GATHER_RAYS; i++) {
-				vec3 point = randomHemispherePoint(normal);
-				
-				vec4 diffuseRayDirection = vec4(point,0);
-				//generate diffuse ray
-				diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
-				color += diffuseRayColor(diffuseRay) * max(0.0, diffuseRayDirection * normal) / (float)GATHER_RAYS;
-			}
-			*/
-			//**********
-			// CAUSTICS
-			if (viewport.causticPhotonsPerLight > 0) {
-				vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
-				vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-				AABB gatherBox = AABB(mins,maxes);	
-				priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
-				if (scene->causticBush->gatherPhotons(&gatherBox,nearPhotons)) {
-					while (!nearPhotons.empty()) {
-						color += (*nearPhotons.top())->color;
-						nearPhotons.pop();
-					}
-					color = (2.0/3.0) * color / (PI*pow(viewport.gatherEpsilon, 3.0f));
-					
-				}
-			} 
-		}
-//		return color;	
-		//*************
-		//SPECULAR ( and DIFFUSE if not PHOTON MAPPING )
-		color += shade(r, hitPoint, normal, renderableIndex);
+		//Shade this point
+		color += shade(r, hitPoint, normal, renderableIndex, depth);
 		
 		vec3 n = -normal.dehomogenize();
 		vec3 d = r.dir.dehomogenize();
-		n.normalize();
-		d.normalize();
+		//n.normalize();
+		//d.normalize();
 		
 		vec3 refl = d - 2*(d*n)*n;
-		refl.normalize();
+		//refl.normalize();
 		
 		// *******************************
 		// COMPUTE REFRACTION
-		if (rend->material.ri > 0) {
-			
-			float c1 = (n*d);
-			float nn;
-			float curRI = 1.0;
-			float newRI = 1.0;
-			// top of the stack is the RI of the material the ray is in. we set curRI to the top(), then push the renderable's RI onto the stack bc that's where the ray is now
-			if (c1 < 0) { // ray hits outside of object, so we set ray.ri to the object's ri
-
-				if (r.ristack.empty()) r.ristack.push_back(1.0);
-				curRI = r.ristack.back();
-				
-				nn = rend->material.ri / curRI;
-				
-				r.ristack.push_back(rend->material.ri);
-				n=-normal.dehomogenize().normalize();
-			} else { // ray hits inside of object, then we know we're going to what we had before (oldRI)
-				curRI = rend->material.ri;
-				if (!r.ristack.empty()) r.ristack.pop_back();
-				if (r.ristack.empty()) newRI = 1.0;
-				else newRI = r.ristack[r.ristack.size()-1];
-				nn = newRI / curRI;
-				n=normal.dehomogenize().normalize();
+		
+		Material mat = rend->material;
+		//TODO: there are some cases where a refracted ray intersects the same sphere
+		
+		if (mat.ri > 0) {
+			float cosTheta = r.dir * normal;
+			float riOld, riNew;
+			vec4 refracted;
+			vec3 norm = normal.dehomogenize();
+			if (cosTheta < 0) { 
+				//Ray hits outside of object
+				riOld = 1.0;
+				riNew = mat.ri;
+			} else {
+				//Ray hits inside of object
+				riOld = mat.ri;
+				riNew = 1.0;
 			}
-			float c2 = 1.0-(pow(nn,2) * (1.0 - pow(c1,2)));
-			if (c2 >= 0.0) {
-				vec3 tmp1 = (nn*d);
-				vec3 tmp2 = (nn*c1-sqrt(c2))*(n);
-				vec3 tmp3 = tmp1 + tmp2;
-				tmp3.normalize();
-				vec4 rayDirection = vec4(tmp3,0);
-				Ray refractedRay = Ray(hitPoint+EPSILON*rayDirection,rayDirection);
-				refractedRay.ristack.swap(r.ristack);
-				vec3 refractedColor = traceRay(refractedRay, depth+1);
-				color += refractedColor;
-			} 
+			float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
+			if (cos2Phi > 0) {
+				//not totally internally reflected
+				refracted = (riOld * (r.dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+				r.dir = refracted;
+				r.pos = hitPoint+EPSILON*normal;
+				color += traceRay(r, depth+1);
+			} else; //Totally internally reflected
 		}
+		
+		
+		
 		
 		/// *******************************
 		// COMPUTE REFLECTION
-		Ray reflRay = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
-		vec3 kr = rend->material.kr;
-		vec3 reflColor = traceRay(reflRay, depth+1);
-		color += prod(kr,reflColor);
+		vec3 kr = mat.kr;
+		if (kr.length2() > 0) {
+			Ray reflRay = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
+			vec3 reflColor = traceRay(reflRay, depth+1);
+			color += prod(kr,reflColor);
+		}
 		
 		// *********************************
 		// COMPUTE TEXTURE MAPPING
 		if (rend->material.texture.exists) color += rend->textureColor(hitPoint);
-		return color;
-	} else { 
-		return vec3(0,0,0);
-	}
+	} 
+	
+	return color;
 }
 
 
@@ -369,11 +358,11 @@ void tracePhoton(Photon* phot, int reflDepth) {
 			phot->pos = hitPoint;
 			if (randPick < probDiffuseReflect) {
 				//Diffuse reflection
-				vec3 newColor = prod(kd, phot->color)/probDiffuseReflect;
+				phot->color = prod(kd, phot->color)/probDiffuseReflect;
 				if (phot->caustic) scene->causticPhotons.push_back(phot);
 				else scene->photons.push_back(phot);
 				vec3 newDir = randomHemispherePoint(normal);
-				Photon* reflPhoton = new Photon(phot->pos, newDir, newColor);
+				Photon* reflPhoton = new Photon(phot->pos, newDir, phot->color);
 
 				tracePhoton(reflPhoton, reflDepth+1);
 				
@@ -402,8 +391,6 @@ void tracePhoton(Photon* phot, int reflDepth) {
 						phot->pos = hitPoint;
 						tracePhoton(phot, reflDepth+1);
 					} else; //Totally internally reflected
-						
-					
 				} else {
 					//Specular reflection
 					phot->dir = vec4(refl, 0);
