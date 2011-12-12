@@ -31,10 +31,12 @@ class Ray {
 public:
 	vec4 pos;
 	vec4 dir;
+	int lastIndex;
 	float t_min, t_max;
 	vector<float> ristack;
 	Ray();
 	Ray(vec4 a, vec4 b);
+	Ray(vec4 a, vec4 b, int i);
 };
 
 

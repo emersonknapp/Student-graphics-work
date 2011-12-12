@@ -10,9 +10,9 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
 #define FRAMERATE 10
-#define EPSILON 0.00001
+#define EPSILON 0.01
 #define DEBUG false
-#define T_MAX 400
+#define T_MAX 10000
 #define GATHER_RAYS 10
 
 #define MAXRECURSION 6

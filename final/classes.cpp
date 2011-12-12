@@ -30,6 +30,12 @@ Ray::Ray(vec4 a, vec4 b) {
 	dir.normalize();
 }	
 
+Ray::Ray(vec4 a, vec4 b, int i) {
+	pos = a;
+	dir = b.normalize();
+	lastIndex = i;
+}
+
 Photon::Photon() : Ray() {
 	caustic = false;
 	renderIndex = -1;

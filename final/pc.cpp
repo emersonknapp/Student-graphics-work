@@ -59,6 +59,52 @@ void Usage() {
 }
 
 
+vec4 diffuseRayColor(Ray r) {
+	vec3 color = vec3(0,0,0);
+	float percent = 0;
+	// intersect w/ objet, get the gatherEpsilon aabb box and average those photon colors
+
+	int renderableIndex=-1;
+	float t = T_MAX;
+	bool hasHit = false;
+	
+	hasHit = scene->rayIntersect(r, t, renderableIndex);
+	if (hasHit) {
+		vec4 hitPoint = r.pos + t*r.dir;
+		float distance = (hitPoint - r.pos).length();
+		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
+		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+		AABB gatherBox = AABB(mins,maxes);
+		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
+		
+		int maxNeighbors = max(viewport.photonsPerLight * .0005, 1.0);
+		float radius = viewport.gatherEpsilon;
+		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
+			int neighborsSoFar = 0;
+			photIt neighbor;
+			while (neighborsSoFar < maxNeighbors && !nearPhotons.empty()) {
+				neighbor = nearPhotons.top();
+				color += (*neighbor)->color;
+				nearPhotons.pop();
+				neighborsSoFar++;
+				radius = ((*neighbor)->pos - hitPoint).length();
+			}
+				
+			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
+				
+			//color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
+			//color = color / (r.pos-hitPoint).length2();
+			
+		}
+		float steradius = atan(radius / distance);
+		percent = (steradius * steradius) / (2 * distance * distance);
+		//color /= PI*radius*radius;
+	}
+	return vec4(color, percent); 
+}
+
+
 //***************************************************
 // Do phong shading on a point
 //***************************************************
@@ -75,7 +121,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 	
 	//***************
 	//PHOTON MAPPING
-	/*
+	
 	if (viewport.photons) {
 		if (viewport.rawPhotons) {
 			Ray photCheck = Ray(r.pos, r.dir);
@@ -93,13 +139,11 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			vec3 point = randomHemispherePoint(normal);
 			vec4 diffuseRayDirection = vec4(point,0);
 			//generate diffuse ray
-			diffuseRay = Ray(hitPoint+EPSILON*normal, diffuseRayDirection);
+			diffuseRay = Ray(hitPoint+EPSILON*norm, diffuseRayDirection);
 			diffuseColor += diffuseRayColor(diffuseRay);
 		}
 		float percent = diffuseColor[3] > 0 ? diffuseColor[3] : 1;
-		color += diffuseColor.dehomogenize();// * (1/percent);
-		return color;
-		
+		color += diffuseColor.dehomogenize();// * (1/percent);		
 		
 		//
 		// CAUSTICS
@@ -118,7 +162,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			}
 		} 
 	}
-	*/
+	
 	//Loop through lights
 	for (size_t i=0; i < scene->lights.size(); ++i) {
 		Light* currentLight = scene->lights[i];
@@ -171,50 +215,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 	return color;
 }
 
-vec4 diffuseRayColor(Ray r) {
-	vec3 color = vec3(0,0,0);
-	float percent = 0;
-	// intersect w/ objet, get the gatherEpsilon aabb box and average those photon colors
-
-	int renderableIndex=-1;
-	float t = T_MAX;
-	bool hasHit = false;
-	
-	hasHit = scene->rayIntersect(r, t, renderableIndex);
-	if (hasHit) {
-		vec4 hitPoint = r.pos + t*r.dir;
-		float distance = (hitPoint - r.pos).length();
-		vec4 normal = scene->renderables[renderableIndex]->normal(hitPoint);
-		vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
-		vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
-		AABB gatherBox = AABB(mins,maxes);
-		priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint.dehomogenize(), viewport.gatherEpsilon));
-		
-		int maxNeighbors = viewport.photonsPerLight * .0005;
-		float radius = viewport.gatherEpsilon;
-		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
-			int neighborsSoFar = 0;
-			photIt neighbor;
-			while (neighborsSoFar < maxNeighbors && !nearPhotons.empty()) {
-				neighbor = nearPhotons.top();
-				color += (*neighbor)->color;
-				nearPhotons.pop();
-				neighborsSoFar++;
-			}
-			radius = ((*neighbor)->pos - hitPoint).length();	
-				
-			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
-				
-			//color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
-			//color = color / (r.pos-hitPoint).length2();
-			
-		}
-		float steradius = atan(radius / distance);
-		percent = (steradius * steradius) / (2 * distance * distance);
-	}
-	return vec4(color, percent); 
-}
-
 //Traces a ray out, collecting outputs from shading, reflections, etc.
 vec3 traceRay(Ray r, int depth) {
 	//Recursion cutoff check
@@ -227,7 +227,7 @@ vec3 traceRay(Ray r, int depth) {
 	bool hasHit = false;
 	vec3 color = vec3(0,0,0);
 	
-	hasHit = scene->rayIntersect(r, t, renderableIndex);
+	hasHit = scene->rayIntersect(r, t, renderableIndex);	
 		
 	if (hasHit) {
 		
@@ -279,14 +279,17 @@ vec3 traceRay(Ray r, int depth) {
 				riOld = mat.ri;
 				riNew = 1.0;
 			}
-			float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
-			if (cos2Phi > 0) {
-				//not totally internally reflected
-				refracted = (riOld * (r.dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
-				r.dir = refracted;
-				r.pos = hitPoint+EPSILON*normal;
-				color += traceRay(r, depth+1);
-			} else; //Totally internally reflected
+			if (riOld == riNew) { 
+				color += traceRay(Ray(hitPoint+EPSILON*r.dir, r.dir), depth+1);
+			} else {
+				float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
+				if (cos2Phi > 0) {
+					//not totally internally reflected
+					refracted = (riOld * (r.dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+					Ray refractRay = Ray(hitPoint+EPSILON*refracted, refracted);
+					color += traceRay(refractRay, depth+1);
+				} else ; //Totally internally reflected
+			}
 		}
 		
 		
@@ -296,8 +299,8 @@ vec3 traceRay(Ray r, int depth) {
 		// COMPUTE REFLECTION
 		vec3 kr = mat.kr;
 		if (kr.length2() > 0) {
-			
-			Ray reflRay = Ray(hitPoint+EPSILON*normal, vec4(refl,0));
+			vec4 reflDir = vec4(refl, 0);
+			Ray reflRay = Ray(hitPoint+EPSILON*reflDir, reflDir);
 			vec3 reflColor = traceRay(reflRay, depth+1);
 			color += prod(kr,reflColor);
 			color = reflColor;

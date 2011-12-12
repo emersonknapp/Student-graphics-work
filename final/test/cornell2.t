@@ -3,7 +3,7 @@ pl 0 9 -20 .4 .4 .4 500
 #dl 0 0 -1 1 1 1
 sp 100
 
-translate 0 0 25
+translate 0 0 20
 #rotate 0 3.14 0
 cam
 
@@ -62,13 +62,13 @@ kr .9 .9 .9
 translate -4.2 -6.3 -26
 s 3.7
 
-kd 1 1 1
+kd 0 0 0
 ks 1 1 1
 sp 1000
 kr 0 0 0
-#ri 1.3
+ri 2.0
 scale 1 1 1
-translate 5 0 -19
+translate 5 -6.6 -19
 s 3.4
 
 ct
