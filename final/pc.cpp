@@ -208,7 +208,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 norm, int index, int depth) {
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
 			color += specular;
-		}
+			} else return vec3(1,0,0);
 
 	}
 	
