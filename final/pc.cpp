@@ -96,9 +96,9 @@ vec4 diffuseRayColor(Ray r) {
 				
 			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
 				
-			color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
+			//color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
 			//color = color / (r.pos-hitPoint).length2();
-			//color = color / PI*radius*radius;
+			color = color / (PI*radius*radius);
 			
 			
 		}
