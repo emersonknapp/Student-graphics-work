@@ -250,37 +250,7 @@ vec3 traceRay(Ray r, int depth) {
 		// COMPUTE REFRACTION
 		
 		Material mat = rend->material;
-		//TODO: there are some cases where a refracted ray intersects the same sphere
-		/*
-		if (mat.ri > 0) {
-			float cosTheta = r.dir * normal;
-			float riOld, riNew;
-			vec4 refracted;
-			vec3 norm = normal.dehomogenize();
-			if (cosTheta < 0) { 
-				//Ray hits outside of object
-				riOld = 1.0;
-				riNew = mat.ri;
-			} else {
-				//Ray hits inside of object
-				riOld = mat.ri;
-				riNew = 1.0;
-			}
-			if (riOld == riNew) { 
-				color += traceRay(Ray(hitPoint+EPSILON*r.dir, r.dir), depth+1);
-			} else {
-				float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
-				if (cos2Phi > 0) {
-					//not totally internally reflected
-					refracted = (riOld * (r.dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
-					//cout << normal << refracted << endl;
-					Ray refractRay = Ray(hitPoint+EPSILON*refracted, refracted);
-					color += traceRay(refractRay, depth+1);
-				} else { //Totally internally reflected 
-				}
-			}
-		}
-		*/
+
 		if (mat.ri > 0) {
 			double cos_theta_1, cos_theta_2, cos_theta_2_squared, n1, n2, negation;
 			vec4 v_reflect, v_refract;
@@ -331,8 +301,8 @@ vec3 traceRay(Ray r, int depth) {
 }
 
 
-void tracePhoton(Photon* phot, int reflDepth) {
-	if (reflDepth > PHOTCURSION) {
+void tracePhoton(Photon* phot, int depth) {
+	if (depth > PHOTCURSION) {
 		return;
 	}
 	
@@ -353,7 +323,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 		//******
 		// Shadow Photons
 		/*
-		if (reflDepth == 0) {
+		if (depth == 0) {
 			Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, vec3(0,0,0));
 			float shadowT = T_MAX;
 			int tmpRenderable = -1;
@@ -394,45 +364,39 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				//hitPoint = phot->pos + EPSILON*vec4(newDir, 0);
 				Photon* reflPhoton = new Photon(phot->pos+EPSILON*newDir, newDir, prod(kd, phot->color)/probDiffuseReflect);
 
-				tracePhoton(reflPhoton, reflDepth+1);
+				tracePhoton(reflPhoton, depth+1);
 				
 			} else {
 				if (mat.ri > 0) {
-				//if (false) {
-					float cosTheta = phot->dir * normal;
-					float riOld, riNew;
-					vec4 refracted;
-					vec3 norm = normal.dehomogenize();
-					if (cosTheta < 0) { 
+					double cos_theta_1, cos_theta_2, cos_theta_2_squared, n1, n2, negation;
+					vec4 v_reflect, v_refract;
+					cos_theta_1 = normal * -phot->dir;			
+					negation = cos_theta_1 > 0 ? 1 : -1;
+					if (cos_theta_1 > 0) { 
 						//Ray hits outside of object
-						riOld = 1.0;
-						riNew = mat.ri;
+						n1 = 1.0;
+						n2 = mat.ri;
 					} else {
 						//Ray hits inside of object
-						riOld = mat.ri;
-						riNew = 1.0;
+						n1 = mat.ri;
+						n2 = 1.0;
 					}
-					if (riOld == riNew) {
-						phot->pos = hitPoint+EPSILON*phot->dir;
-						tracePhoton(phot, reflDepth+1);
+					cos_theta_2_squared = 1 - (pow(n1/n2, 2)*(1-pow(cos_theta_1, 2)));
+					if (cos_theta_2_squared > 0) {
+						cos_theta_2 = sqrt(cos_theta_2_squared);
+						v_reflect = phot->dir + (2*cos_theta_1)*normal;
+						v_refract = ((n1/n2)*phot->dir) + negation*((n1/n2)*cos_theta_1 - cos_theta_2)*normal;
+						Photon* refractPhot = new Photon(hitPoint + EPSILON*v_refract, v_refract, phot->color);
+						tracePhoton(refractPhot, depth+1);
 					} else {
-						float cos2Phi = 1 - ((pow(riOld, 2) * (1-pow(cosTheta, 2))) / pow(riNew, 2));
-						if (cos2Phi > 0) {
-							//not totally internally reflected
-							refracted = (riOld * (phot->dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
-							
-							phot->dir = refracted;
-							phot->pos = hitPoint + EPSILON*refracted;
-							
-							tracePhoton(phot, reflDepth+1);
-						} else ; //Totally internally reflected
+						//Total internal reflection
 					}
 				}
 				else {
 					//Specular reflection
 					phot->dir = vec4(refl, 0);
 					phot->color = prod(ks, phot->color)/probSpecularReflect;
-					tracePhoton(phot, reflDepth+1);
+					tracePhoton(phot, depth+1);
 				}
 			}
 		} else {
@@ -495,7 +459,7 @@ void render() {
 	int nextpercent = onepercent;
 	/*End*/
 	Camera* camera = scene->camera;
-	//#pragma omp parallel for shared(nextpercent)
+	#pragma omp parallel for shared(nextpercent)
 	for (int x = 0; x < viewport.w; x++) {
 		for (int y = 0; y < viewport.h; y++) {
 

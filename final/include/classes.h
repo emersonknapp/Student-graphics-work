@@ -115,6 +115,7 @@ class Renderable {
 public:
 	mat4 tmat;
 	mat4 imat;
+	mat3 normat;
 	mat4 rotmat;
 	mat4 transmat;
 	mat4 scalemat;

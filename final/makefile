@@ -11,13 +11,13 @@ UNAME := $(shell uname)
 LIBS = -lm -lstdc++ -lfreeimage
 INCS = -I include -fopenmp
 ifeq ($(UNAME), Linux)
-INCS += -L./lib/filinux -I./lib/filinux
+INCS += -I lib/filinux -L lib/filinux 
 endif
 ifeq ($(UNAME), SunOS)
-INCS += -L./lib/fisolaris -I./lib/fisolaris
+INCS += -I lib/fisolaris -L lib/fisolaris 
 endif
 ifeq ($(UNAME), Darwin)
-INCS += -L./lib/fiosx -I./lib/fiosx
+INCS += -I lib/fiosx -L lib/fiosx
 #OPT += -fast
 endif
 

@@ -31,6 +31,7 @@ void Renderable::translate (float x, float y, float z) { // generates translatio
 	tmat = transmat * rotmat * scalemat;
 	center = tmat*center;
 	imat = tmat.inverse();
+	normat = dehomogenize(tmat).inverse();
 	
 }
 
@@ -66,6 +67,7 @@ void Renderable::rotate(float x, float y, float z) { // generates rotation matri
 	tmat = transmat * rotmat * scalemat;
 	center = tmat*center;
 	imat = tmat.inverse();
+	normat = dehomogenize(tmat).inverse();
 	
 }
 
@@ -87,6 +89,7 @@ void Renderable::scale(float xScale, float yScale, float zScale) { // generates 
 	tmat = transmat * rotmat * scalemat;
 	center = tmat*center;
 	imat = tmat.inverse();
+	normat = dehomogenize(tmat).inverse();
 }
 
 mat3 Renderable::dehomogenize(mat4 t) {
@@ -138,7 +141,7 @@ vec4 Sphere::normal(vec4 surface) {
 	vec4 hit = imat * surface;
 	vec3 norm = hit.dehomogenize();
 	
-	norm = norm * dehomogenize(tmat).inverse();
+	norm = norm * normat;
 	//cout << "After: " << norm.normalize() << endl;
 	return vec4(norm.normalize(), 0);
 }
