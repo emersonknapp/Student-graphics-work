@@ -2,7 +2,8 @@
 CC=g++
 cc=gcc
 
-OPT = -g -Wall -O3
+OPT = -g -Wall
+#OPT += -O3
 
 UNAME := $(shell uname)
 
@@ -17,7 +18,7 @@ INCS += -L./lib/fisolaris -I./lib/fisolaris
 endif
 ifeq ($(UNAME), Darwin)
 INCS += -L./lib/fiosx -I./lib/fiosx
-OPT += -fast
+#OPT += -fast
 endif
 
 #FLAGS

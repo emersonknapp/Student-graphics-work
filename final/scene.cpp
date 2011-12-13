@@ -356,7 +356,6 @@ void Scene::parseScene() {
 			inFile.getline(line, 1023);
 			if(!parseLine(string(line))) {
 				Error("Bad line in input file:" + string(line));
-				
 			}
 		}
 		inFile.close();
