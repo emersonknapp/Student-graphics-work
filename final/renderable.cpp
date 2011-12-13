@@ -103,7 +103,7 @@ AABB* Renderable::makeAABB() {
 }
 
 Sphere::Sphere() : Renderable() {
-	center = vec3(0,0,0);
+	center = vec4(0,0,0,1);
 }
 
 float Sphere::rayIntersect (Ray r) {
@@ -135,8 +135,16 @@ float Sphere::rayIntersect (Ray r) {
 }
 
 vec4 Sphere::normal(vec4 surface) {
-	vec3 hit = (imat*surface).dehomogenize();
-	vec4 norm =  imat.transpose() * vec4(hit, 0);
+	//cout << tmat << endl << imat << endl;
+	vec4 hit = imat * (surface-center);
+	if (hit.length() > 2) {
+		//cout << surface;
+		//cout << hit << hit.length() << endl;
+	}
+	//cout << hit << endl << endl;
+	//mat4 m = rotmat.inverse() * scalemat.inverse();
+	vec4 norm = imat.transpose() * hit;
+	//cout << "SPHERE " << hit << norm << " " << norm.length() << endl;		
 	return norm.normalize();
 }
 
@@ -202,7 +210,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c) : Renderable() {
 	v1 = a;
 	v2 = b;
 	v3 = c;
-	center = ((v1+v2+v3)/3).dehomogenize();
+	center = ((v1+v2+v3)/3);
 }
 	
 	
@@ -216,7 +224,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c, vec3 g, vec3 h, vec3 i, vec4 m, vec4 
 	vn1 = m;
 	vn2 = n;
 	vn3 = o;
-	center = ((v1+v2+v3)/3).dehomogenize();
+	center = ((v1+v2+v3)/3);
 }
 	
 float Triangle::rayIntersect ( Ray r) {
@@ -287,7 +295,7 @@ vec4 Triangle::normal(vec4 surface) {
 
 	} else {
 		n.normalize();
-		
+		if (n[3] != 0) cout << "TRI WRONG" << endl;		
 		return n;
 	}
 }

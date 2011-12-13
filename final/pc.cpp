@@ -81,25 +81,30 @@ vec4 diffuseRayColor(Ray r) {
 		
 		int maxNeighbors = max(viewport.photonsPerLight * .0005, 1.0);
 		//maxNeighbors = 100;
-		float radius = viewport.gatherEpsilon;
+		double radius = viewport.gatherEpsilon;
 		if (scene->photonTree->gatherPhotons(&gatherBox,nearPhotons)) {
 			int neighborsSoFar = 0;
 			photIt neighbor;
+			vec4 pos;
 			while (neighborsSoFar <= maxNeighbors && !nearPhotons.empty()) {
 				neighbor = nearPhotons.top();
 				//color += vec3(.1, 0, 0);
 				color += (*neighbor)->color;
+				pos = (*neighbor)->pos;
 				nearPhotons.pop();
 				neighborsSoFar++;
 			}
-			radius = ((*neighbor)->pos - hitPoint).length();
+			radius = (pos - hitPoint).length();
+			if (radius >= 1) {
+				//cout << mins << maxes << pos << endl;
+				return vec4(1,0,0,0);
+			}
 				
 			//cout << maxNeighbors << " " << neighborsSoFar << " " << radius << endl;
 				
 			//color =  color * (2.0/3.0) / (PI*pow(radius, 3.0f));
 			//color = color / (r.pos-hitPoint).length2();
-			color = color / (PI*radius*radius);
-			
+			color = color / (PI*pow(radius, 2));
 			
 		}
 		//float steradius = atan(radius / distance);
@@ -226,6 +231,8 @@ vec3 traceRay(Ray r, int depth) {
 		Renderable* rend = scene->renderables[renderableIndex];
 
 		vec4 hitPoint = r.pos + t*r.dir;
+		if (r.dir[3] > .1) cout << r.dir << endl;
+		
 		vec4 normal = rend->normal(hitPoint);
 	
 
@@ -238,14 +245,14 @@ vec3 traceRay(Ray r, int depth) {
 		//d.normalize();
 		
 		vec3 refl = d - 2*(d*n)*n;
-		//refl.normalize();
+		refl.normalize();
 		
 		// *******************************
 		// COMPUTE REFRACTION
 		
 		Material mat = rend->material;
 		//TODO: there are some cases where a refracted ray intersects the same sphere
-		
+		/*
 		if (mat.ri > 0) {
 			float cosTheta = r.dir * normal;
 			float riOld, riNew;
@@ -267,11 +274,15 @@ vec3 traceRay(Ray r, int depth) {
 				if (cos2Phi > 0) {
 					//not totally internally reflected
 					refracted = (riOld * (r.dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+					//cout << normal << refracted << endl;
 					Ray refractRay = Ray(hitPoint+EPSILON*refracted, refracted);
 					color += traceRay(refractRay, depth+1);
-				} else ; //Totally internally reflected
+				} else { //Totally internally reflected 
+				}
 			}
 		}
+		*/
+		
 		
 		
 		
@@ -312,6 +323,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 		Renderable* rend = scene->renderables[renderableIndex];
 		Material mat = rend->material;
 		vec4 normal = rend->normal(hitPoint);
+				
 		vec3 kd = mat.kd;
 		vec3 ks = mat.ks;
 		//******
@@ -362,6 +374,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 				
 			} else {
 				if (mat.ri > 0) {
+				//if (false) {
 					float cosTheta = phot->dir * normal;
 					float riOld, riNew;
 					vec4 refracted;
@@ -375,7 +388,7 @@ void tracePhoton(Photon* phot, int reflDepth) {
 						riOld = mat.ri;
 						riNew = 1.0;
 					}
-					if (riOld == riNew) { 
+					if (riOld == riNew) {
 						phot->pos = hitPoint+EPSILON*phot->dir;
 						tracePhoton(phot, reflDepth+1);
 					} else {
@@ -383,8 +396,10 @@ void tracePhoton(Photon* phot, int reflDepth) {
 						if (cos2Phi > 0) {
 							//not totally internally reflected
 							refracted = (riOld * (phot->dir - normal*cosTheta) / riNew) - (normal * sqrt(cos2Phi));
+							
 							phot->dir = refracted;
-							phot->pos = hitPoint+EPSILON*refracted;
+							phot->pos = hitPoint + EPSILON*refracted;
+							
 							tracePhoton(phot, reflDepth+1);
 						} else ; //Totally internally reflected
 					}
@@ -456,7 +471,7 @@ void render() {
 	int nextpercent = onepercent;
 	/*End*/
 	Camera* camera = scene->camera;
-	#pragma omp parallel for shared(nextpercent)
+	//#pragma omp parallel for shared(nextpercent)
 	for (int x = 0; x < viewport.w; x++) {
 		for (int y = 0; y < viewport.h; y++) {
 

@@ -118,7 +118,7 @@ public:
 	mat4 rotmat;
 	mat4 transmat;
 	mat4 scalemat;
-	vec3 center;
+	vec4 center;
 	Material material;
 	AABB* aabb;
 	virtual AABB* makeAABB();
