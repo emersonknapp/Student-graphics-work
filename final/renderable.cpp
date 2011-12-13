@@ -135,17 +135,12 @@ float Sphere::rayIntersect (Ray r) {
 }
 
 vec4 Sphere::normal(vec4 surface) {
-	//cout << tmat << endl << imat << endl;
-	vec4 hit = imat * (surface-center);
-	if (hit.length() > 2) {
-		//cout << surface;
-		//cout << hit << hit.length() << endl;
-	}
-	//cout << hit << endl << endl;
-	//mat4 m = rotmat.inverse() * scalemat.inverse();
-	vec4 norm = imat.transpose() * hit;
-	//cout << "SPHERE " << hit << norm << " " << norm.length() << endl;		
-	return norm.normalize();
+	vec4 hit = imat * surface;
+	vec3 norm = hit.dehomogenize();
+	
+	norm = norm * dehomogenize(tmat).inverse();
+	//cout << "After: " << norm.normalize() << endl;
+	return vec4(norm.normalize(), 0);
 }
 
 vec3 Sphere::textureColor(vec4 hitPoint) {

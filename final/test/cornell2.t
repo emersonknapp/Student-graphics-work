@@ -59,14 +59,14 @@ kd 0 0 0
 ks 1 1 1
 kr .9 .9 .9
 #scale 1.3 1 1
-translate -2.2 -6.3 -30
+translate -4.2 -6.3 -30
 s 3.7
 
 kd 0 0 0
 ks 1 1 1
 sp 100
 kr 0 0 0
-ri 1.33
+ri 1.8
 scale 1 1 1
 translate 5 -6.6 -19
 s 3.4

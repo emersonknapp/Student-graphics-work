@@ -231,11 +231,10 @@ vec3 traceRay(Ray r, int depth) {
 		Renderable* rend = scene->renderables[renderableIndex];
 
 		vec4 hitPoint = r.pos + t*r.dir;
-		if (r.dir[3] > .1) cout << r.dir << endl;
 		
 		vec4 normal = rend->normal(hitPoint);
 	
-
+		//if (rend->isSphere()) cout << r.dir << hitPoint << normal << endl;
 		//Shade this point
 		color += shade(r, hitPoint, normal, renderableIndex, depth);
 		
@@ -282,7 +281,31 @@ vec3 traceRay(Ray r, int depth) {
 			}
 		}
 		*/
-		
+		if (mat.ri > 0) {
+			double cos_theta_1, cos_theta_2, cos_theta_2_squared, n1, n2, negation;
+			vec4 v_reflect, v_refract;
+			cos_theta_1 = normal * -r.dir;			
+			negation = cos_theta_1 > 0 ? 1 : -1;
+			if (cos_theta_1 > 0) { 
+				//Ray hits outside of object
+				n1 = 1.0;
+				n2 = mat.ri;
+			} else {
+				//Ray hits inside of object
+				n1 = mat.ri;
+				n2 = 1.0;
+			}
+			cos_theta_2_squared = 1 - (pow(n1/n2, 2)*(1-pow(cos_theta_1, 2)));
+			if (cos_theta_2_squared > 0) {
+				cos_theta_2 = sqrt(cos_theta_2_squared);
+				v_reflect = r.dir + (2*cos_theta_1)*normal;
+				v_refract = ((n1/n2)*r.dir) + negation*((n1/n2)*cos_theta_1 - cos_theta_2)*normal;
+				Ray refractRay = Ray(hitPoint + EPSILON*v_refract, v_refract);
+				color += traceRay(refractRay, depth+1);
+			} else {
+				//Total internal reflection
+			}
+		}
 		
 		
 		
@@ -296,7 +319,8 @@ vec3 traceRay(Ray r, int depth) {
 			vec3 reflColor = traceRay(reflRay, depth+1);
 			color += prod(kr,reflColor);
 			color = reflColor;
-		}		
+		}	
+			
 		
 		// *********************************
 		// COMPUTE TEXTURE MAPPING
