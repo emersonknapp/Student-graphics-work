@@ -217,7 +217,7 @@ vec3 traceRay(Ray r, int depth) {
 		
 		if (viewport.rawPhotons) {
 			color += radianceEstimate(r.pos, hitPoint, r.dir, normal, &mat);
-			//return color;
+			return color;
 		}
 		//Shade this point
 		color += shade(r, hitPoint, normal, renderableIndex, depth);
