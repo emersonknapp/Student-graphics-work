@@ -77,6 +77,7 @@ public:
 	float gatherEpsilon;
 	int causticPhotonsPerLight;
 	bool rawPhotons;
+	bool indirectOnly;
 };
 
 class Texture {

@@ -88,6 +88,7 @@ Viewport::Viewport (int width, int height) {
 	jittery = false;
 	photons = false;
 	rawPhotons = false;
+	indirectOnly = false;
 	causticPhotonsPerLight = 0;
 	gatherEpsilon = .1;
 }
