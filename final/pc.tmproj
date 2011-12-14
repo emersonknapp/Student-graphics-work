@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>renderable.cpp</string>
+	<string>test/cornell2.t</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>classes.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-12-13T02:19:45Z</date>
+			<date>2011-12-13T19:39:31Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -52,33 +52,31 @@
 			<key>filename</key>
 			<string>lights.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-12-13T02:19:54Z</date>
+			<date>2011-12-13T03:54:00Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>makefile</string>
 			<key>lastUsed</key>
-			<date>2011-12-12T05:58:55Z</date>
+			<date>2011-12-13T11:51:36Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>pc.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-12-13T03:47:13Z</date>
+			<date>2011-12-13T19:58:35Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>renderable.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-12-13T03:47:13Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-12-13T11:53:37Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>scene.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-12-13T02:19:42Z</date>
+			<date>2011-12-13T18:45:26Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -100,7 +98,7 @@
 			<key>filename</key>
 			<string>trees.cpp</string>
 			<key>lastUsed</key>
-			<date>2011-12-12T07:02:42Z</date>
+			<date>2011-12-13T03:59:51Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -118,56 +116,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>21</integer>
+				<integer>22</integer>
 				<key>line</key>
-				<integer>34</integer>
+				<integer>90</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>14</integer>
-		</dict>
-		<key>include/algebra3.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>837</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>843</integer>
+			<integer>62</integer>
 		</dict>
 		<key>include/classes.h</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>28</integer>
+				<integer>19</integer>
 				<key>line</key>
-				<integer>38</integer>
+				<integer>79</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>138</integer>
-		</dict>
-		<key>include/pc.h</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>15</integer>
-				<key>line</key>
-				<integer>4</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>50</integer>
 		</dict>
 		<key>include/scene.h</key>
 		<dict>
@@ -181,7 +151,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>6</integer>
+			<integer>12</integer>
 		</dict>
 		<key>include/util.h</key>
 		<dict>
@@ -197,61 +167,61 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>lights.cpp</key>
+		<key>makefile</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>30</integer>
+				<integer>23</integer>
 				<key>line</key>
-				<integer>28</integer>
+				<integer>13</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<key>pc.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>21</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>164</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>68</integer>
+			<integer>146</integer>
 		</dict>
 		<key>renderable.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>17</integer>
+				<integer>39</integer>
 				<key>line</key>
-				<integer>139</integer>
+				<integer>91</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>118</integer>
+			<integer>125</integer>
 		</dict>
 		<key>scene.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>15</integer>
+				<integer>54</integer>
 				<key>line</key>
-				<integer>441</integer>
+				<integer>108</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>201</integer>
+			<integer>0</integer>
 		</dict>
 		<key>test/chippchair-fixed.obj</key>
 		<dict>
@@ -286,14 +256,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>1</integer>
+				<integer>23</integer>
 				<key>line</key>
-				<integer>60</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>33</integer>
+			<integer>0</integer>
 		</dict>
 		<key>test/dragon-fixed.obj</key>
 		<dict>
@@ -494,17 +464,15 @@
 	</dict>
 	<key>openDocuments</key>
 	<array>
-		<string>include/classes.h</string>
-		<string>classes.cpp</string>
-		<string>pc.cpp</string>
-		<string>renderable.cpp</string>
-		<string>include/algebra3.h</string>
-		<string>lights.cpp</string>
 		<string>test/cornell2.t</string>
+		<string>pc.cpp</string>
+		<string>classes.cpp</string>
 		<string>include/util.h</string>
-		<string>scene.cpp</string>
 		<string>include/scene.h</string>
-		<string>include/pc.h</string>
+		<string>scene.cpp</string>
+		<string>include/classes.h</string>
+		<string>renderable.cpp</string>
+		<string>makefile</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>

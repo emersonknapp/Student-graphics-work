@@ -15,8 +15,8 @@
 #define T_MAX 10000
 #define GATHER_RAYS 10
 
-#define MAXRECURSION 6
-#define PHOTCURSION 4
+#define MAXRECURSION 10
+#define PHOTCURSION 10
 #define MAXLINE 255
 
 vec3 barycentric(vec3, vec3, vec3, vec3);

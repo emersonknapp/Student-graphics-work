@@ -78,6 +78,7 @@ public:
 	int causticPhotonsPerLight;
 	bool rawPhotons;
 	bool indirectOnly;
+	bool directRadiance;
 };
 
 class Texture {
