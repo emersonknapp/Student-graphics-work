@@ -86,9 +86,7 @@ vec4 radianceEstimate(vec4 origin, vec4 x, vec4 direction, vec4 normal, Material
 	double distance = (x-origin).length();
 	double area = PI*radius*radius;
 	double steradians = area / pow(distance, 2);
-	
-	photPower = photPower / area;
-	
+	photPower /= area;
 	return vec4(photPower, steradians);	
 }
 
@@ -98,7 +96,7 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 		//incoming light from incoming direction *
 		//-direction * normal *
 		//steradian
-	int gather_rays = 20;
+	int gather_rays = 5;
 	vec3 color = vec3(0);
 	Ray r;
 	int renderableIndex=-1;
@@ -115,7 +113,7 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 
 		hasHit = scene->rayIntersect(r, t, renderableIndex);	
 
-		if (hasHit) {			
+		if (hasHit) {
 			Renderable* rend = scene->renderables[renderableIndex];
 			vec4 hitPoint = r.pos + t*r.dir;
 			vec4 normal = rend->normal(hitPoint);
@@ -127,11 +125,14 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 		}	
 			
 	}
-	float scalar = 4*PI/steradians;
+	float scalar = 2*PI/steradians;
+	float cos_theta =  r.dir*normal; //cosine term
+	
 	for (size_t i=0; i < samples.size(); i++) {
 		vec4 sample = samples[i];
-		color += sample.dehomogenize(); //DO I NEED A 4PI term in here somewhere??
+		color += sample.dehomogenize()*scalar*sample[3]*cos_theta; 
 	}
+	//if (color.length() >= 1.5) cout << "bc " << color << " ";
 	
 	return color;
 }
@@ -188,8 +189,8 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 		if (viewport.causticPhotonsPerLight > 0) {
 			color += radianceEstimate(hitPoint, hitPoint, r.dir, normal, &material, scene->causticBush);
 		}
-		
-		color += finalGather(hitPoint, -r.dir, normal);
+		//vec3 gatherIn = finalGather(hitPoint, -r.dir, normal);
+		//color += prod(material.kd, gatherIn);
 		
 	}
 	
@@ -221,13 +222,13 @@ vec3 traceRay(Ray r, int depth) {
 		
 		vec4 radiance;
 		if (viewport.rawPhotons) {
-			radiance = radianceEstimate(r.pos, hitPoint, r.dir, normal, &mat, scene->photonTree).dehomogenize();
+			radiance = radianceEstimate(hitPoint, hitPoint, r.dir, normal, &mat, scene->photonTree).dehomogenize();
 			color += radiance.dehomogenize();
 			//color += radianceEstimate(r.pos, hitPoint, r.dir, normal, &mat, scene->causticBush);
 			return color;
 		}
 		if (viewport.directRadiance) {
-			radiance = radianceEstimate(r.pos, hitPoint, r.dir, normal, &mat, scene->photonTree);
+			radiance = radianceEstimate(hitPoint, hitPoint, r.dir, normal, &mat, scene->photonTree);
 			color += radiance.dehomogenize();
 		}
 		//Shade this point
