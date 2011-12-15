@@ -1,0 +1,2 @@
+9.png -ph 200 -e 1 -d -sh 100 -se 2 -ja 2
+\n 8.png is a pretty good final gather, don't remember params
