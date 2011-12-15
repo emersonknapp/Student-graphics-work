@@ -1,0 +1,109 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,fullpage,fancyhdr,hyperref}
+\setlength{\parindent}{0in}
+\title{CS184 Final Project --- Global Illumination and Photon Mapping with Extended Ray Tracer}
+\author{cs184-ad: Gabe Fierro, cs184-ae Emerson Knapp, cs184-au Harry Zhu}
+\date{15 December 2011}
+\fancyhead{}
+\renewcommand{\headrulewidth}{0.0pt}
+
+\begin{document}
+\maketitle
+
+\section*{Abstract}
+
+Our original goal for our final project was to implement additional features for the ray tracer we created for {\bf Assignment 4}, and then implement photon mapping to augment the scenes we could then create with the modified ray tracer. 
+
+\tableofcontents
+
+\section{Features} % (fold)
+\label{sec:features}
+
+We implemented the following features for the raytracer:
+
+\begin{center}\textsc{scene file input}\end{center} 
+We created our own file format for detailing scenes for our program to render. SEE A FOLLOWING SECTION FOR A DETAIL OF THE FILE FORMAT.
+
+\begin{center}\textsc{anti-aliasing}\end{center} 
+We implemented both uniform and jitter anti-aliasing techniques. Specifying the \verb+-a N+ option sends $N^2$ rays to each point on the screen (as opposed to the default 1), regularly spaced around the unit square represented at that pixel and averages the results to specify the color for that pixel. Specifying the \verb+-ja N+ option sends $N^2$ rays to random locations within the unit square and again averages the results. In practice, $N=3$ is sufficient for the $800\times 800$ images we generate, and uniform and jitter achieve essentially the same effect.
+
+\vspace{3mm}
+{\bf Images:} Compare \href{run://images/cornell2_noaa.png}{\underline{cornell2.t with no aa}} to the same scene, but \href{run://images/cornell2_ja3.png}{\underline{with nine rays per pixel}} (run with \verb+-ja 3+)
+
+
+\begin{center}\textsc{refraction and reflection}\end{center} 
+Both rays and photons correctly refract and reflect when intersecting with objects in the scene according to the object's refractive index and reflectivity, respectively (details for photons below). Objects can be both reflective and refractive and we see the correct result. 
+
+\vspace{3mm}
+{\bf Images:} You can see an example of refraction \href{run://images/ballrefrac_ja3.png}{\underline{here}}
+
+
+\begin{center}\textsc{ear-clipping}\end{center} 
+We specify vertices and faces in the manner of the OBJ file format: \verb+v x y z+ specifies a vertex at coordinates $(x,y,z)$, and $\mathrm{f}\; n_1 \; n_2 \; n_3$ creates a face using vertices $n_1$,$n_2$ and $n_3$. Using ear-clipping, we can specify arbitrary convex or concave polygons using the command $\mathrm{f }\; n_1 \; n_2 \; n_3 \; \cdots \; n_k$. The ear-clipping algorithm correctly identifies ears by differentiating between convex and concave vertices, and splits up the polygon into the appropriate triangles for rendering.
+
+\vspace{3mm}
+{\bf Images:} \href{run://images/meh.png}{\underline{This polygon}} contains both convex and concave vertices, and is specified by a single \verb+f+ line in the scene file.
+
+\begin{center}\textsc{perspective-correct texture mapping}\end{center} 
+In the scene file, if a \verb+.png+ file is specified as a texture, then the objects in the scene use barymetric coordinates and linear interpolation (in the case of triangles) or uv-mapping using spherical coordinates (in the case of spheres) to use the texture as the surface of the object.
+
+\vspace{3mm}
+{\bf Images:} Observe a black and white marble texture on a \href{run://images/tex.png}{\underline{pair of triangles}} forming a rectangle, and a world map texture on \href{run://images/tex2.png}{\underline{a sphere}}.
+
+\begin{center}\textsc{area lights and soft shadows}\end{center} 
+TODO: EMERSON WRITE A DESCRIPTION
+
+\vspace{3mm}
+{\bf Images:} doop doop doop
+
+\begin{center}\textsc{OBJ file format and multiple scene support}\end{center} 
+Just as in an OBJ file, in our scene files, one can specify vertices and $n$-sided polygons (as seen above), specify materials (using \verb+usemtl FILENAME.mtl+, where FILENAME.mtl is a material file) as well as specify other scene or obj files to be included in the scene being rendered.
+
+\vspace{3mm}
+{\bf Images:} \href{run://images/angel_ja3.png}{\underline{Here}} is an example of rendering the free \verb+angel.obj+ model in a scene of our own construction. We've made the angel refractive to demonstrate how we can integrate external obj files in our scenes.
+
+\begin{center}\textsc{KD-tree and general optimization}\end{center} 
+We construct a KD-tree for the polygons in order to reduce the lookup time for calculating ray intersection. For photon mapping, we also create separate trees for global photons, shadow photons and caustic photons in order to facilitate $k$-nearest neighbors lookups for estimating radiance, generating shadow rays and visualizing caustics, respectively.
+
+Additionally, we used OpenMP (\url{http://openmp.org/}) to parallelize the pixel interpolation, ray intersection and occlusion detection loops, resulting in a drastic speedup. For basic rendering (simple directional light, with no reflection or refraction) of a 100,000 polygon object such as the \verb+angel.obj+, we were able to reduce rendering time from 90 minutes to 15 seconds.
+
+\vspace{3mm}
+{\bf Images:} \href{run://images/weepingangel.png}{\underline{This}} image, consisting of almost 50,000 unique polygons, took about 15 seconds to render. We've titled it "Weeping Angel," after the alien race in the BBC show Doctor Who.
+
+By the way, \href{run://images/duude.png}{\underline{this}} is what happens if you incorrectly compute the bounding boxes....
+% section features (end)
+
+\section{Photon Mapping} % (fold)
+\label{sec:photon_mapping}
+
+\subsection{Implementation Details} % (fold)
+\label{sub:implementation_details}
+In order to implement photon mapping, we first determined how we were going to generate the photons that would propagate through the scene. For a point light, we generate random directions on a unit sphere centered at the light's position and generate $N$ photons in those directions ($N$ is specified b the \verb+ -ph X+ option, where $N = X \cdot 1000$). In order to make sure that we maintain the same amount of illumination for the scene regardless of how many photons we send out, we specify the power for the light in the scene file and weight the photons accordingly so the sum total of their flux is that of the light. [For directional lights, we follow a similar process].
+
+In order to correctly model the photons "bouncing" around the scene, we use the Monte Carlo method known as {\bf Russian roulette} to determine whether a given photon is 
+% subsection implementation_details (end)
+
+\subsection{The Rendering Equation} % (fold)
+\label{sub:the_rendering_equation}
+For the purposes of photon mapping, we can consider the rendering equation as having four parts: direct illumination, specular reflection, caustics, 
+
+\begin{center}\textsc{direct illumination}\end{center} 
+
+Direct illumination is the radiance for a location $x$ given the occlusion of other objects in the scene and the light from a source that hits that location. We used normal ray tracing to estimate this integral, but for debugging purposes (using the \verb+-r+ option) we performed a $k$-nearest neighbors search at point $x$ to gain an estimate for the direct illumination.
+
+\begin{center}\textsc{specular reflection}\end{center} 
+Photon mapping can be used to estimate the specular reflection for at a point $x$, but we need a good deal more photons in order to produce that effect (see notes for caustics below). So, as with direct illumination, we use the normal ray tracing to calculate the specular reflection at a point $x$.
+
+\begin{center}\textsc{caustics}\end{center} 
+With the global photon map, because we get a relatively even distribution of photons, we get an estimate of the caustic for refractive objects. We send an additional number of photons toward each refractive object in order to increase the number of photons taken into account for estimating the caustic, which we estimate by doing the $k$-nearest neighbor operation and averaging the photon flux (which will be more accurate because there's a higher concentration of photons).
+
+\begin{center}\textsc{indirect illumination}\end{center} 
+At a given point x, we have to determine how much 
+
+	
+% subsection the_rendering_equation (end)
+
+% section photon_mapping (end)
+
+
+\end{document}
