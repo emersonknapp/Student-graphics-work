@@ -1,0 +1,15 @@
+cs184-ad Gabe Fierro (me)
+cs184-ad Emerson Knapp
+cs184-au Harry Zhu
+
+see report.pdf for details
+
+run ./pc for usage
+example usage:
+
+./pc -s test/cornell3.t -ph 20 -e 1 -c 20 -sh 10 -se 2 -ja 2
+
+20k photons (max gather radius 1)
+20k caustic photons
+10 shadow rays per area light (checks area 2 for shadow photons)
+jitter anti-aliasing 2 (4 rays per pixel)
