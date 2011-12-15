@@ -64,7 +64,7 @@ void Usage() {
 //Estimate of reflected radiance from x towards origin
 vec4 radianceEstimate(vec4 origin, vec4 x, vec4 normal, Material* mat, PhotonTree* tree) {
     double epsilon = viewport.gatherEpsilon;
-    if ((*(tree->myBegin))->caustic) { epsilon = .05; } 
+    if ((*(tree->myBegin))->caustic) { epsilon = 1.0; } 
 	vec3 radiance = vec3(0);
 	vec3 mins = x.dehomogenize() - vec3(epsilon);
 	vec3 maxes = x.dehomogenize() + vec3(epsilon);
@@ -413,8 +413,7 @@ void tracePhoton(Photon* phot, int depth) {
 				//Diffuse reflection
 				if (phot->caustic) { 
                     scene->causticPhotons.push_back(phot);
-                    Photon* t = new Photon(phot->pos, phot->dir, phot->color);
-                    scene->photons.push_back(t);
+                    depth = PHOTCURSION;
                 }
                 else scene->photons.push_back(phot);
 				vec4 newDir = vec4(randomHemispherePoint(normal), 0);
@@ -492,7 +491,7 @@ void causticPistol() {
 			Renderable* currentCaustic = *ct;
 			float greatRadius = (currentLight->pos - vec4(currentCaustic->center,0)).length2();
 			float ratio = currentCaustic->minorArea() / ( greatRadius * (4 * PI));
-			vec3 photensity = ratio * (currentLight->power * currentLight->intensity) * viewport.causticPhotonsPerLight / (viewport.causticPhotonsPerLight+viewport.photonsPerLight);
+			vec3 photensity = ratio * (currentLight->power * currentLight->intensity) / (viewport.causticPhotonsPerLight+viewport.photonsPerLight);
 			for (int i = 0 ; i < viewport.causticPhotonsPerLight; i++) {
 				vec4 photonDir = currentCaustic->randomSurfacePoint() - currentLight->pos;
 				Photon* photon = new Photon(currentLight->pos, photonDir, photensity);

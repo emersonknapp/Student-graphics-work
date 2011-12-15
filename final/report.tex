@@ -22,7 +22,7 @@ Our original goal for our final project was to implement additional features for
 We implemented the following features for the raytracer:
 
 \begin{center}\textsc{scene file input}\end{center} 
-We created our own file format for detailing scenes for our program to render. See \verb+Appendix A+ for a brief rundown of the file format we use.
+We created our own file format for detailing scenes for our program to render. See \verb+Appendix A+ for a brief rundown of the file format we use. Underlined file names refer to images in the \verb+images/+ folder. If you're using a pdf reader such as Skim (and possibly Adobe Reader), then the underlined names should function as links to those images.
 
 \begin{center}\textsc{anti-aliasing}\end{center} 
 We implemented both uniform and jitter anti-aliasing techniques. Specifying the \verb+-a N+ option sends $N^2$ rays to each point on the screen (as opposed to the default 1), regularly spaced around the unit square represented at that pixel and averages the results to specify the color for that pixel. Specifying the \verb+-ja N+ option sends $N^2$ rays to random locations within the unit square and again averages the results. In practice, $N=3$ is sufficient for the $800\times 800$ images we generate, and uniform and jitter achieve essentially the same effect.
