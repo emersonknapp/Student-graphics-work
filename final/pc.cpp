@@ -97,28 +97,7 @@ vec4 radianceEstimate(vec4 origin, vec4 x, vec4 normal, Material* mat, PhotonTre
 	return radiance;	
 }
 
-vec4 shadowEstimate(vec4 origin, vec4 x, vec4 normal, Material* mat, PhotonTree* tree) {
-	vec3 radiance = vec3(0);
-	vec3 mins = x.dehomogenize() - vec3(viewport.gatherEpsilon);
-	vec3 maxes = x.dehomogenize() + vec3(viewport.gatherEpsilon);
-	AABB gatherBox = AABB(mins,maxes);
-	priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(x, viewport.gatherEpsilon));
-	double radius = viewport.gatherEpsilon;
-	
-	if (tree->gatherPhotons(&gatherBox,nearPhotons)) {
-		photIt neighbor;
-		//cout << nearPhotons.size() << " ";
-		while (!nearPhotons.empty()) {
-			neighbor = nearPhotons.top();
-			radiance += vec3(.1);
-			nearPhotons.pop();
-		}
-	}
-	double area = PI*radius*radius;
-	radiance /= area;
-	return radiance;
-}
-
+vec3 shade(Ray, vec4, vec4, int, bool);
 vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 	//integrate over incoming directions
 		//brdf *
@@ -132,7 +111,7 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 	float t = T_MAX;
 	bool hasHit = false;
 	vector<vec4> samples;
-	float steradians = 0;
+	//float steradians = 0;
 	
 	for (int i = 0; i < gather_rays; i++) {
 		vec3 point = randomHemispherePoint(normal);
@@ -144,25 +123,33 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 		hasHit = scene->rayIntersect(r, t, renderableIndex);	
 
 		if (hasHit) {
+			//color += vec3(1,0,0) / gather_rays;
 			Renderable* rend = scene->renderables[renderableIndex];
 			vec4 hitPoint = r.pos + t*r.dir;
 			vec4 normal = rend->normal(hitPoint);
 			Material mat = rend->material;
+			//vec3 elseColor = shade(r, hitPoint, normal, renderableIndex, false);
+			//vec3 elseColor = vec3(1,0,0);
+			vec3 elseColor = radianceEstimate(x, hitPoint, normal, &mat, scene->photonTree);
+			//cout << elseColor << endl;
+			//cout << r.dir << r.pos << hitPoint << normal << renderableIndex << elseColor << endl;
+			color +=  elseColor / gather_rays;
 			
-			vec4 radiance = radianceEstimate(r.pos, hitPoint, normal, &mat, scene->photonTree);
-			steradians += radiance[3];
-			samples.push_back(radiance);
+			
+			//vec4 radiance = radianceEstimate(r.pos, hitPoint, normal, &mat, scene->photonTree);
+			//steradians += radiance[3];
+			//samples.push_back(radiance);
 		}	
 			
 	}
     // a hemisphere has SA 2pi steradians. we get back in the variable 'steradians' the total steradians that we covered with the final gather
     // so what we need to do is normalize the surface area we *have* ( 'steradians' ) to the 2pi surface
-	float scalar = 2*PI/steradians;
-	float cos_theta =  r.dir*normal; //cosine term
-	for (size_t i=0; i < samples.size(); i++) {
-		vec4 sample = samples[i];
-		color += sample.dehomogenize()*scalar*sample[3]*cos_theta; 
-	}
+	//float scalar = 2*PI/steradians;
+	//float cos_theta =  r.dir*normal; //cosine term
+	//for (size_t i=0; i < samples.size(); i++) {
+	//	vec4 sample = samples[i];
+	//	color += sample.dehomogenize()*scalar*sample[3]*cos_theta; 
+	//}
 	//if (color.length() >= 1.5) cout << "bc " << color << " ";
 	return color;
 }
@@ -170,7 +157,7 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 //***************************************************
 // Do phong shading on a point
 //***************************************************
-vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
+vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, bool gather) {
 	vec3 color = vec3(0,0,0); //Default black
 	Renderable* rend = scene->renderables[index];
 	
@@ -184,7 +171,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	
 	//  Direct Illumination
 	//+ Specular Reflection
-	if (!viewport.indirectOnly)
+	if (!viewport.indirectOnly || !gather)
 	for (size_t i=0; i < scene->lights.size(); ++i) {
 		Light* currentLight = scene->lights[i];
 		vec3 thisLightColor = vec3(0);
@@ -203,7 +190,6 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 			priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint, viewport.shadowEpsilon));
 			checkShadows = scene->shadowHedge->gatherPhotons(&gatherBox,nearPhotons);
 		}
-		
 		//send out shadow rays
 		if (checkShadows) {
 			for (int s=0; s < viewport.shadowRays; s++) {
@@ -247,14 +233,14 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	}
 	//Caustics
 	//+Indirect Illumination
-	if (viewport.photons) {
+	if (viewport.photons && gather) {
 		// Caustics
 		if (viewport.causticPhotonsPerLight > 0) {
 			//color += radianceEstimate(hitPoint, hitPoint, normal, &material, scene->causticBush);
 		}
         if (!viewport.directRadiance) {
             vec3 gatherIn = finalGather(hitPoint, -r.dir, normal);
-            color = prod(material.kd, gatherIn);
+            color += gatherIn;
         }
 		
 	}
@@ -283,7 +269,11 @@ vec3 traceRay(Ray r, int depth) {
 		Material mat = rend->material;		
 		
 		if (rend->isLight()) {
-			if (normal * -r.dir > 0) return ((AreaLight*)rend)->intensity;
+			if (normal * -r.dir > 0) {
+				vec3 c = ((AreaLight*)rend)->intensity;
+				c = c * (3/c.length2());
+				return c;
+			}
 		}
 		
 		vec3 radiance;
@@ -294,11 +284,12 @@ vec3 traceRay(Ray r, int depth) {
 		}
 		if (viewport.directRadiance) {
 			radiance = radianceEstimate(hitPoint, hitPoint, normal, &mat, scene->photonTree);
+			radiance += radianceEstimate(hitPoint, hitPoint, normal, &mat, scene->causticBush);
 			color += radiance;
 		}
 
 		//Shade this point
-		color += shade(r, hitPoint, normal, renderableIndex, depth);
+		color += shade(r, hitPoint, normal, renderableIndex, true);
 		
 		vec3 n = -normal.dehomogenize();
 		vec3 d = r.dir.dehomogenize();
