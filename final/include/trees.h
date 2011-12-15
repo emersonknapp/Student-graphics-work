@@ -41,9 +41,8 @@ protected:
 	bool leafNode;
 	rendComp comparator;
 	Scene* scene;
-	rendIt myBegin;
 	rendIt myEnd;
-	
+	rendIt myBegin;
 	/* This is a binary tree, after all */
 	KDTree* leftChild;
 	KDTree* rightChild;
@@ -72,11 +71,11 @@ public:
 	bool gatherPhotons(AABB*, priority_queue<photIt,vector<photIt>,distCompare>&);
 	void print(int);
 	void makeAABB();
+	photIt myBegin;
 protected:
 	PhotonTree* leftChild;
 	PhotonTree* rightChild;
 	photComp comparator;
-	photIt myBegin;
 	photIt myEnd;
 	
 };
