@@ -106,6 +106,7 @@ void Scene::earClip(string line) {
 			// check no other vertex from triangle is inside this ear
 			for (int tmp = 0; tmp <= numVertices ; tmp++) {
 				if (tmp != prevIndex and tmp != cur and tmp != nextIndex) {
+//                    cout << tmp << " " << polygonVertices[tmp] << " " << vertices[polygonVertices[tmp]] << endl;
 					vec3 tmpVertex = vertices[ polygonVertices[tmp] ];
 					vec3 tmpBary = barycentric(prevVertex, curVertex, nextVertex, tmpVertex);
 					// check if barycentric coordinate is outside triangle (any one of its elements > 1)

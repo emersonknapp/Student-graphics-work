@@ -125,7 +125,7 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 		//incoming light from incoming direction *
 		//-direction * normal *
 		//steradian
-	int gather_rays = 5;
+	int gather_rays = 100;
 	vec3 color = vec3(0);
 	Ray r;
 	int renderableIndex=-1;
@@ -139,7 +139,8 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 		vec4 diffuseRayDirection = vec4(point,0);
 		//generate diffuse ray
 		r = Ray(x+EPSILON*diffuseRayDirection, diffuseRayDirection);		
-
+        t = T_MAX;
+        renderableIndex = -1;
 		hasHit = scene->rayIntersect(r, t, renderableIndex);	
 
 		if (hasHit) {
@@ -154,15 +155,15 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 		}	
 			
 	}
+    // a hemisphere has SA 2pi steradians. we get back in the variable 'steradians' the total steradians that we covered with the final gather
+    // so what we need to do is normalize the surface area we *have* ( 'steradians' ) to the 2pi surface
 	float scalar = 2*PI/steradians;
 	float cos_theta =  r.dir*normal; //cosine term
-	
 	for (size_t i=0; i < samples.size(); i++) {
 		vec4 sample = samples[i];
 		color += sample.dehomogenize()*scalar*sample[3]*cos_theta; 
 	}
 	//if (color.length() >= 1.5) cout << "bc " << color << " ";
-	
 	return color;
 }
 
@@ -251,12 +252,12 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 		if (viewport.causticPhotonsPerLight > 0) {
 			//color += radianceEstimate(hitPoint, hitPoint, normal, &material, scene->causticBush);
 		}
-		//vec3 gatherIn = finalGather(hitPoint, -r.dir, normal);
-		//color += prod(material.kd, gatherIn);
+        if (!viewport.directRadiance) {
+            vec3 gatherIn = finalGather(hitPoint, -r.dir, normal);
+            color = prod(material.kd, gatherIn);
+        }
 		
 	}
-	
-
 	
 	return color;
 }
@@ -295,6 +296,7 @@ vec3 traceRay(Ray r, int depth) {
 			radiance = radianceEstimate(hitPoint, hitPoint, normal, &mat, scene->photonTree);
 			color += radiance;
 		}
+
 		//Shade this point
 		color += shade(r, hitPoint, normal, renderableIndex, depth);
 		
@@ -549,7 +551,7 @@ void render() {
 		}
 		/* End */
 	}
-	
+
 	cout << endl << "Completed render! Outputting to file." << endl;
 	imageWriter->printScreen();
 	
@@ -610,7 +612,7 @@ void processArgs(int argc, char* argv[]) {
 //****************************************************
 int main(int argc, char *argv[]) {
 	
-	srand((unsigned)time(NULL));
+//	srand((unsigned)time(NULL));
 	
 	viewport = Viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
 	imageWriter = new ImageWriter(viewport.w, viewport.h);
