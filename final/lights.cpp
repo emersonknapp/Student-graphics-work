@@ -1,11 +1,8 @@
 #include "classes.h"
 
-vec4 Light::normal(vec4 hitPoint) { return vec4(0,0,0,0); }
-vec3 Light::textureColor(vec4 hitPoint) { return vec3(0,0,0); }
-vec4 Light::randomSurfacePoint() { return pos; }
-float Light::minorArea() { return 0; }
-float Light::rayIntersect(Ray r) { return -1; }
-
+vec4 Light::shadowCheck(vec4 point) {
+	return lightVector(point);
+}
 
 PLight::PLight(vec4 p, vec3 i) {
 	pos = p;
@@ -62,57 +59,24 @@ void DLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s
 	}
 }
 
-vec4 TriLight::normal(vec4 hitPoint) { 
-	vec4 n = tmat * vec4((v1-v3).dehomogenize()^(v2-v3).dehomogenize(),0);	
-	return n;
+AreaLight::AreaLight(vec4 i, vec4 j, vec4 k, vec3 c, float pow) : Triangle(i, j, k) {
+	intensity = c;
+	power = pow;
+	pos = center;
 }
 
-vec4 TriLight::randomSurfacePoint() {
-	float a = rand01();
-	float b = rand01();
-	if (a+b > 1) {
-		a = 1.0f-a;
-		b = 1.0f-b;
-	}
-	float c = 1-a-b;
-	return v1*a + v2*b + v3*c;
+void AreaLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
+	
 }
 
-float TriLight::minorArea() { return 0.5 * ( (v3-v1) ^ (v2-v1) ).length(); }
-
-float TriLight::rayIntersect(Ray r) {
-	vec4 raypos = imat*r.pos;
-	vec4 raydir = imat*r.dir;
-	raydir.normalize();
-	float t;
-	vec4 u = v2-v3;
-	vec4 v = v1-v3;
-	vec4 norm = vec4((u.dehomogenize()^v.dehomogenize()).normalize(),0);
-	if (fabs(norm * raydir) == 0) {return -1;}		
-	if (norm == vec4(0,0,0,0)) {return -1;}
-	vec4 w0 = raypos - v3;
-	float a = -(norm * w0);
-	float b = (norm * raydir);
-	if (fabs(b) < WIGGLE) { //ray is parallel to triangle
-		return -1;
-	}
-	// get ray intersect point
-	t = a / b; // t is the parametric intersection of ray with triangle
-	if (t < 0.0) return -1; //ray pointing away from triangle
-	// check if the ray intersects within the triangle (isntead of just the triangle plane)
-	float uu, uv, vv, wu, wv, D;
-	uu = u*u;
-	uv = u*v;
-	vv = v*v;
-	vec4 w = (raypos + t*raydir - v3);
-	wu = w*u;
-	wv = w*v;
-	D = uv * uv - uu * vv;
-	float s,f;
-	s = (uv * wv - vv * wu) / D;
-	if (s < 0.0 or s > 1.0) return -1; // outside
-	f = (uv * wu - uu * wv) / D;
-	if (f < 0.0 or (s+f) > 1.0) return -1; // outside
-	return t;
+vec4 AreaLight::lightVector(vec4 point) {
+	pos = center;
+	return (center-point).normalize();
 }
 
+vec4 AreaLight::shadowCheck(vec4 point) {
+	vec4 p = (center-point).normalize();
+	//cout << p << endl;
+	pos = randomSurfacePoint();
+	return (pos-point).normalize();
+}

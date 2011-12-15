@@ -217,11 +217,6 @@ bool Scene::parseLine(string line) {
 		ss >> i >> j >> k;
 		earClip(line);
 	}
-	else if (op.compare("tlight")==0) { //triangle light
-		string i, j, k;
-		ss >> i >> j >> k;
-		earClip(line);
-	}
 	else if (op.compare("s")==0) { //Parse a sphere
 		float r;
 		ss >> r;
@@ -234,6 +229,35 @@ bool Scene::parseLine(string line) {
 		if (parseMaterial.ri >0) caustics.push_back(sph);
 		if (DEBUG) cout << "Added sphere of radius " << r << " to scene." << endl;
 		//cout << translation << rotation << scale << endl;
+	}
+	else if (op.compare("pl")==0) { //pointlight x y z r g b
+		float x,y,z,r,g,b,power;
+		ss >> x >> y >> z >> r >> g >> b >> power;
+		PLight* p = new PLight(vec4(x,y,z,1), vec3(r,g,b), power);
+		lights.push_back(p);
+	} 
+	else if (op.compare("dl")==0) { //directionalight x y z r g 
+		float x,y,z,r,g,b;
+		ss >> x >> y >> z >> r >> g >> b;
+		DLight* d = new DLight(vec4(x,y,z,0), vec3(r,g,b));
+		lights.push_back(d);
+	}
+	else if (op.compare("tl")==0) { //triangle light
+		int i, j, k;
+		float r, g, b, power;
+		ss >> i >> j >> k;
+		ss >> r >> g >> b >> power;
+		vec4 c = getVertex(i);
+		vec4 d = getVertex(j);
+		vec4 e = getVertex(k);
+		AreaLight* t = new AreaLight(c, d, e, vec3(r, g, b), power);
+		t->scale(scale);
+		t->rotate(rotation);
+		t->translate(translation);
+		t->material = parseMaterial;
+		renderables.push_back(t);
+		lights.push_back(t);
+		
 	}
 	else if (op.compare("usemtl") == 0) { // open .mtl file
 		string f;
@@ -299,18 +323,6 @@ bool Scene::parseLine(string line) {
 		float x,y,z;
 		ss>>x>>y>>z;
 		scale = vec3(x,y,z);
-	} 
-	else if (op.compare("pl")==0) { //pointlight x y z r g b
-		float x,y,z,r,g,b,power;
-		ss >> x >> y >> z >> r >> g >> b >> power;
-		PLight* p = new PLight(vec4(x,y,z,1), vec3(r,g,b), power);
-		lights.push_back(p);
-	} 
-	else if (op.compare("dl")==0) { //directionalight x y z r g 
-		float x,y,z,r,g,b;
-		ss >> x >> y >> z >> r >> g >> b;
-		DLight* d = new DLight(vec4(x,y,z,0), vec3(r,g,b));
-		lights.push_back(d);
 	} 
 	else if (op.compare("ct")==0) { //clear transformations
 		translation = vec3(0,0,0);

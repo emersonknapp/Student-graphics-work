@@ -79,6 +79,7 @@ public:
 	bool rawPhotons;
 	bool indirectOnly;
 	bool directRadiance;
+	int shadowRays;
 };
 
 class Texture {
@@ -146,21 +147,14 @@ public:
 
 };
 
-class Light : public Renderable {
+class Light {
 public:
 	vec3 intensity;
 	vec4 pos;
 	float power;
 	virtual vec4 lightVector(vec4) = 0;
+	virtual vec4 shadowCheck(vec4);
 	virtual void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s) = 0;
-	
-	/* Renderable virtual methods */
-	vec4 normal(vec4);
-	vec3 textureColor(vec4);
-	vec4 randomSurfacePoint();
-	float minorArea();
-	float rayIntersect(Ray); 
-	bool isLight() {return true;}
 };
 
 class PLight: public Light {
@@ -178,19 +172,6 @@ public:
 	DLight(vec4, vec3, float);
 	vec4 lightVector(vec4);
 	void generatePhotons(vector<Photon*>&, int numPhotons, AABB* s);
-};
-
-class TriLight : public Light {
-public:
-	vec4 v1, v2, v3;
-	TriLight(vec4, vec3, float);
-	vec4 lightVector(vec4);
-	void generatePhotons(vector<Photon*>&, int, AABB*);
-	vec4 normal(vec4);
-	vec3 textureColor(vec4);
-	vec4 randomSurfacePoint();
-	float minorArea();
-	float rayIntersect(Ray);
 };
 
 class Camera : public Renderable {
@@ -242,6 +223,14 @@ public:
 	float minorArea();
 };
 
+class AreaLight : public Light, public Triangle {
+public:
+	AreaLight(vec4, vec4, vec4, vec3, float);
+	void generatePhotons(vector<Photon*>&, int, AABB*);
+	vec4 lightVector(vec4);
+	vec4 shadowCheck(vec4);
+	bool isLight() {return true;} 
+};
 
 
 #endif

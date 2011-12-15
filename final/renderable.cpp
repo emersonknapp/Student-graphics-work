@@ -290,10 +290,8 @@ vec4 Triangle::normal(vec4 surface) {
 		norm = bary[0] * vn1 + bary[1] * vn2 + bary[2] * vn3;
 		norm.normalize();
 		return vec4(norm,0); 
-
 	} else {
 		n.normalize();
-		if (n[3] != 0) cout << "TRI WRONG" << endl;		
 		return n;
 	}
 }

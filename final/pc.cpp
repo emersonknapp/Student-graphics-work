@@ -60,34 +60,40 @@ void Usage() {
 	quitProgram(0);
 }
 
-//Estimate of reflected radiance from x in -direction
-vec4 radianceEstimate(vec4 origin, vec4 x, vec4 direction, vec4 normal, Material* mat, PhotonTree* tree) {
-	vec3 photPower = vec3(0);
+//Estimate of reflected radiance from x towards origin
+vec4 radianceEstimate(vec4 origin, vec4 x, vec4 normal, Material* mat, PhotonTree* tree) {
+	vec3 radiance = vec3(0);
 	vec3 mins = x.dehomogenize() - vec3(viewport.gatherEpsilon);
 	vec3 maxes = x.dehomogenize() + vec3(viewport.gatherEpsilon);
 	AABB gatherBox = AABB(mins,maxes);
 	priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(x, viewport.gatherEpsilon));
 	
-	int maxNeighbors = max(viewport.photonsPerLight * .0005, 1.0);
+	int maxNeighbors = max(viewport.photonsPerLight * .005, 1.0);
+	maxNeighbors = 500;
 	double radius = viewport.gatherEpsilon;
 	if (tree->gatherPhotons(&gatherBox,nearPhotons)) {
 		int neighborsSoFar = 0;
 		photIt neighbor;
+		//cout << nearPhotons.size() << " ";
 		while (neighborsSoFar <= maxNeighbors && !nearPhotons.empty()) {
 			neighbor = nearPhotons.top();
 			vec3 photColor = (*neighbor)->color;
 			vec4 photDir = -(*neighbor)->dir;
-			photPower += prod(mat->kd, photColor)*max((photDir*normal), 0.0);
+			radiance += prod(mat->kd, photColor)*max((photDir*normal), 0.0);
 			nearPhotons.pop();
 			neighborsSoFar++;
 		}
-		radius = ((*neighbor)->pos - x).length();
+		if (neighborsSoFar < maxNeighbors) {
+			radius = viewport.gatherEpsilon;
+		} else {
+			radius = ((*neighbor)->pos - x).length();
+		}
 	}
-	double distance = (x-origin).length();
+	//double distance = (x-origin).length();
 	double area = PI*radius*radius;
-	double steradians = area / pow(distance, 2);
-	photPower /= area;
-	return vec4(photPower, steradians);	
+	//double steradians = area / pow(distance, 2);
+	radiance /= area;
+	return radiance;	
 }
 
 vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
@@ -119,7 +125,7 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 			vec4 normal = rend->normal(hitPoint);
 			Material mat = rend->material;
 			
-			vec4 radiance = radianceEstimate(r.pos, hitPoint, r.dir, normal, &mat, scene->photonTree);
+			vec4 radiance = radianceEstimate(r.pos, hitPoint, normal, &mat, scene->photonTree);
 			steradians += radiance[3];
 			samples.push_back(radiance);
 		}	
@@ -142,7 +148,14 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 //***************************************************
 vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	vec3 color = vec3(0,0,0); //Default black
-	Material material = scene->renderables[index]->material;
+	float shadowScalar = 1;
+	Renderable* rend = scene->renderables[index];
+	
+	Material material = rend->material;
+	if (rend->isLight()) {
+		if (normal * -r.dir > 0) return ((AreaLight*)rend)->intensity;
+	}
+	
 	
 	//Color =
 		// Direct Illumination
@@ -156,17 +169,30 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	for (size_t i=0; i < scene->lights.size(); ++i) {
 		Light* currentLight = scene->lights[i];
 		
-		bool shadePixel = false;
+		float shadePixel = 0;
 		float t = T_MAX;
 		int renderableIndex=-1;
 		
 		//Check for shadowing
-		Ray lightCheck = Ray(hitPoint+EPSILON*normal, currentLight->lightVector(hitPoint));
-		scene->rayIntersect(lightCheck, t, renderableIndex);
-
-		shadePixel = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
-	
-		if (shadePixel) {			
+		for (int s=0; s < viewport.shadowRays; s++) {
+			Ray lightCheck = Ray(hitPoint+EPSILON*normal, currentLight->shadowCheck(hitPoint));
+			bool hasHit = scene->rayIntersect(lightCheck, t, renderableIndex);
+			
+			if (hasHit) {
+				bool hitALight = scene->renderables[renderableIndex]->isLight();
+				bool hitPastLight = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
+				bool noShadow = hitALight || hitPastLight;
+				//cout << hitALight << hitPastLight << noShadow << endl;
+				//if (s > 0) return vec3(1,0,0);
+				if (noShadow) shadePixel += 1;
+			} else shadePixel += 1;
+			t = T_MAX;
+			renderableIndex = -1;
+		}
+		
+		shadowScalar *= (shadePixel / viewport.shadowRays);
+		
+		if (shadePixel > 0) {			
 			vec3 lightColor = currentLight->intensity;
 			vec4 lightVector = currentLight->lightVector(hitPoint+EPSILON*normal);
 			lightVector.normalize();
@@ -178,8 +204,8 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
-			color += specular;
-		} else ;
+			color += specular;	
+		} else;
 		
 	}
 	//Caustics
@@ -187,7 +213,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	if (viewport.photons) {
 		// Caustics
 		if (viewport.causticPhotonsPerLight > 0) {
-			color += radianceEstimate(hitPoint, hitPoint, r.dir, normal, &material, scene->causticBush);
+			color += radianceEstimate(hitPoint, hitPoint, normal, &material, scene->causticBush);
 		}
 		//vec3 gatherIn = finalGather(hitPoint, -r.dir, normal);
 		//color += prod(material.kd, gatherIn);
@@ -196,7 +222,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	
 
 	
-	return color;
+	return color*shadowScalar;
 }
 
 //Traces a ray out, collecting outputs from shading, reflections, etc.
@@ -220,16 +246,15 @@ vec3 traceRay(Ray r, int depth) {
 		vec4 normal = rend->normal(hitPoint);
 		Material mat = rend->material;
 		
-		vec4 radiance;
+		vec3 radiance;
 		if (viewport.rawPhotons) {
-			radiance = radianceEstimate(hitPoint, hitPoint, r.dir, normal, &mat, scene->photonTree).dehomogenize();
-			color += radiance.dehomogenize();
-			//color += radianceEstimate(r.pos, hitPoint, r.dir, normal, &mat, scene->causticBush);
-			return color;
+			radiance = radianceEstimate(hitPoint, hitPoint, normal, &mat, scene->photonTree);
+			radiance += radianceEstimate(hitPoint, hitPoint, normal, &mat, scene->causticBush);
+			return radiance;
 		}
 		if (viewport.directRadiance) {
-			radiance = radianceEstimate(hitPoint, hitPoint, r.dir, normal, &mat, scene->photonTree);
-			color += radiance.dehomogenize();
+			radiance = radianceEstimate(hitPoint, hitPoint, normal, &mat, scene->photonTree);
+			color += radiance;
 		}
 		//Shade this point
 		color += shade(r, hitPoint, normal, renderableIndex, depth);
@@ -450,7 +475,7 @@ void render() {
 	int nextpercent = onepercent;
 	/*End*/
 	Camera* camera = scene->camera;
-	#pragma omp parallel for shared(nextpercent)
+	//#pragma omp parallel for shared(nextpercent)
 	for (int x = 0; x < viewport.w; x++) {
 		for (int y = 0; y < viewport.h; y++) {
 
@@ -531,6 +556,8 @@ void processArgs(int argc, char* argv[]) {
 			viewport.indirectOnly = true;
 		} else if (arg.compare("-d")==0) {
 			viewport.directRadiance = true;
+		} else if (arg.compare("-sh")==0) {
+			viewport.shadowRays = atoi(argv[++i]);
 		}
 		else {
 			Warning("Unrecognized command " + arg);

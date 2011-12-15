@@ -90,6 +90,7 @@ Viewport::Viewport (int width, int height) {
 	rawPhotons = false;
 	indirectOnly = false;
 	directRadiance = false;
+	shadowRays = 1;
 	causticPhotonsPerLight = 0;
 	gatherEpsilon = .1;
 }
