@@ -1,8 +1,5 @@
 TODO:
-area lights
 separate epsilons for shadows and gathers
-more gather rays
-consider local gather
 gather photons disc
 
 subsurface scattering
@@ -11,7 +8,6 @@ final gather
 	option for # of diffuse rays
 
 spot lights
-area lights
 
 
 DONE:
@@ -37,6 +33,8 @@ full obj support
 photon cannon
 	point lights
 	directional lights
+area lights
+
 	
 photon raw output for debug
 

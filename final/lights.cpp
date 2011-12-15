@@ -66,7 +66,13 @@ AreaLight::AreaLight(vec4 i, vec4 j, vec4 k, vec3 c, float pow) : Triangle(i, j,
 }
 
 void AreaLight::generatePhotons(vector<Photon*>& photonCloud, int numPhots, AABB* s) {
-	
+	vec3 photensity = (power*intensity)/numPhots;
+	for (int i=0; i<numPhots; i++) {
+		vec3 photonDir = randomSpherePoint(); 
+		vec3 origin = randomSurfacePoint();
+		Photon* photon = new Photon(origin, vec4(photonDir,0), photensity);
+		photonCloud.push_back(photon);
+	}
 }
 
 vec4 AreaLight::lightVector(vec4 point) {

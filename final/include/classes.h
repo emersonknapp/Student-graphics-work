@@ -75,6 +75,7 @@ public:
 	bool photons; 
 	int photonsPerLight;
 	float gatherEpsilon;
+	float shadowEpsilon;
 	int causticPhotonsPerLight;
 	bool rawPhotons;
 	bool indirectOnly;

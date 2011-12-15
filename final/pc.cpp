@@ -45,18 +45,19 @@ void Warning(string msg) {
 void Usage() {
 	cout << "Photon Cannon v" << VERSION_NUMBER << endl
 	<< "Usage:" << endl
-	<< "    pc [-s scene]* [-pr outputfile] [-px x y] [options]" << endl
+	<< "    pc -s scene [options]" << endl
 	<< "        -s SCENEFILE: scene file" << endl
 	<< "        -pr OUTFILE: output print file name, defaults to \"out.png\"" << endl
 	<< "        -px X Y: the size of the output image, in pixels (default 800x800)" << endl
 	<< "        -a N: antialiasing, n-by-n rays per pixel, defaults to 1" << endl
-	<< "		[-ja | -aj] N: uses n^2 jittery antialiasing," << endl
-	<< "		-ph N: how many photons to shoot out (in thousands) (if not specified, defaults to 10)" << endl
-	<< "		-e N: epsilon for photon gathering" << endl
-	<< "		-c N: number of caustic photons (in thousands) (defaults to 0)" << endl
-	<<"			-r: displays raw photons" << endl
-	<< "		-i: displays indirect illumination only" << endl
-	<< "		-d: displays raytraced image + direct visualization of radiance from global photon map" << endl;
+	<< "        [-ja | -aj] N: uses n^2 jittery antialiasing," << endl
+    << "        -ph N: how many photons to shoot out (in thousands) (if not specified, defaults to 10)" << endl
+    << "        -e N: epsilon for photon gathering" << endl
+    << "        -c N: number of caustic photons (in thousands) (defaults to 0)" << endl
+    << "        -r: displays raw photons" << endl
+    << "        -i: displays indirect illumination only" << endl
+    << "        -d: displays raytraced image + direct visualization of radiance from global photon map" << endl
+    << "        -sh N: number of shadow rays to send out for checks, defaults to 1" << endl;
 	quitProgram(0);
 }
 
@@ -94,6 +95,28 @@ vec4 radianceEstimate(vec4 origin, vec4 x, vec4 normal, Material* mat, PhotonTre
 	//double steradians = area / pow(distance, 2);
 	radiance /= area;
 	return radiance;	
+}
+
+vec4 shadowEstimate(vec4 origin, vec4 x, vec4 normal, Material* mat, PhotonTree* tree) {
+	vec3 radiance = vec3(0);
+	vec3 mins = x.dehomogenize() - vec3(viewport.gatherEpsilon);
+	vec3 maxes = x.dehomogenize() + vec3(viewport.gatherEpsilon);
+	AABB gatherBox = AABB(mins,maxes);
+	priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(x, viewport.gatherEpsilon));
+	double radius = viewport.gatherEpsilon;
+	
+	if (tree->gatherPhotons(&gatherBox,nearPhotons)) {
+		photIt neighbor;
+		//cout << nearPhotons.size() << " ";
+		while (!nearPhotons.empty()) {
+			neighbor = nearPhotons.top();
+			radiance += vec3(.1);
+			nearPhotons.pop();
+		}
+	}
+	double area = PI*radius*radius;
+	radiance /= area;
+	return radiance;
 }
 
 vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
@@ -148,14 +171,9 @@ vec3 finalGather(vec4 x, vec4 omega, vec4 normal) {
 //***************************************************
 vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	vec3 color = vec3(0,0,0); //Default black
-	float shadowScalar = 1;
 	Renderable* rend = scene->renderables[index];
 	
 	Material material = rend->material;
-	if (rend->isLight()) {
-		if (normal * -r.dir > 0) return ((AreaLight*)rend)->intensity;
-	}
-	
 	
 	//Color =
 		// Direct Illumination
@@ -168,29 +186,44 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	if (!viewport.indirectOnly)
 	for (size_t i=0; i < scene->lights.size(); ++i) {
 		Light* currentLight = scene->lights[i];
+		vec3 thisLightColor = vec3(0);
+		float shadowScalar = 1;
 		
 		float shadePixel = 0;
 		float t = T_MAX;
 		int renderableIndex=-1;
 		
-		//Check for shadowing
-		for (int s=0; s < viewport.shadowRays; s++) {
-			Ray lightCheck = Ray(hitPoint+EPSILON*normal, currentLight->shadowCheck(hitPoint));
-			bool hasHit = scene->rayIntersect(lightCheck, t, renderableIndex);
-			
-			if (hasHit) {
-				bool hitALight = scene->renderables[renderableIndex]->isLight();
-				bool hitPastLight = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
-				bool noShadow = hitALight || hitPastLight;
-				//cout << hitALight << hitPastLight << noShadow << endl;
-				//if (s > 0) return vec3(1,0,0);
-				if (noShadow) shadePixel += 1;
-			} else shadePixel += 1;
-			t = T_MAX;
-			renderableIndex = -1;
+		//SHADOWS
+		bool checkShadows = true;
+		if (viewport.photons) {
+			vec3 mins = hitPoint.dehomogenize() - vec3(viewport.gatherEpsilon);
+			vec3 maxes = hitPoint.dehomogenize() + vec3(viewport.gatherEpsilon);
+			AABB gatherBox = AABB(mins,maxes);
+			priority_queue<photIt,vector<photIt>,distCompare> nearPhotons (distCompare(hitPoint, viewport.shadowEpsilon));
+			checkShadows = scene->shadowHedge->gatherPhotons(&gatherBox,nearPhotons);
 		}
 		
-		shadowScalar *= (shadePixel / viewport.shadowRays);
+		//send out shadow rays
+		if (checkShadows) {
+			for (int s=0; s < viewport.shadowRays; s++) {
+				Ray lightCheck = Ray(hitPoint+EPSILON*normal, currentLight->shadowCheck(hitPoint));
+				bool hasHit = scene->rayIntersect(lightCheck, t, renderableIndex);
+
+				if (hasHit) {
+					bool hitALight = scene->renderables[renderableIndex]->isLight();
+					bool hitPastLight = ((currentLight->pos - hitPoint).length2() < (lightCheck.pos + t * lightCheck.dir - hitPoint).length2());
+					bool noShadow = hitALight || hitPastLight;
+					if (noShadow) shadePixel += 1;
+				} else shadePixel += 1;
+				t = T_MAX;
+				renderableIndex = -1;
+			}
+			shadowScalar *= (shadePixel / viewport.shadowRays);
+		} else {
+			shadowScalar = 1;
+			shadePixel = 1;
+		}
+
 		
 		if (shadePixel > 0) {			
 			vec3 lightColor = currentLight->intensity;
@@ -201,11 +234,14 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 			vec4 reflectionVector = -lightVector + 2*(lightVector*normal)*normal;
 			reflectionVector.normalize();
 			//Diffuse term
-			color += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
+			thisLightColor += prod(material.kd, lightColor)*max((lightVector*normal), 0.0);
 			//Specular term
 			vec3 specular = prod(material.ks, lightColor)*pow(max(reflectionVector*viewVector, 0.0), material.sp);
-			color += specular;	
+			thisLightColor += specular;	
 		} else;
+		
+		thisLightColor *= shadowScalar;
+		color += thisLightColor;
 		
 	}
 	//Caustics
@@ -213,7 +249,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	if (viewport.photons) {
 		// Caustics
 		if (viewport.causticPhotonsPerLight > 0) {
-			color += radianceEstimate(hitPoint, hitPoint, normal, &material, scene->causticBush);
+			//color += radianceEstimate(hitPoint, hitPoint, normal, &material, scene->causticBush);
 		}
 		//vec3 gatherIn = finalGather(hitPoint, -r.dir, normal);
 		//color += prod(material.kd, gatherIn);
@@ -222,7 +258,7 @@ vec3 shade(Ray r, vec4 hitPoint, vec4 normal, int index, int depth) {
 	
 
 	
-	return color*shadowScalar;
+	return color;
 }
 
 //Traces a ray out, collecting outputs from shading, reflections, etc.
@@ -239,12 +275,15 @@ vec3 traceRay(Ray r, int depth) {
 	
 	hasHit = scene->rayIntersect(r, t, renderableIndex);	
 		
-	if (hasHit) {
-			
+	if (hasHit) {	
 		Renderable* rend = scene->renderables[renderableIndex];
 		vec4 hitPoint = r.pos + t*r.dir;
 		vec4 normal = rend->normal(hitPoint);
-		Material mat = rend->material;
+		Material mat = rend->material;		
+		
+		if (rend->isLight()) {
+			if (normal * -r.dir > 0) return ((AreaLight*)rend)->intensity;
+		}
 		
 		vec3 radiance;
 		if (viewport.rawPhotons) {
@@ -334,9 +373,8 @@ void tracePhoton(Photon* phot, int depth) {
 		vec3 ks = mat.ks;
 		//******
 		// Shadow Photons
-		/*
 		if (depth == 0) {
-			Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, vec3(0,0,0));
+			Photon* shadowPhoton = new Photon(hitPoint+EPSILON*phot->dir, phot->dir, vec3(1));
 			float shadowT = T_MAX;
 			int tmpRenderable = -1;
 			if (scene->rayIntersect(*shadowPhoton, shadowT, tmpRenderable)) {
@@ -349,7 +387,7 @@ void tracePhoton(Photon* phot, int depth) {
 				scene->shadowPhotons.push_back(shadowPhoton);
 			}
 		}
-		*/
+		
 		
 		float probReflect = max(max(kd[0]+ks[0], kd[1]+ks[1]), kd[2]+ks[2]);
 		float randPick = rand01();
@@ -416,7 +454,7 @@ void tracePhoton(Photon* phot, int depth) {
 				}
 			}
 		} else {
-			phot->color = prod(kd, phot->color);
+			//phot->color = prod(kd, phot->color);
 			scene->photons.push_back(phot);
 		}
 	}
@@ -475,7 +513,7 @@ void render() {
 	int nextpercent = onepercent;
 	/*End*/
 	Camera* camera = scene->camera;
-	//#pragma omp parallel for shared(nextpercent)
+	#pragma omp parallel for shared(nextpercent)
 	for (int x = 0; x < viewport.w; x++) {
 		for (int y = 0; y < viewport.h; y++) {
 
@@ -538,8 +576,6 @@ void processArgs(int argc, char* argv[]) {
 			imageWriter->setSize(width, height);
 		} else if (arg.compare("-a")==0 || arg.compare("--antialias")==0) {
 			viewport.aliasing = atoi(argv[++i]);
-		} else if (arg.compare("-j")==0) {
-			viewport.jittery = true; 
 		} else if (arg.compare("-ja")==0 || arg.compare("-aj")==0) {
 			viewport.aliasing = atoi(argv[++i]);
 			viewport.jittery = true;
@@ -558,6 +594,8 @@ void processArgs(int argc, char* argv[]) {
 			viewport.directRadiance = true;
 		} else if (arg.compare("-sh")==0) {
 			viewport.shadowRays = atoi(argv[++i]);
+		} else if (arg.compare("-se")==0) {
+			viewport.shadowEpsilon = atoi(argv[++i]);
 		}
 		else {
 			Warning("Unrecognized command " + arg);

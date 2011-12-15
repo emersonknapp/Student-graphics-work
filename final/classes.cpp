@@ -93,6 +93,7 @@ Viewport::Viewport (int width, int height) {
 	shadowRays = 1;
 	causticPhotonsPerLight = 0;
 	gatherEpsilon = .1;
+	shadowEpsilon = 1;
 }
 
 AABB::AABB() {
